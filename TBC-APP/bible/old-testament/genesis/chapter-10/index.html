@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Genesis 10 - TBC Bible</title>
+<link rel="stylesheet" href="../../../style.css">
+<style>.word-block{background:#f8f8f8;border-left:4px solid #1a3a5c;padding:12px 15px;margin:10px 0;border-radius:6px}.word-title{font-size:1.2rem;font-weight:bold;color:#1a3a5c;margin-bottom:8px}.def-label{font-weight:bold;color:#333;margin-top:8px;display:block}.verse-text{font-size:1.15rem;line-height:1.6;margin-bottom:8px}</style>
+</head>
+<body>
+<header><h1>Genesis Chapter 10</h1></header>
+<div class="container">
+<button class="back-btn" onclick="window.location.href='../index.html'">← Back to Genesis</button>
+<div id="verses"></div>
+</div>
+<script>
+function w(word,strongs,vines,webster){return{word,strongs,vines,webster}}
+const verses=[
+{ref:"Genesis 10:1",text:"Now these are the generations of the sons of Noah, Shem, Ham, and Japheth: and unto them were sons born after the flood.",words:[
+w("Now","Conjunction","Now.","Now."),w("these","Demonstrative","These.","These."),w("are","Implied","Are.","Are."),w("the","Article","The.","The."),w("generations","H8435 - towl@dah","Generations.","Generations."),w("of","Preposition","Of.","Of."),w("the","Article","The.","The."),w("sons","H1121 - ben","Sons.","Sons."),w("of","Preposition","Of.","Of."),w("Noah","H5146 - Noach","Noah.","Noah."),w("Shem","H8035 - Shem","Shem.","Shem."),w("Ham","H2526 - Cham","Ham.","Ham."),w("and","Conjunction","And.","And."),w("Japheth","H3315 - Yepheth","Japheth.","Japheth."),w("and","Conjunction","And.","And."),w("unto","H413 - 'el","To.","Unto."),w("them","Pronoun","Them.","Them."),w("were","Implied","Were.","Were."),w("sons","H1121 - ben","Sons.","Sons."),w("born","H3205 - yalad","Born.","Born."),w("after","Preposition","After.","After."),w("the","Article","The.","The."),w("flood","H3999 - mabbuwl","Flood.","Flood.")]},
+{ref:"Genesis 10:8",text:"And Cush begat Nimrod: he began to be a mighty one in the earth.",words:[
+w("And","Conjunction","And.","And."),w("Cush","H3568 - Kuwsh","Cush.","Cush."),w("begat","H3205 - yalad","Begat.","Begat."),w("Nimrod","H5248 - Nimrowd","Nimrod.","Nimrod."),w("he","Pronoun","He.","He."),w("began","H2490 - chalal","Began.","Began."),w("to","Preposition","To.","To."),w("be","H1961 - hayah","Be.","Be."),w("a","Article","A.","A."),w("mighty","H1368 - gibbowr","Mighty.","Mighty."),w("one","Implied","One.","One."),w("in","Preposition","In.","In."),w("the","Article","The.","The."),w("earth","H776 - 'erets","Earth.","Earth.")]},
+{ref:"Genesis 10:9",text:"He was a mighty hunter before the LORD: wherefore it is said, Even as Nimrod the mighty hunter before the LORD.",words:[
+w("He","Pronoun","He.","He."),w("was","Implied","Was.","Was."),w("a","Article","A.","A."),w("mighty","H1368 - gibbowr","Mighty.","Mighty."),w("hunter","H6718 - tsayid","Hunter.","Hunter."),w("before","H6440 - paniym","Before.","Before."),w("the","Article","The.","The."),w("LORD","H3068 - Y@hovah","Jehovah.","LORD."),w("wherefore","Conjunction","Wherefore.","Wherefore."),w("it","Pronoun","It.","It."),w("is","Implied","Is.","Is."),w("said","H559 - 'amar","Said.","Said."),w("Even","Adverb","Even.","Even."),w("as","Preposition","As.","As."),w("Nimrod","H5248 - Nimrowd","Nimrod.","Nimrod."),w("the","Article","The.","The."),w("mighty","H1368 - gibbowr","Mighty.","Mighty."),w("hunter","H6718 - tsayid","Hunter.","Hunter."),w("before","H6440 - paniym","Before.","Before."),w("the","Article","The.","The."),w("LORD","H3068 - Y@hovah","Jehovah.","LORD.")]},
+{ref:"Genesis 10:32",text:"These are the families of the sons of Noah, after their generations, in their nations: and by these were the nations divided in the earth after the flood.",words:[
+w("These","Demonstrative","These.","These."),w("are","Implied","Are.","Are."),w("the","Article","The.","The."),w("families","H4940 - mishpachah","Families.","Families."),w("of","Preposition","Of.","Of."),w("the","Article","The.","The."),w("sons","H1121 - ben","Sons.","Sons."),w("of","Preposition","Of.","Of."),w("Noah","H5146 - Noach","Noah.","Noah."),w("after","Preposition","After.","After."),w("their","Possessive","Their.","Their."),w("generations","H8435 - towl@dah","Generations.","Generations."),w("in","Preposition","In.","In."),w("their","Possessive","Their.","Their."),w("nations","H1471 - gowy","Nations.","Nations."),w("and","Conjunction","And.","And."),w("by","Preposition","By.","By."),w("these","Demonstrative","These.","These."),w("were","Implied","Were.","Were."),w("the","Article","The.","The."),w("nations","H1471 - gowy","Nations.","Nations."),w("divided","H6504 - parad","Divided.","Divided."),w("in","Preposition","In.","In."),w("the","Article","The.","The."),w("earth","H776 - 'erets","Earth.","Earth."),w("after","Preposition","After.","After."),w("the","Article","The.","The."),w("flood","H3999 - mabbuwl","Flood.","Flood.")]}
+];
+const versesDiv=document.getElementById('verses');
+verses.forEach((verse,index)=>{const verseDiv=document.createElement('div');verseDiv.className='verse';let wordsHTML='';verse.words.forEach(item=>{wordsHTML+=`<div class="word-block"><div class="word-title">${item.word}</div><span class="def-label">Strong's:</span><div>${item.strongs}</div><span class="def-label">Vine's:</span><div>${item.vines}</div><span class="def-label">Webster's 1828:</span><div>${item.webster}</div></div>`});verseDiv.innerHTML=`<strong>${verse.ref}</strong><div class="verse-text">${verse.text}</div><div class="verse-menu" id="menu-${index}">${wordsHTML}<p style="margin-top:18px;"><strong>My Notes:</strong></p><textarea placeholder="Write your notes here..." onblur="saveNote('${verse.ref}', this.value)">${localStorage.getItem('note-'+verse.ref)||''}</textarea></div>`;verseDiv.onclick=function(e){if(e.target.tagName==='TEXTAREA')return;const menu=document.getElementById('menu-'+index);menu.style.display=menu.style.display==='block'?'none':'block'};versesDiv.appendChild(verseDiv)});
+function saveNote(reference,text){if(text.trim()==='')localStorage.removeItem('note-'+reference);else localStorage.setItem('note-'+reference,text)}
+</script>
+</body>
+</html>
