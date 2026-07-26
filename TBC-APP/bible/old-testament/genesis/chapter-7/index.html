@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genesis 7 - TBC Bible</title>
+    <link rel="stylesheet" href="../../../style.css">
+    <style>
+        .word-block { background:#f8f8f8; border-left:4px solid #1a3a5c; padding:12px 15px; margin:10px 0; border-radius:6px; }
+        .word-title { font-size:1.2rem; font-weight:bold; color:#1a3a5c; margin-bottom:8px; }
+        .def-label { font-weight:bold; color:#333; margin-top:8px; display:block; }
+        .verse-text { font-size:1.15rem; line-height:1.6; margin-bottom:8px; }
+    </style>
+</head>
+<body>
+    <header><h1>Genesis Chapter 7</h1></header>
+    <div class="container">
+        <button class="back-btn" onclick="window.location.href='../index.html'">← Back to Genesis</button>
+        <div id="verses"></div>
+    </div>
+    <script>
+        function w(word, strongs, vines, webster) { return { word, strongs, vines, webster }; }
+        const verses = [
+            { ref:"Genesis 7:1", text:"And the LORD said unto Noah, Come thou and all thy house into the ark; for thee have I seen righteous before me in this generation.", words:[
+                w("And","Conjunction","And.","And."), w("the","Article","The.","The."),
+                w("LORD","H3068 - Y@hovah","Jehovah.","LORD."), w("said","H559 - 'amar","Said.","Said."),
+                w("unto","H413 - 'el","To.","Unto."), w("Noah","H5146 - Noach","Noah.","Noah."),
+                w("Come","H935 - bow'","Come.","Come."), w("thou","Pronoun","You.","Thou."),
+                w("and","Conjunction","And.","And."), w("all","H3605 - kol","All.","All."),
+                w("thy","Possessive","Your.","Thy."), w("house","H1004 - bayith","Household.","House."),
+                w("into","Preposition","Into.","Into."), w("the","Article","The.","The."),
+                w("ark","H8392 - tebah","Ark.","Ark."), w("for","H3588 - kiy","For.","For."),
+                w("thee","Pronoun","You.","Thee."), w("have","Perfect","Have.","Have."),
+                w("I","Pronoun","I.","I."), w("seen","H7200 - ra'ah","Seen.","Seen."),
+                w("righteous","H6662 - tsaddiyq","Righteous.","Righteous."), w("before","H6440 - paniym","Before.","Before."),
+                w("me","Pronoun","Me.","Me."), w("in","Preposition","In.","In."),
+                w("this","Demonstrative","This.","This."), w("generation","H1755 - dowr","Generation.","Generation.")
+            ]},
+            { ref:"Genesis 7:5", text:"And Noah did according unto all that the LORD commanded him.", words:[
+                w("And","Conjunction","And.","And."), w("Noah","H5146 - Noach","Noah.","Noah."),
+                w("did","H6213 - 'asah","Did.","Did."), w("according","Preposition","According.","According."),
+                w("unto","H413 - 'el","To.","Unto."), w("all","H3605 - kol","All.","All."),
+                w("that","H834 - 'asher","That.","That."), w("the","Article","The.","The."),
+                w("LORD","H3068 - Y@hovah","Jehovah.","LORD."), w("commanded","H6680 - tsavah","Commanded.","Commanded."),
+                w("him","Pronoun","Him.","Him.")
+            ]},
+            { ref:"Genesis 7:7", text:"And Noah went in, and his sons, and his wife, and his sons' wives with him, into the ark, because of the waters of the flood.", words:[
+                w("And","Conjunction","And.","And."), w("Noah","H5146 - Noach","Noah.","Noah."),
+                w("went","H935 - bow'","Went.","Went."), w("in","Part of bow'","In.","In."),
+                w("and","Conjunction","And.","And."), w("his","Possessive","His.","His."),
+                w("sons","H1121 - ben","Sons.","Sons."), w("and","Conjunction","And.","And."),
+                w("his","Possessive","His.","His."), w("wife","H802 - 'ishshah","Wife.","Wife."),
+                w("and","Conjunction","And.","And."), w("his","Possessive","His.","His."),
+                w("sons'","H1121 - ben","Sons'.","Sons'."), w("wives","H802 - 'ishshah","Wives.","Wives."),
+                w("with","Preposition","With.","With."), w("him","Pronoun","Him.","Him."),
+                w("into","Preposition","Into.","Into."), w("the","Article","The.","The."),
+                w("ark","H8392 - tebah","Ark.","Ark."), w("because","H6440 - paniym","Because.","Because."),
+                w("of","Preposition","Of.","Of."), w("the","Article","The.","The."),
+                w("waters","H4325 - mayim","Waters.","Waters."), w("of","Preposition","Of.","Of."),
+                w("the","Article","The.","The."), w("flood","H3999 - mabbuwl","Flood.","Flood.")
+            ]},
+            { ref:"Genesis 7:11", text:"In the six hundredth year of Noah's life, in the second month, the seventeenth day of the month, the same day were all the fountains of the great deep broken up, and the windows of heaven were opened.", words:[
+                w("In","Preposition","In.","In."), w("the","Article","The.","The."),
+                w("six","H8337 - shesh","Six.","Six."), w("hundredth","H3967 - me'ah","Hundredth.","Hundredth."),
+                w("year","H8141 - shaneh","Year.","Year."), w("of","Preposition","Of.","Of."),
+                w("Noah's","H5146 - Noach","Noah's.","Noah's."), w("life","H2416 - chay","Life.","Life."),
+                w("in","Preposition","In.","In."), w("the","Article","The.","The."),
+                w("second","H8145 - sheniy","Second.","Second."), w("month","H2320 - chodesh","Month.","Month."),
+                w("the","Article","The.","The."), w("seventeenth","H7651 + H6240","Seventeenth.","Seventeenth."),
+                w("day","H3117 - yowm","Day.","Day."), w("of","Preposition","Of.","Of."),
+                w("the","Article","The.","The."), w("month","H2320 - chodesh","Month.","Month."),
+                w("the","Article","The.","The."), w("same","Demonstrative","Same.","Same."),
+                w("day","H3117 - yowm","Day.","Day."), w("were","Implied","Were.","Were."),
+                w("all","H3605 - kol","All.","All."), w("the","Article","The.","The."),
+                w("fountains","H4599 - ma`yan","Fountains.","Fountains."), w("of","Preposition","Of.","Of."),
+                w("the","Article","The.","The."), w("great","H7227 - rab","Great.","Great."),
+                w("deep","H8415 - t@howm","Deep / abyss.","Deep."), w("broken","H1234 - baqa`","Broken up.","Broken."),
+                w("up","Part of baqa`","Up.","Up."), w("and","Conjunction","And.","And."),
+                w("the","Article","The.","The."), w("windows","H699 - 'arubbah","Windows / floodgates.","Windows."),
+                w("of","Preposition","Of.","Of."), w("heaven","H8064 - shamayim","Heaven.","Heaven."),
+                w("were","Implied","Were.","Were."), w("opened","H6605 - pathach","Opened.","Opened.")
+            ]},
+            { ref:"Genesis 7:12", text:"And the rain was upon the earth forty days and forty nights.", words:[
+                w("And","Conjunction","And.","And."), w("the","Article","The.","The."),
+                w("rain","H1653 - geshem","Rain.","Rain."), w("was","Implied","Was.","Was."),
+                w("upon","H5921 - 'al","Upon.","Upon."), w("the","Article","The.","The."),
+                w("earth","H776 - 'erets","Earth.","Earth."), w("forty","H705 - 'arba`iym","Forty.","Forty."),
+                w("days","H3117 - yowm","Days.","Days."), w("and","Conjunction","And.","And."),
+                w("forty","H705 - 'arba`iym","Forty.","Forty."), w("nights","H3915 - layil","Nights.","Nights.")
+            ]},
+            { ref:"Genesis 7:16", text:"And they that went in, went in male and female of all flesh, as God had commanded him: and the LORD shut him in.", words:[
+                w("And","Conjunction","And.","And."), w("they","Pronoun","They.","They."),
+                w("that","Relative","That.","That."), w("went","H935 - bow'","Went.","Went."),
+                w("in","Part of bow'","In.","In."), w("went","H935 - bow'","Went.","Went."),
+                w("in","Part of bow'","In.","In."), w("male","H2145 - zakar","Male.","Male."),
+                w("and","Conjunction","And.","And."), w("female","H5347 - n@qebah","Female.","Female."),
+                w("of","Preposition","Of.","Of."), w("all","H3605 - kol","All.","All."),
+                w("flesh","H1320 - basar","Flesh.","Flesh."), w("as","Preposition","As.","As."),
+                w("God","H430 - 'elohiym","God.","God."), w("had","Perfect","Had.","Had."),
+                w("commanded","H6680 - tsavah","Commanded.","Commanded."), w("him","Pronoun","Him.","Him."),
+                w("and","Conjunction","And.","And."), w("the","Article","The.","The."),
+                w("LORD","H3068 - Y@hovah","Jehovah.","LORD."), w("shut","H5462 - cagar","Shut.","Shut."),
+                w("him","Pronoun","Him.","Him."), w("in","Part of cagar","In.","In.")
+            ]},
+            { ref:"Genesis 7:17", text:"And the flood was forty days upon the earth; and the waters increased, and bare up the ark, and it was lift up above the earth.", words:[
+                w("And","Conjunction","And.","And."), w("the","Article","The.","The."),
+                w("flood","H3999 - mabbuwl","Flood.","Flood."), w("was","Implied","Was.","Was."),
+                w("forty","H705 - 'arba`iym","Forty.","Forty."), w("days","H3117 - yowm","Days.","Days."),
+                w("upon","H5921 - 'al","Upon.","Upon."), w("the","Article","The.","The."),
+                w("earth","H776 - 'erets","Earth.","Earth."), w("and","Conjunction","And.","And."),
+                w("the","Article","The.","The."), w("waters","H4325 - mayim","Waters.","Waters."),
+                w("increased","H7235 - rabah","Increased.","Increased."), w("and","Conjunction","And.","And."),
+                w("bare","H5375 - nasa'","Lifted.","Bare."), w("up","Part of nasa'","Up.","Up."),
+                w("the","Article","The.","The."), w("ark","H8392 - tebah","Ark.","Ark."),
+                w("and","Conjunction","And.","And."), w("it","Pronoun","It.","It."),
+                w("was","Implied","Was.","Was."), w("lift","H7311 - ruwm","Lifted.","Lift."),
+                w("up","Part of ruwm","Up.","Up."), w("above","H5921 - 'al","Above.","Above."),
+                w("the","Article","The.","The."), w("earth","H776 - 'erets","Earth.","Earth.")
+            ]},
+            { ref:"Genesis 7:23", text:"And every living substance was destroyed which was upon the face of the ground, both man, and cattle, and the creeping things, and the fowl of the heaven; and they were destroyed from the earth: and Noah only remained alive, and they that were with him in the ark.", words:[
+                w("And","Conjunction","And.","And."), w("every","H3605 - kol","Every.","Every."),
+                w("living","H3351 - y@quwm","Living substance.","Living."), w("substance","Part of y@quwm","Substance.","Substance."),
+                w("was","Implied","Was.","Was."), w("destroyed","H4229 - machah","Blotted out.","Destroyed."),
+                w("which","H834 - 'asher","Which.","Which."), w("was","Implied","Was.","Was."),
+                w("upon","H5921 - 'al","Upon.","Upon."), w("the","Article","The.","The."),
+                w("face","H6440 - paniym","Face.","Face."), w("of","Preposition","Of.","Of."),
+                w("the","Article","The.","The."), w("ground","H127 - 'adamah","Ground.","Ground."),
+                w("both","Conjunction","Both.","Both."), w("man","H120 - 'adam","Man.","Man."),
+                w("and","Conjunction","And.","And."), w("cattle","H929 - b@hemah","Cattle.","Cattle."),
+                w("and","Conjunction","And.","And."), w("the","Article","The.","The."),
+                w("creeping","H7431 - remes","Creeping things.","Creeping."), w("things","Part of remes","Things.","Things."),
+                w("and","Conjunction","And.","And."), w("the","Article","The.","The."),
+                w("fowl","H5775 - 'owph","Birds.","Fowl."), w("of","Preposition","Of.","Of."),
+                w("the","Article","The.","The."), w("heaven","H8064 - shamayim","Heaven.","Heaven."),
+                w("and","Conjunction","And.","And."), w("they","Pronoun","They.","They."),
+                w("were","Implied","Were.","Were."), w("destroyed","H4229 - machah","Destroyed.","Destroyed."),
+                w("from","Preposition","From.","From."), w("the","Article","The.","The."),
+                w("earth","H776 - 'erets","Earth.","Earth."), w("and","Conjunction","And.","And."),
+                w("Noah","H5146 - Noach","Noah.","Noah."), w("only","H389 - 'ak","Only.","Only."),
+                w("remained","H7604 - sha'ar","Remained.","Remained."), w("alive","Implied","Alive.","Alive."),
+                w("and","Conjunction","And.","And."), w("they","Pronoun","They.","They."),
+                w("that","Relative","That.","That."), w("were","Implied","Were.","Were."),
+                w("with","Preposition","With.","With."), w("him","Pronoun","Him.","Him."),
+                w("in","Preposition","In.","In."), w("the","Article","The.","The."),
+                w("ark","H8392 - tebah","Ark.","Ark.")
+            ]},
+            { ref:"Genesis 7:24", text:"And the waters prevailed upon the earth an hundred and fifty days.", words:[
+                w("And","Conjunction","And.","And."), w("the","Article","The.","The."),
+                w("waters","H4325 - mayim","Waters.","Waters."), w("prevailed","H1396 - gabar","Prevailed.","Prevailed."),
+                w("upon","H5921 - 'al","Upon.","Upon."), w("the","Article","The.","The."),
+                w("earth","H776 - 'erets","Earth.","Earth."), w("an","Article","An.","An."),
+                w("hundred","H3967 - me'ah","Hundred.","Hundred."), w("and","Conjunction","And.","And."),
+                w("fifty","H2572 - chamishshiym","Fifty.","Fifty."), w("days","H3117 - yowm","Days.","Days.")
+            ]}
+        ];
+
+        const versesDiv = document.getElementById('verses');
+        verses.forEach((verse, index) => {
+            const verseDiv = document.createElement('div');
+            verseDiv.className = 'verse';
+            let wordsHTML = '';
+            verse.words.forEach(item => {
+                wordsHTML += `<div class="word-block"><div class="word-title">${item.word}</div><span class="def-label">Strong's:</span><div>${item.strongs}</div><span class="def-label">Vine's:</span><div>${item.vines}</div><span class="def-label">Webster's 1828:</span><div>${item.webster}</div></div>`;
+            });
+            verseDiv.innerHTML = `<strong>${verse.ref}</strong><div class="verse-text">${verse.text}</div><div class="verse-menu" id="menu-${index}">${wordsHTML}<p style="margin-top:18px;"><strong>My Notes:</strong></p><textarea placeholder="Write your notes here..." onblur="saveNote('${verse.ref}', this.value)">${localStorage.getItem('note-' + verse.ref) || ''}</textarea></div>`;
+            verseDiv.onclick = function(e) {
+                if (e.target.tagName === 'TEXTAREA') return;
+                const menu = document.getElementById('menu-' + index);
+                menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+            };
+            versesDiv.appendChild(verseDiv);
+        });
+        function saveNote(reference, text) {
+            if (text.trim() === '') localStorage.removeItem('note-' + reference);
+            else localStorage.setItem('note-' + reference, text);
+        }
+    </script>
+</body>
+</html>
