@@ -16,27 +16,34 @@
 
         <input type="text" id="genesis-search" class="search-bar" placeholder="Search the book of Genesis..." onkeyup="searchGenesis()">
 
-        <!-- Hard-coded Chapter 1 button for testing -->
-        <button class="chapter-btn" style="width:100%; margin:15px 0; padding:18px; font-size:1.2rem;" onclick="window.location.href='chapter-1/index.html'">
-            Chapter 1
-        </button>
-
         <div class="chapter-list" id="chapter-list"></div>
 
         <div id="search-results"></div>
     </div>
 
     <script>
-        // Create the rest of the chapters (2–50)
         const chapterList = document.getElementById('chapter-list');
 
-        for (let i = 2; i <= 50; i++) {
+        // Create all 50 chapter buttons with matching style
+        for (let i = 1; i <= 50; i++) {
             const btn = document.createElement('div');
             btn.className = 'chapter-btn';
-            btn.textContent = "Chapter " + i;
-            btn.onclick = function() {
-                alert("Chapter " + i + " is not built yet");
-            };
+            btn.textContent = 'Chapter ' + i;
+
+            if (i === 1) {
+                btn.onclick = function() {
+                    window.location.href = 'chapter-1/index.html';
+                };
+            } else if (i === 2) {
+                btn.onclick = function() {
+                    window.location.href = 'chapter-2/index.html';
+                };
+            } else {
+                btn.onclick = function() {
+                    alert('Chapter ' + i + ' is not built yet');
+                };
+            }
+
             chapterList.appendChild(btn);
         }
 
