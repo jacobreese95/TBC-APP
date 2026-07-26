@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - TBC</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="chat-header"></div>
+    <div id="week-schedule" style="padding:15px; background:#f0f8ff; overflow-x:auto;"></div>
+    <div id="chat-messages" style="height:45vh; overflow-y:scroll; padding:15px; background:#fafafa;"></div>
+    <div style="position:fixed; bottom:0; left:0; right:0; background:white; padding:10px; border-top:1px solid #ddd;">
+      <input type="text" id="chat-input" placeholder="Type message..." style="width:75%; padding:12px;" onkeypress="if(event.key==='Enter') sendMessage()">
+      <button onclick="sendMessage()">Send</button>
+    </div>
+    <script>
+      const room = localStorage.getItem('currentChatRoom') || 'Nursery';
+      document.getElementById('chat-header').innerHTML = `
+        <button onclick="window.location.href='chat.html'" style="margin:10px;">← Back</button>
+        <h2 style="margin:10px;">${room} Chat</h2>
+      `;
+
+      let events = JSON.parse(localStorage.getItem('events') || '[]');
+      const weekEvents = events.filter(e => (e.ministry === room || e.ministry === "Church Wide") && e.day >= 19 && e.day <= 26);
+
+      let weekHTML = '<div style="display:flex; gap:5px; overflow-x:auto;">';
+      for (let d = 19; d <= 26; d++) {
+        const dayEvents = weekEvents.filter(e => e.day === d);
+        weekHTML += `
+          <div style="border:1px solid #ccc; padding:8px; min-width:80px; text-align:center;">
+            <strong>Day ${d}</strong><br>
+            ${dayEvents.length ? dayEvents.map(e => `${e.time} - ${e.title}`).join('<br>') : 'No events'}
+          </div>
+        `;
+      }
+      weekHTML += '</div>';
+      document.getElementById('week-schedule').innerHTML = weekHTML;
+
+      let chatHistory = JSON.parse(localStorage.getItem('chat_' + room) || '[]');
+
+      function renderChatMessages() {
+        const container = document.getElementById('chat-messages');
+        let html = '';
+        chatHistory.forEach(msg => {
+          html += `<p><strong>You:</strong> ${msg}</p>`;
+        });
+        container.innerHTML = html || '<p>No messages yet.</p>';
+        container.scrollTop = container.scrollHeight;
+      }
+
+      function sendMessage() {
+        const input = document.getElementById('chat-input');
+        if (input.value.trim()) {
+          chatHistory.push(input.value.trim());
+          localStorage.setItem('chat_' + room, JSON.stringify(chatHistory));
+          renderChatMessages();
+          input.value = '';
+        }
+      }
+
+      // Initial render
+      renderChatMessages();
+    </script>
+</body>
+</html>

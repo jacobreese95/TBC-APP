@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bible - TBC</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>King James Bible</h1>
+    </header>
+
+    <div class="container">
+        <button class="back-btn" onclick="window.location.href='../index.html'">← Back to Home</button>
+
+        <!-- Global Search -->
+        <input type="text" id="global-search" class="search-bar" placeholder="Search the entire Bible..." onkeyup="searchBible()">
+
+        <!-- Main Buttons -->
+        <div class="main-buttons">
+            <button class="big-btn" onclick="window.location.href='old-testament/index.html'">
+                Old Testament
+            </button>
+
+            <button class="big-btn" onclick="window.location.href='new-testament/index.html'">
+                New Testament
+            </button>
+        </div>
+
+        <!-- My Notes Button -->
+        <button class="notes-btn" onclick="window.location.href='my-notes.html'">
+            📝 My Notes
+        </button>
+
+        <!-- Search Results Area -->
+        <div id="search-results"></div>
+    </div>
+
+    <script>
+        // Placeholder search function (we will expand this later)
+        function searchBible() {
+            const query = document.getElementById('global-search').value.trim().toLowerCase();
+            const resultsDiv = document.getElementById('search-results');
+
+            if (query.length < 2) {
+                resultsDiv.innerHTML = '';
+                return;
+            }
+
+            // Temporary message until we
