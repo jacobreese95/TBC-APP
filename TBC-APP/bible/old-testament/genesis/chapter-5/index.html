@@ -1,162 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Genesis 5 - TBC Bible</title>
-    <link rel="stylesheet" href="../../../style.css">
-    <style>
-        .word-block { background:#f8f8f8; border-left:4px solid #1a3a5c; padding:12px 15px; margin:10px 0; border-radius:6px; }
-        .word-title { font-size:1.2rem; font-weight:bold; color:#1a3a5c; margin-bottom:8px; }
-        .def-label { font-weight:bold; color:#333; margin-top:8px; display:block; }
-        .verse-text { font-size:1.15rem; line-height:1.6; margin-bottom:8px; }
-    </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Genesis 5 - TBC Bible</title>
+<link rel="stylesheet" href="../../../style.css">
+<style>.word-block{background:#f8f8f8;border-left:4px solid #1a3a5c;padding:12px 15px;margin:10px 0;border-radius:6px}.word-title{font-size:1.2rem;font-weight:bold;color:#1a3a5c;margin-bottom:8px}.def-label{font-weight:bold;color:#333;margin-top:8px;display:block}.verse-text{font-size:1.15rem;line-height:1.6;margin-bottom:8px}</style>
 </head>
 <body>
-    <header><h1>Genesis Chapter 5</h1></header>
-    <div class="container">
-        <button class="back-btn" onclick="window.location.href='../index.html'">← Back to Genesis</button>
-        <div id="verses"></div>
-    </div>
-    <script>
-        function w(word, strongs, vines, webster) { return { word, strongs, vines, webster }; }
-        const verses = [
-            { ref:"Genesis 5:1", text:"This is the book of the generations of Adam. In the day that God created man, in the likeness of God made he him;", words:[
-                w("This","Demonstrative","This.","This."), w("is","Implied","Is.","Is."),
-                w("the","Article","The.","The."), w("book","H5612 - cepher","Book / record.","Book."),
-                w("of","Preposition","Of.","Of."), w("the","Article","The.","The."),
-                w("generations","H8435 - towl@dah","Generations / account.","Generations."), w("of","Preposition","Of.","Of."),
-                w("Adam","H120 - 'adam","Adam.","Adam."), w("In","Preposition","In.","In."),
-                w("the","Article","The.","The."), w("day","H3117 - yowm","Day.","Day."),
-                w("that","Relative","That.","That."), w("God","H430 - 'elohiym","God.","God."),
-                w("created","H1254 - bara'","Created.","Created."), w("man","H120 - 'adam","Man.","Man."),
-                w("in","Preposition","In.","In."), w("the","Article","The.","The."),
-                w("likeness","H1823 - d@muwth","Likeness.","Likeness."), w("of","Preposition","Of.","Of."),
-                w("God","H430 - 'elohiym","God.","God."), w("made","H6213 - 'asah","Made.","Made."),
-                w("he","Pronoun","He.","He."), w("him","Pronoun","Him.","Him.")
-            ]},
-            { ref:"Genesis 5:2", text:"Male and female created he them; and blessed them, and called their name Adam, in the day when they were created.", words:[
-                w("Male","H2145 - zakar","Male.","Male."), w("and","Conjunction","And.","And."),
-                w("female","H5347 - n@qebah","Female.","Female."), w("created","H1254 - bara'","Created.","Created."),
-                w("he","Pronoun","He.","He."), w("them","Pronoun","Them.","Them."),
-                w("and","Conjunction","And.","And."), w("blessed","H1288 - barak","Blessed.","Blessed."),
-                w("them","Pronoun","Them.","Them."), w("and","Conjunction","And.","And."),
-                w("called","H7121 - qara'","Called.","Called."), w("their","Possessive","Their.","Their."),
-                w("name","H8034 - shem","Name.","Name."), w("Adam","H120 - 'adam","Adam / mankind.","Adam."),
-                w("in","Preposition","In.","In."), w("the","Article","The.","The."),
-                w("day","H3117 - yowm","Day.","Day."), w("when","Relative","When.","When."),
-                w("they","Pronoun","They.","They."), w("were","Implied","Were.","Were."),
-                w("created","H1254 - bara'","Created.","Created.")
-            ]},
-            { ref:"Genesis 5:3", text:"And Adam lived an hundred and thirty years, and begat a son in his own likeness, after his image; and called his name Seth:", words:[
-                w("And","Conjunction","And.","And."), w("Adam","H120 - 'adam","Adam.","Adam."),
-                w("lived","H2421 - chayah","Lived.","Lived."), w("an","Article","An.","An."),
-                w("hundred","H3967 - me'ah","Hundred.","Hundred."), w("and","Conjunction","And.","And."),
-                w("thirty","H7970 - sh@lowshiym","Thirty.","Thirty."), w("years","H8141 - shaneh","Years.","Years."),
-                w("and","Conjunction","And.","And."), w("begat","H3205 - yalad","Begat.","Begat."),
-                w("a","Article","A.","A."), w("son","H1121 - ben","Son.","Son."),
-                w("in","Preposition","In.","In."), w("his","Possessive","His.","His."),
-                w("own","Emphatic","Own.","Own."), w("likeness","H1823 - d@muwth","Likeness.","Likeness."),
-                w("after","Preposition","After.","After."), w("his","Possessive","His.","His."),
-                w("image","H6754 - tselem","Image.","Image."), w("and","Conjunction","And.","And."),
-                w("called","H7121 - qara'","Called.","Called."), w("his","Possessive","His.","His."),
-                w("name","H8034 - shem","Name.","Name."), w("Seth","H8352 - Sheth","Seth.","Seth.")
-            ]},
-            { ref:"Genesis 5:5", text:"And all the days that Adam lived were nine hundred and thirty years: and he died.", words:[
-                w("And","Conjunction","And.","And."), w("all","H3605 - kol","All.","All."),
-                w("the","Article","The.","The."), w("days","H3117 - yowm","Days.","Days."),
-                w("that","Relative","That.","That."), w("Adam","H120 - 'adam","Adam.","Adam."),
-                w("lived","H2425 - chayay","Lived.","Lived."), w("were","Implied","Were.","Were."),
-                w("nine","H8672 - tesha`","Nine.","Nine."), w("hundred","H3967 - me'ah","Hundred.","Hundred."),
-                w("and","Conjunction","And.","And."), w("thirty","H7970 - sh@lowshiym","Thirty.","Thirty."),
-                w("years","H8141 - shaneh","Years.","Years."), w("and","Conjunction","And.","And."),
-                w("he","Pronoun","He.","He."), w("died","H4191 - muwth","Died.","Died.")
-            ]},
-            { ref:"Genesis 5:21", text:"And Enoch lived sixty and five years, and begat Methuselah:", words:[
-                w("And","Conjunction","And.","And."), w("Enoch","H2585 - Chanowk","Enoch.","Enoch."),
-                w("lived","H2421 - chayah","Lived.","Lived."), w("sixty","H8346 - shishshiym","Sixty.","Sixty."),
-                w("and","Conjunction","And.","And."), w("five","H2568 - chamesh","Five.","Five."),
-                w("years","H8141 - shaneh","Years.","Years."), w("and","Conjunction","And.","And."),
-                w("begat","H3205 - yalad","Begat.","Begat."), w("Methuselah","H4968 - M@thuwshelach","Methuselah.","Methuselah.")
-            ]},
-            { ref:"Genesis 5:22", text:"And Enoch walked with God after he begat Methuselah three hundred years, and begat sons and daughters:", words:[
-                w("And","Conjunction","And.","And."), w("Enoch","H2585 - Chanowk","Enoch.","Enoch."),
-                w("walked","H1980 - halak","Walked.","Walked."), w("with","Preposition","With.","With."),
-                w("God","H430 - 'elohiym","God.","God."), w("after","Preposition","After.","After."),
-                w("he","Pronoun","He.","He."), w("begat","H3205 - yalad","Begat.","Begat."),
-                w("Methuselah","H4968 - M@thuwshelach","Methuselah.","Methuselah."), w("three","H7969 - shalowsh","Three.","Three."),
-                w("hundred","H3967 - me'ah","Hundred.","Hundred."), w("years","H8141 - shaneh","Years.","Years."),
-                w("and","Conjunction","And.","And."), w("begat","H3205 - yalad","Begat.","Begat."),
-                w("sons","H1121 - ben","Sons.","Sons."), w("and","Conjunction","And.","And."),
-                w("daughters","H1323 - bath","Daughters.","Daughters.")
-            ]},
-            { ref:"Genesis 5:24", text:"And Enoch walked with God: and he was not; for God took him.", words:[
-                w("And","Conjunction","And.","And."), w("Enoch","H2585 - Chanowk","Enoch.","Enoch."),
-                w("walked","H1980 - halak","Walked.","Walked."), w("with","Preposition","With.","With."),
-                w("God","H430 - 'elohiym","God.","God."), w("and","Conjunction","And.","And."),
-                w("he","Pronoun","He.","He."), w("was","Implied","Was.","Was."),
-                w("not","H369 - 'ayin","Was not (found).","Not."), w("for","H3588 - kiy","For.","For."),
-                w("God","H430 - 'elohiym","God.","God."), w("took","H3947 - laqach","Took.","Took."),
-                w("him","Pronoun","Him.","Him.")
-            ]},
-            { ref:"Genesis 5:27", text:"And all the days of Methuselah were nine hundred sixty and nine years: and he died.", words:[
-                w("And","Conjunction","And.","And."), w("all","H3605 - kol","All.","All."),
-                w("the","Article","The.","The."), w("days","H3117 - yowm","Days.","Days."),
-                w("of","Preposition","Of.","Of."), w("Methuselah","H4968 - M@thuwshelach","Methuselah.","Methuselah."),
-                w("were","Implied","Were.","Were."), w("nine","H8672 - tesha`","Nine.","Nine."),
-                w("hundred","H3967 - me'ah","Hundred.","Hundred."), w("sixty","H8346 - shishshiym","Sixty.","Sixty."),
-                w("and","Conjunction","And.","And."), w("nine","H8672 - tesha`","Nine.","Nine."),
-                w("years","H8141 - shaneh","Years.","Years."), w("and","Conjunction","And.","And."),
-                w("he","Pronoun","He.","He."), w("died","H4191 - muwth","Died.","Died.")
-            ]},
-            { ref:"Genesis 5:29", text:"And he called his name Noah, saying, This same shall comfort us concerning our work and toil of our hands, because of the ground which the LORD hath cursed.", words:[
-                w("And","Conjunction","And.","And."), w("he","Pronoun","Lamech.","He."),
-                w("called","H7121 - qara'","Called.","Called."), w("his","Possessive","His.","His."),
-                w("name","H8034 - shem","Name.","Name."), w("Noah","H5146 - Noach","Noah.","Noah."),
-                w("saying","H559 - 'amar","Saying.","Saying."), w("This","Demonstrative","This.","This."),
-                w("same","Pronoun","Same.","Same."), w("shall","Modal","Shall.","Shall."),
-                w("comfort","H5162 - nacham","Comfort / relieve.","Comfort."), w("us","Pronoun","Us.","Us."),
-                w("concerning","Preposition","Concerning.","Concerning."), w("our","Possessive","Our.","Our."),
-                w("work","H4639 - ma`aseh","Work.","Work."), w("and","Conjunction","And.","And."),
-                w("toil","H6093 - `itstsabown","Toil.","Toil."), w("of","Preposition","Of.","Of."),
-                w("our","Possessive","Our.","Our."), w("hands","H3027 - yad","Hands.","Hands."),
-                w("because","H4480 - min","Because.","Because."), w("of","Preposition","Of.","Of."),
-                w("the","Article","The.","The."), w("ground","H127 - 'adamah","Ground.","Ground."),
-                w("which","H834 - 'asher","Which.","Which."), w("the","Article","The.","The."),
-                w("LORD","H3068 - Y@hovah","Jehovah.","LORD."), w("hath","Perfect","Has.","Hath."),
-                w("cursed","H779 - 'arar","Cursed.","Cursed.")
-            ]},
-            { ref:"Genesis 5:32", text:"And Noah was five hundred years old: and Noah begat Shem, Ham, and Japheth.", words:[
-                w("And","Conjunction","And.","And."), w("Noah","H5146 - Noach","Noah.","Noah."),
-                w("was","Implied","Was.","Was."), w("five","H2568 - chamesh","Five.","Five."),
-                w("hundred","H3967 - me'ah","Hundred.","Hundred."), w("years","H8141 - shaneh","Years.","Years."),
-                w("old","H1121 - ben","Old (son of).","Old."), w("and","Conjunction","And.","And."),
-                w("Noah","H5146 - Noach","Noah.","Noah."), w("begat","H3205 - yalad","Begat.","Begat."),
-                w("Shem","H8035 - Shem","Shem.","Shem."), w("Ham","H2526 - Cham","Ham.","Ham."),
-                w("and","Conjunction","And.","And."), w("Japheth","H3315 - Yepheth","Japheth.","Japheth.")
-            ]}
-        ];
-
-        const versesDiv = document.getElementById('verses');
-        verses.forEach((verse, index) => {
-            const verseDiv = document.createElement('div');
-            verseDiv.className = 'verse';
-            let wordsHTML = '';
-            verse.words.forEach(item => {
-                wordsHTML += `<div class="word-block"><div class="word-title">${item.word}</div><span class="def-label">Strong's:</span><div>${item.strongs}</div><span class="def-label">Vine's:</span><div>${item.vines}</div><span class="def-label">Webster's 1828:</span><div>${item.webster}</div></div>`;
-            });
-            verseDiv.innerHTML = `<strong>${verse.ref}</strong><div class="verse-text">${verse.text}</div><div class="verse-menu" id="menu-${index}">${wordsHTML}<p style="margin-top:18px;"><strong>My Notes:</strong></p><textarea placeholder="Write your notes here..." onblur="saveNote('${verse.ref}', this.value)">${localStorage.getItem('note-' + verse.ref) || ''}</textarea></div>`;
-            verseDiv.onclick = function(e) {
-                if (e.target.tagName === 'TEXTAREA') return;
-                const menu = document.getElementById('menu-' + index);
-                menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-            };
-            versesDiv.appendChild(verseDiv);
-        });
-        function saveNote(reference, text) {
-            if (text.trim() === '') localStorage.removeItem('note-' + reference);
-            else localStorage.setItem('note-' + reference, text);
-        }
-    </script>
+<header><h1>Genesis Chapter 5</h1></header>
+<div class="container">
+<button class="back-btn" onclick="window.location.href='../index.html'">← Back to Genesis</button>
+<div id="verses"></div>
+</div>
+<script>
+function w(word,strongs,vines,webster){return{word,strongs,vines,webster}}
+const dict={
+'and':['Conjunction','And.','And.'],'the':['Article','The.','The.'],'of':['Preposition','Of.','Of.'],'a':['Article','A.','A.'],'an':['Article','An.','An.'],
+'in':['Preposition','In.','In.'],'he':['Pronoun','He.','He.'],'his':['Possessive','His.','His.'],'him':['Pronoun','Him.','Him.'],'them':['Pronoun','Them.','Them.'],
+'they':['Pronoun','They.','They.'],'this':['Demonstrative','This.','This.'],'is':['Implied','Is.','Is.'],'was':['Implied','Was.','Was.'],'were':['Implied','Were.','Were.'],
+'all':['H3605 - kol','All.','All.'],'days':['H3117 - yowm','Days.','Days.'],'day':['H3117 - yowm','Day.','Day.'],'years':['H8141 - shaneh','Years.','Years.'],
+'lived':['H2421 - chayah','Lived.','Lived.'],'begat':['H3205 - yalad','Begat.','Begat.'],'died':['H4191 - muwth','Died.','Died.'],
+'son':['H1121 - ben','Son.','Son.'],'sons':['H1121 - ben','Sons.','Sons.'],'daughters':['H1323 - bath','Daughters.','Daughters.'],
+'name':['H8034 - shem','Name.','Name.'],'called':["H7121 - qara'",'Called.','Called.'],'after':['Preposition','After.','After.'],
+'adam':["H120 - 'adam",'Adam.','Adam.'],'seth':['H8352 - Sheth','Seth.','Seth.'],'enos':["H583 - 'Enowsh",'Enos.','Enos.'],
+'cainan':['H7018 - Qeynan','Cainan.','Cainan.'],'mahalaleel':["H4111 - Mahalal'el",'Mahalaleel.','Mahalaleel.'],
+'jared':['H3382 - Yered','Jared.','Jared.'],'enoch':['H2585 - Chanowk','Enoch.','Enoch.'],
+'methuselah':['H4968 - M@thuwshelach','Methuselah.','Methuselah.'],'lamech':['H3929 - Lemek','Lamech.','Lamech.'],
+'noah':['H5146 - Noach','Noah.','Noah.'],'shem':['H8035 - Shem','Shem.','Shem.'],'ham':['H2526 - Cham','Ham.','Ham.'],
+'japheth':['H3315 - Yepheth','Japheth.','Japheth.'],'god':["H430 - 'elohiym",'God.','God.'],
+'lord':['H3068 - Y@hovah','Jehovah.','LORD.'],'walked':['H1980 - halak','Walked.','Walked.'],'with':['Preposition','With.','With.'],
+'not':["H369 - 'ayin",'Was not.','Not.'],'for':['H3588 - kiy','For.','For.'],'took':['H3947 - laqach','Took.','Took.'],
+'book':['H5612 - cepher','Book.','Book.'],'generations':['H8435 - towl@dah','Generations.','Generations.'],
+'created':["H1254 - bara'",'Created.','Created.'],'man':["H120 - 'adam",'Man.','Man.'],'made':["H6213 - 'asah",'Made.','Made.'],
+'likeness':['H1823 - d@muwth','Likeness.','Likeness.'],'image':['H6754 - tselem','Image.','Image.'],
+'male':['H2145 - zakar','Male.','Male.'],'female':['H5347 - n@qebah','Female.','Female.'],
+'blessed':['H1288 - barak','Blessed.','Blessed.'],'their':['Possessive','Their.','Their.'],'when':['Relative','When.','When.'],
+'own':['Emphatic','Own.','Own.'],'that':['Relative','That.','That.'],'which':["H834 - 'asher",'Which.','Which.'],
+'saying':["H559 - 'amar",'Saying.','Saying.'],'same':['Pronoun','Same.','Same.'],'shall':['Modal','Shall.','Shall.'],
+'comfort':['H5162 - nacham','Comfort.','Comfort.'],'us':['Pronoun','Us.','Us.'],'concerning':['Preposition','Concerning.','Concerning.'],
+'our':['Possessive','Our.','Our.'],'work':["H4639 - ma`aseh",'Work.','Work.'],'toil':["H6093 - `itstsabown",'Toil.','Toil.'],
+'hands':['H3027 - yad','Hands.','Hands.'],'because':['Preposition','Because.','Because.'],'ground':["H127 - 'adamah",'Ground.','Ground.'],
+'hath':['Perfect','Has.','Hath.'],'cursed':["H779 - 'arar",'Cursed.','Cursed.'],'old':['H1121 - ben','Old.','Old.'],
+'hundred':["H3967 - me'ah",'Hundred.','Hundred.'],'thirty':['H7970 - sh@lowshiym','Thirty.','Thirty.'],
+'nine':['H8672 - tesha`','Nine.','Nine.'],'eight':['H8083 - sh@moneh','Eight.','Eight.'],'seven':['H7651 - sheba`','Seven.','Seven.'],
+'six':['H8337 - shesh','Six.','Six.'],'five':['H2568 - chamesh','Five.','Five.'],'four':["H702 - 'arba`",'Four.','Four.'],
+'two':['H8147 - sh@nayim','Two.','Two.'],'sixty':['H8346 - shishshiym','Sixty.','Sixty.'],'seventy':['H7657 - shib`iym','Seventy.','Seventy.'],
+'eighty':['H8084 - sh@moniym','Eighty.','Eighty.'],'ninety':['H8673 - tish`iym','Ninety.','Ninety.'],
+'forty':["H705 - 'arba`iym",'Forty.','Forty.'],'fifty':['H2572 - chamishshiym','Fifty.','Fifty.'],
+'twelve':['H8147+H6240','Twelve.','Twelve.'],'fifteen':['H2568+H6240','Fifteen.','Fifteen.'],'ten':['H6235 - `eser','Ten.','Ten.'],
+'had':['Perfect','Had.','Had.'],'begotten':['H3205 - yalad','Begotten.','Begotten.']
+};
+function makeWords(text){
+  return text.replace(/[.,:;?!]/g,'').split(/\s+/).filter(Boolean).map(wd=>{
+    const key=wd.toLowerCase();
+    if(dict[key]) return w(wd,dict[key][0],dict[key][1],dict[key][2]);
+    if(/^\d+$/.test(wd)) return w(wd,'Number','Number.','Number.');
+    return w(wd,'—','—',wd+'.');
+  });
+}
+const data=[
+["Genesis 5:1","This is the book of the generations of Adam. In the day that God created man, in the likeness of God made he him;"],
+["Genesis 5:2","Male and female created he them; and blessed them, and called their name Adam, in the day when they were created."],
+["Genesis 5:3","And Adam lived an hundred and thirty years, and begat a son in his own likeness, after his image; and called his name Seth:"],
+["Genesis 5:4","And the days of Adam after he had begotten Seth were eight hundred years: and he begat sons and daughters:"],
+["Genesis 5:5","And all the days that Adam lived were nine hundred and thirty years: and he died."],
+["Genesis 5:6","And Seth lived an hundred and five years, and begat Enos:"],
+["Genesis 5:7","And Seth lived after he begat Enos eight hundred and seven years, and begat sons and daughters:"],
+["Genesis 5:8","And all the days of Seth were nine hundred and twelve years: and he died."],
+["Genesis 5:9","And Enos lived ninety years, and begat Cainan:"],
+["Genesis 5:10","And Enos lived after he begat Cainan eight hundred and fifteen years, and begat sons and daughters:"],
+["Genesis 5:11","And all the days of Enos were nine hundred and five years: and he died."],
+["Genesis 5:12","And Cainan lived seventy years, and begat Mahalaleel:"],
+["Genesis 5:13","And Cainan lived after he begat Mahalaleel eight hundred and forty years, and begat sons and daughters:"],
+["Genesis 5:14","And all the days of Cainan were nine hundred and ten years: and he died."],
+["Genesis 5:15","And Mahalaleel lived sixty and five years, and begat Jared:"],
+["Genesis 5:16","And Mahalaleel lived after he begat Jared eight hundred and thirty years, and begat sons and daughters:"],
+["Genesis 5:17","And all the days of Mahalaleel were eight hundred ninety and five years: and he died."],
+["Genesis 5:18","And Jared lived an hundred sixty and two years, and he begat Enoch:"],
+["Genesis 5:19","And Jared lived after he begat Enoch eight hundred years, and begat sons and daughters:"],
+["Genesis 5:20","And all the days of Jared were nine hundred sixty and two years: and he died."],
+["Genesis 5:21","And Enoch lived sixty and five years, and begat Methuselah:"],
+["Genesis 5:22","And Enoch walked with God after he begat Methuselah three hundred years, and begat sons and daughters:"],
+["Genesis 5:23","And all the days of Enoch were three hundred sixty and five years:"],
+["Genesis 5:24","And Enoch walked with God: and he was not; for God took him."],
+["Genesis 5:25","And Methuselah lived an hundred eighty and seven years, and begat Lamech:"],
+["Genesis 5:26","And Methuselah lived after he begat Lamech seven hundred eighty and two years, and begat sons and daughters:"],
+["Genesis 5:27","And all the days of Methuselah were nine hundred sixty and nine years: and he died."],
+["Genesis 5:28","And Lamech lived an hundred eighty and two years, and begat a son:"],
+["Genesis 5:29","And he called his name Noah, saying, This same shall comfort us concerning our work and toil of our hands, because of the ground which the LORD hath cursed."],
+["Genesis 5:30","And Lamech lived after he begat Noah five hundred ninety and five years, and begat sons and daughters:"],
+["Genesis 5:31","And all the days of Lamech were seven hundred seventy and seven years: and he died."],
+["Genesis 5:32","And Noah was five hundred years old: and Noah begat Shem, Ham, and Japheth."]
+];
+const verses=data.map(([ref,text])=>({ref,text,words:makeWords(text)}));
+const versesDiv=document.getElementById('verses');
+verses.forEach((verse,index)=>{
+const verseDiv=document.createElement('div');
+verseDiv.className='verse';
+let wordsHTML='';
+verse.words.forEach(item=>{wordsHTML+=`<div class="word-block"><div class="word-title">${item.word}</div><span class="def-label">Strong's:</span><div>${item.strongs}</div><span class="def-label">Vine's:</span><div>${item.vines}</div><span class="def-label">Webster's 1828:</span><div>${item.webster}</div></div>`});
+verseDiv.innerHTML=`<strong>${verse.ref}</strong><div class="verse-text">${verse.text}</div><div class="verse-menu" id="menu-${index}">${wordsHTML}<p style="margin-top:18px;"><strong>My Notes:</strong></p><textarea placeholder="Write your notes here..." onblur="saveNote('${verse.ref}', this.value)">${localStorage.getItem('note-'+verse.ref)||''}</textarea></div>`;
+verseDiv.onclick=function(e){if(e.target.tagName==='TEXTAREA')return;const menu=document.getElementById('menu-'+index);menu.style.display=menu.style.display==='block'?'none':'block'};
+versesDiv.appendChild(verseDiv)});
+function saveNote(r,t){if(t.trim()==='')localStorage.removeItem('note-'+r);else localStorage.setItem('note-'+r,t)}
+</script>
 </body>
 </html>
