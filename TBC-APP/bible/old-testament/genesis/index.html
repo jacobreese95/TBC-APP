@@ -1,85 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Genesis - TBC Bible</title>
-    <link rel="stylesheet" href="../../style.css">
-    <style>
-        .search-result { background:#f8f8f8; border-left:4px solid #1a3a5c; padding:12px 15px; margin:10px 0; border-radius:6px; cursor:pointer; }
-        .search-result:hover { background:#eef3f8; }
-        .search-ref { font-weight:bold; color:#1a3a5c; margin-bottom:4px; }
-        .search-text { font-size:0.95rem; line-height:1.4; color:#333; }
-        .search-count { color:#666; margin:10px 0; font-size:0.9rem; }
-        mark { background:#ffe066; padding:0 2px; }
-    </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Genesis - TBC Bible</title>
+<link rel="stylesheet" href="../../style.css">
+<style>.search-result{background:#f8f8f8;border-left:4px solid #1a3a5c;padding:12px 15px;margin:10px 0;border-radius:6px;cursor:pointer}.search-result:hover{background:#eef3f8}.search-ref{font-weight:bold;color:#1a3a5c;margin-bottom:4px}.search-text{font-size:0.95rem;line-height:1.4;color:#333}.search-count{color:#666;margin:10px 0;font-size:0.9rem}mark{background:#ffe066;padding:0 2px}</style>
 </head>
 <body>
-    <header><h1>Genesis</h1></header>
-    <div class="container">
-        <button class="back-btn" onclick="window.location.href='../index.html'">← Back to Old Testament</button>
-        <input type="text" id="genesis-search" class="search-bar" placeholder="Search Genesis (e.g. light, Adam, Cain)..." oninput="searchGenesis()">
-        <div id="search-results"></div>
-        <div class="chapter-list" id="chapter-list"></div>
-    </div>
-    <script>
-        const genesisVerses = [
-            { ref:"Genesis 1:1", text:"In the beginning God created the heaven and the earth.", chapter:1 },
-            { ref:"Genesis 1:3", text:"And God said, Let there be light: and there was light.", chapter:1 },
-            { ref:"Genesis 1:27", text:"So God created man in his own image, in the image of God created he him; male and female created he them.", chapter:1 },
-            { ref:"Genesis 2:7", text:"And the LORD God formed man of the dust of the ground, and breathed into his nostrils the breath of life; and man became a living soul.", chapter:2 },
-            { ref:"Genesis 3:1", text:"Now the serpent was more subtil than any beast of the field which the LORD God had made.", chapter:3 },
-            { ref:"Genesis 3:15", text:"And I will put enmity between thee and the woman, and between thy seed and her seed; it shall bruise thy head, and thou shalt bruise his heel.", chapter:3 },
-            { ref:"Genesis 4:1", text:"And Adam knew Eve his wife; and she conceived, and bare Cain, and said, I have gotten a man from the LORD.", chapter:4 },
-            { ref:"Genesis 4:8", text:"And Cain talked with Abel his brother: and it came to pass, when they were in the field, that Cain rose up against Abel his brother, and slew him.", chapter:4 },
-            { ref:"Genesis 4:9", text:"And the LORD said unto Cain, Where is Abel thy brother? And he said, I know not: Am I my brother's keeper?", chapter:4 }
-        ];
-
-        function renderChapters() {
-            const chapterList = document.getElementById('chapter-list');
-            chapterList.innerHTML = '';
-            for (let i = 1; i <= 50; i++) {
-                const btn = document.createElement('div');
-                btn.className = 'chapter-btn';
-                btn.textContent = 'Chapter ' + i;
-                if (i >= 1 && i <= 8) {
-                    btn.onclick = function() { window.location.href = 'chapter-' + i + '/index.html'; };
-                } else {
-                    btn.onclick = function() { alert('Chapter ' + i + ' is not built yet'); };
-                }
-                chapterList.appendChild(btn);
-            }
-        }
-
-        function highlight(text, query) {
-            if (!query) return text;
-            const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            return text.replace(new RegExp('(' + escaped + ')', 'gi'), '<mark>$1</mark>');
-        }
-
-        function searchGenesis() {
-            const query = document.getElementById('genesis-search').value.trim().toLowerCase();
-            const resultsDiv = document.getElementById('search-results');
-            const chapterList = document.getElementById('chapter-list');
-            if (query.length < 2) {
-                resultsDiv.innerHTML = '';
-                chapterList.style.display = 'block';
-                return;
-            }
-            chapterList.style.display = 'none';
-            const matches = genesisVerses.filter(v => v.text.toLowerCase().includes(query) || v.ref.toLowerCase().includes(query));
-            if (matches.length === 0) {
-                resultsDiv.innerHTML = '<p class="search-count">No results found. (Search covers available chapters)</p>';
-                return;
-            }
-            let html = '<p class="search-count">' + matches.length + ' result(s)</p>';
-            matches.forEach(v => {
-                html += `<div class="search-result" onclick="window.location.href='chapter-${v.chapter}/index.html'"><div class="search-ref">${v.ref}</div><div class="search-text">${highlight(v.text, query)}</div></div>`;
-            });
-            resultsDiv.innerHTML = html;
-        }
-
-        renderChapters();
-    </script>
+<header><h1>Genesis</h1></header>
+<div class="container">
+<button class="back-btn" onclick="window.location.href='../index.html'">← Back to Old Testament</button>
+<input type="text" id="genesis-search" class="search-bar" placeholder="Search Genesis..." oninput="searchGenesis()">
+<div id="search-results"></div>
+<div class="chapter-list" id="chapter-list"></div>
+</div>
+<script>
+const BUILT_THROUGH = 12;
+const genesisVerses = [
+{ref:"Genesis 1:1",text:"In the beginning God created the heaven and the earth.",chapter:1},
+{ref:"Genesis 1:3",text:"And God said, Let there be light: and there was light.",chapter:1},
+{ref:"Genesis 3:15",text:"And I will put enmity between thee and the woman, and between thy seed and her seed; it shall bruise thy head, and thou shalt bruise his heel.",chapter:3},
+{ref:"Genesis 4:8",text:"Cain rose up against Abel his brother, and slew him.",chapter:4},
+{ref:"Genesis 6:8",text:"But Noah found grace in the eyes of the LORD.",chapter:6},
+{ref:"Genesis 9:13",text:"I do set my bow in the cloud, and it shall be for a token of a covenant between me and the earth.",chapter:9},
+{ref:"Genesis 11:9",text:"Therefore is the name of it called Babel; because the LORD did there confound the language of all the earth.",chapter:11},
+{ref:"Genesis 12:1",text:"Now the LORD had said unto Abram, Get thee out of thy country, and from thy kindred, and from thy father's house, unto a land that I will shew thee:",chapter:12},
+{ref:"Genesis 12:3",text:"And I will bless them that bless thee, and curse him that curseth thee: and in thee shall all families of the earth be blessed.",chapter:12}
+];
+function renderChapters(){
+const chapterList=document.getElementById('chapter-list');
+chapterList.innerHTML='';
+for(let i=1;i<=50;i++){
+const btn=document.createElement('div');
+btn.className='chapter-btn';
+btn.textContent='Chapter '+i;
+if(i<=BUILT_THROUGH){btn.onclick=function(){window.location.href='chapter-'+i+'/index.html'}}
+else{btn.onclick=function(){alert('Chapter '+i+' is not built yet')}}
+chapterList.appendChild(btn)}}
+function highlight(text,query){if(!query)return text;const escaped=query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');return text.replace(new RegExp('('+escaped+')','gi'),'<mark>$1</mark>')}
+function searchGenesis(){
+const query=document.getElementById('genesis-search').value.trim().toLowerCase();
+const resultsDiv=document.getElementById('search-results');
+const chapterList=document.getElementById('chapter-list');
+if(query.length<2){resultsDiv.innerHTML='';chapterList.style.display='block';return}
+chapterList.style.display='none';
+const matches=genesisVerses.filter(v=>v.text.toLowerCase().includes(query)||v.ref.toLowerCase().includes(query));
+if(matches.length===0){resultsDiv.innerHTML='<p class="search-count">No results found.</p>';return}
+let html='<p class="search-count">'+matches.length+' result(s)</p>';
+matches.forEach(v=>{html+=`<div class="search-result" onclick="window.location.href='chapter-${v.chapter}/index.html'"><div class="search-ref">${v.ref}</div><div class="search-text">${highlight(v.text,query)}</div></div>`});
+resultsDiv.innerHTML=html}
+renderChapters();
+</script>
 </body>
 </html>
