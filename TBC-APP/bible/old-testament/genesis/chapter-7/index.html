@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Genesis 7 - TBC Bible</title>
+<link rel="stylesheet" href="../../../style.css">
+<style>.word-block{background:#f8f8f8;border-left:4px solid #1a3a5c;padding:12px 15px;margin:10px 0;border-radius:6px}.word-title{font-size:1.2rem;font-weight:bold;color:#1a3a5c;margin-bottom:8px}.def-label{font-weight:bold;color:#333;margin-top:8px;display:block}.verse-text{font-size:1.15rem;line-height:1.6;margin-bottom:8px}</style>
+</head>
+<body>
+<header><h1>Genesis Chapter 7</h1></header>
+<div class="container">
+<button class="back-btn" onclick="window.location.href='../index.html'">← Back to Genesis</button>
+<div id="verses"></div>
+</div>
+<script>
+function w(word,strongs,vines,webster){return{word,strongs,vines,webster}}
+function makeWords(text){
+const d={'and':['Conjunction','And.','And.'],'the':['Article','The.','The.'],'of':['Preposition','Of.','Of.'],'a':['Article','A.','A.'],'an':['Article','An.','An.'],'in':['Preposition','In.','In.'],'on':['Preposition','On.','On.'],'to':['Preposition','To.','To.'],'for':['H3588 - kiy','For.','For.'],'with':['Preposition','With.','With.'],'from':['Preposition','From.','From.'],'unto':["H413 - 'el",'To.','Unto.'],'upon':["H5921 - 'al",'Upon.','Upon.'],'into':['Preposition','Into.','Into.'],'he':['Pronoun','He.','He.'],'his':['Possessive','His.','His.'],'him':['Pronoun','Him.','Him.'],'they':['Pronoun','They.','They.'],'them':['Pronoun','Them.','Them.'],'thou':['Pronoun','You.','Thou.'],'thy':['Possessive','Your.','Thy.'],'thee':['Pronoun','You.','Thee.'],'i':['Pronoun','I.','I.'],'me':['Pronoun','Me.','Me.'],'it':['Pronoun','It.','It.'],'was':['Implied','Was.','Was.'],'were':['Implied','Were.','Were.'],'is':['Implied','Is.','Is.'],'be':['H1961 - hayah','Be.','Be.'],'shall':['Modal','Shall.','Shall.'],'had':['Perfect','Had.','Had.'],'have':['Perfect','Have.','Have.'],'all':['H3605 - kol','All.','All.'],'every':['H3605 - kol','Every.','Every.'],'that':['Relative','That.','That.'],'which':["H834 - 'asher",'Which.','Which.'],'as':['Preposition','As.','As.'],'not':["H3808 - lo'",'Not.','Not.'],'but':['Conjunction','But.','But.'],'god':["H430 - 'elohiym",'God.','God.'],'lord':['H3068 - Y@hovah','Jehovah.','LORD.'],'noah':['H5146 - Noach','Noah.','Noah.'],'ark':['H8392 - tebah','Ark.','Ark.'],'flood':['H3999 - mabbuwl','Flood.','Flood.'],'waters':['H4325 - mayim','Waters.','Waters.'],'earth':["H776 - 'erets",'Earth.','Earth.'],'flesh':['H1320 - basar','Flesh.','Flesh.'],'sons':['H1121 - ben','Sons.','Sons.'],'wife':["H802 - 'ishshah",'Wife.','Wife.'],'wives':["H802 - 'ishshah",'Wives.','Wives.'],'house':['H1004 - bayith','House.','House.'],'come':["H935 - bow'",'Come.','Come.'],'went':["H935 - bow'",'Went.','Went.'],'said':["H559 - 'amar",'Said.','Said.'],'seen':["H7200 - ra'ah",'Seen.','Seen.'],'righteous':['H6662 - tsaddiyq','Righteous.','Righteous.'],'before':['H6440 - paniym','Before.','Before.'],'generation':['H1755 - dowr','Generation.','Generation.'],'commanded':['H6680 - tsavah','Commanded.','Commanded.'],'clean':['H2889 - tahowr','Clean.','Clean.'],'beast':['H929 - b@hemah','Beast.','Beast.'],'cattle':['H929 - b@hemah','Cattle.','Cattle.'],'fowl':["H5775 - 'owph",'Fowl.','Fowl.'],'male':['H2145 - zakar','Male.','Male.'],'female':['H5347 - n@qebah','Female.','Female.'],'days':['H3117 - yowm','Days.','Days.'],'day':['H3117 - yowm','Day.','Day.'],'nights':['H3915 - layil','Nights.','Nights.'],'forty':["H705 - 'arba`iym",'Forty.','Forty.'],'rain':['H1653 - geshem','Rain.','Rain.'],'shut':['H5462 - cagar','Shut.','Shut.'],'prevailed':['H1396 - gabar','Prevailed.','Prevailed.'],'increased':['H7235 - rabah','Increased.','Increased.'],'destroyed':['H4229 - machah','Destroyed.','Destroyed.'],'remained':["H7604 - sha'ar",'Remained.','Remained.'],'alive':['Implied','Alive.','Alive.'],'hundred':["H3967 - me'ah",'Hundred.','Hundred.'],'fifty':['H2572 - chamishshiym','Fifty.','Fifty.'],'seven':['H7651 - sheba`','Seven.','Seven.'],'two':['H8147 - sh@nayim','Two.','Two.'],'by':['Preposition','By.','By.'],'sevens':['H7651 - sheba`','Sevens.','Sevens.']};
+return text.replace(/[.,:;?!]/g,'').split(/\s+/).filter(Boolean).map(wd=>{const k=wd.toLowerCase();if(d[k])return w(wd,d[k][0],d[k][1],d[k][2]);return w(wd,'—','—',wd+'.');});
+}
+const data=[
+["Genesis 7:1","And the LORD said unto Noah, Come thou and all thy house into the ark; for thee have I seen righteous before me in this generation."],
+["Genesis 7:2","Of every clean beast thou shalt take to thee by sevens, the male and his female: and of beasts that are not clean by two, the male and his female."],
+["Genesis 7:3","Of fowls also of the air by sevens, the male and the female; to keep seed alive upon the face of all the earth."],
+["Genesis 7:4","For yet seven days, and I will cause it to rain upon the earth forty days and forty nights; and every living substance that I have made will I destroy from off the face of the earth."],
+["Genesis 7:5","And Noah did according unto all that the LORD commanded him."],
+["Genesis 7:6","And Noah was six hundred years old when the flood of waters was upon the earth."],
+["Genesis 7:7","And Noah went in, and his sons, and his wife, and his sons' wives with him, into the ark, because of the waters of the flood."],
+["Genesis 7:8","Of clean beasts, and of beasts that are not clean, and of fowls, and of every thing that creepeth upon the earth,"],
+["Genesis 7:9","There went in two and two unto Noah into the ark, the male and the female, as God had commanded Noah."],
+["Genesis 7:10","And it came to pass after seven days, that the waters of the flood were upon the earth."],
+["Genesis 7:11","In the six hundredth year of Noah's life, in the second month, the seventeenth day of the month, the same day were all the fountains of the great deep broken up, and the windows of heaven were opened."],
+["Genesis 7:12","And the rain was upon the earth forty days and forty nights."],
+["Genesis 7:13","In the selfsame day entered Noah, and Shem, and Ham, and Japheth, the sons of Noah, and Noah's wife, and the three wives of his sons with them, into the ark;"],
+["Genesis 7:14","They, and every beast after his kind, and all the cattle after their kind, and every creeping thing that creepeth upon the earth after his kind, and every fowl after his kind, every bird of every sort."],
+["Genesis 7:15","And they went in unto Noah into the ark, two and two of all flesh, wherein is the breath of life."],
+["Genesis 7:16","And they that went in, went in male and female of all flesh, as God had commanded him: and the LORD shut him in."],
+["Genesis 7:17","And the flood was forty days upon the earth; and the waters increased, and bare up the ark, and it was lift up above the earth."],
+["Genesis 7:18","And the waters prevailed, and were increased greatly upon the earth; and the ark went upon the face of the waters."],
+["Genesis 7:19","And the waters prevailed exceedingly upon the earth; and all the high hills, that were under the whole heaven, were covered."],
+["Genesis 7:20","Fifteen cubits upward did the waters prevail; and the mountains were covered."],
+["Genesis 7:21","And all flesh died that moved upon the earth, both of fowl, and of cattle, and of beast, and of every creeping thing that creepeth upon the earth, and every man:"],
+["Genesis 7:22","All in whose nostrils was the breath of life, of all that was in the dry land, died."],
+["Genesis 7:23","And every living substance was destroyed which was upon the face of the ground, both man, and cattle, and the creeping things, and the fowl of the heaven; and they were destroyed from the earth: and Noah only remained alive, and they that were with him in the ark."],
+["Genesis 7:24","And the waters prevailed upon the earth an hundred and fifty days."]
+];
+const verses=data.map(([ref,text])=>({ref,text,words:makeWords(text)}));
+const root=document.getElementById('verses');
+verses.forEach((v,i)=>{const d=document.createElement('div');d.className='verse';let h='';v.words.forEach(x=>{h+=`<div class="word-block"><div class="word-title">${x.word}</div><span class="def-label">Strong's:</span><div>${x.strongs}</div><span class="def-label">Vine's:</span><div>${x.vines}</div><span class="def-label">Webster's 1828:</span><div>${x.webster}</div></div>`});d.innerHTML=`<strong>${v.ref}</strong><div class="verse-text">${v.text}</div><div class="verse-menu" id="menu-${i}">${h}<p style="margin-top:18px;"><strong>My Notes:</strong></p><textarea placeholder="Write your notes here..." onblur="saveNote('${v.ref}',this.value)">${localStorage.getItem('note-'+v.ref)||''}</textarea></div>`;d.onclick=function(e){if(e.target.tagName==='TEXTAREA')return;const m=document.getElementById('menu-'+i);m.style.display=m.style.display==='block'?'none':'block'};root.appendChild(d)});
+function saveNote(r,t){if(t.trim()==='')localStorage.removeItem('note-'+r);else localStorage.setItem('note-'+r,t)}
+</script>
+</body>
+</html>
