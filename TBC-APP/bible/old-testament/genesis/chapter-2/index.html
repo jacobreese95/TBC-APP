@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genesis 2 - TBC Bible</title>
+    <link rel="stylesheet" href="../../../style.css">
+    <style>
+        .word-block {
+            background: #f8f8f8;
+            border-left: 4px solid #1a3a5c;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+        }
+        .word-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #1a3a5c;
+            margin-bottom: 8px;
+        }
+        .def-label {
+            font-weight: bold;
+            color: #333;
+            margin-top: 8px;
+            display: block;
+        }
+        .verse-text {
+            font-size: 1.15rem;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Genesis Chapter 2</h1>
+    </header>
+
+    <div class="container">
+        <button class="back-btn" onclick="window.location.href='../index.html'">← Back to Genesis</button>
+        <div id="verses"></div>
+    </div>
+
+    <script>
+        function w(word, strongs, vines, webster) {
+            return { word, strongs, vines, webster };
+        }
+
+        const verses = [
+            {
+                ref: "Genesis 2:1",
+                text: "Thus the heavens and the earth were finished, and all the host of them.",
+                words: [
+                    w("Thus", "H3615 - kalah (to complete)", "In this manner the work was completed.", "In this way; therefore."),
+                    w("the", "Definite article", "Specifies the heavens.", "Definite article."),
+                    w("heavens", "H8064 - shamayim", "The sky or heavens.", "The region of the air; the sky."),
+                    w("and", "Conjunction", "Connects.", "Connecting word."),
+                    w("the", "Definite article", "Specifies the earth.", "Definite article."),
+                    w("earth", "H776 - 'erets", "The dry land / world.", "The terraqueous globe."),
+                    w("were", "H3615 - kalah", "Were completed.", "Were brought to an end."),
+                    w("finished", "H3615 - kalah (to finish, complete)", "Brought to completion.", "Brought to an end; completed."),
+                    w("and", "Conjunction", "Connects.", "Connecting word."),
+                    w("all", "H3605 - kol", "The whole.", "The whole."),
+                    w("the", "Definite article", "Specifies the host.", "Definite article."),
+                    w("host", "H6635 - tsaba' (army, host)", "The host or company of created things.", "A large number; an army."),
+                    w("of", "Preposition", "Relation.", "Belonging to."),
+                    w("them", "Pronoun", "Refers to heavens and earth.", "Refers to the heavens and earth.")
+                ]
+            },
+            {
+                ref: "Genesis 2:2",
+                text: "And on the seventh day God ended his work which he had made; and he rested on the seventh day from all his work which he had made.",
+                words: [
+                    w("And", "Conjunction", "Continues.", "Connecting word."),
+                    w("on", "Preposition", "Upon.", "On."),
+                    w("the", "Definite article", "Specifies the day.", "Definite article."),
+                    w("seventh", "H7637 - sh@biy`iy (seventh)", "The seventh in order.", "Next after the sixth."),
+                    w("day", "H3117 - yowm", "A day.", "A period of light."),
+                    w("God", "H430 - 'elohiym", "The supreme God.", "The Supreme Being."),
+                    w("ended", "H3615 - kalah", "Completed / finished.", "Brought to an end."),
+                    w("his", "Possessive", "Belonging to God.", "Belonging to God."),
+                    w("work", "H4399 - m@la'kah (work, occupation)", "The work of creation.", "Labor; employment."),
+                    w("which", "H834 - 'asher", "Relative.", "Which."),
+                    w("he", "Pronoun", "Refers to God.", "Refers to God."),
+                    w("had", "Perfect tense", "Already.", "Already."),
+                    w("made", "H6213 - 'asah", "Fashioned.", "Formed."),
+                    w("and", "Conjunction", "Connects.", "Connecting word."),
+                    w("he", "Pronoun", "Refers to God.", "Refers to God."),
+                    w("rested", "H7673 - shabath (to cease, rest)", "To cease from work; to rest.", "To cease from action or motion."),
+                    w("on", "Preposition", "Upon.", "On."),
+                    w("the", "Definite article", "Specifies the day.", "Definite article."),
+                    w("seventh", "H7637 - sh@biy`iy", "The seventh.", "The seventh."),
+                    w("day", "H3117 - yowm", "A day.", "A day."),
+                    w("from", "Preposition", "Away from.", "From."),
+                    w("all", "H3605 - kol", "The whole.", "All."),
+                    w("his", "Possessive", "Belonging to God.", "Belonging to God."),
+                    w("work", "H4399 - m@la'kah", "His creative work.", "Labor."),
+                    w("which", "H834 - 'asher", "Relative.", "Which."),
+                    w("he", "Pronoun", "Refers to God.", "Refers to God."),
+                    w("had", "Perfect tense", "Already.", "Already."),
+                    w("made", "H6213 - 'asah", "Fashioned.", "Formed.")
+                ]
+            },
+            {
+                ref: "Genesis 2:3",
+                text: "And God blessed the seventh day, and sanctified it: because that in it he had rested from all his work which God created and made.",
+                words: [
+                    w("And", "Conjunction", "Continues.", "Connecting word."),
+                    w("God", "H430 - 'elohiym", "The supreme God.", "The Supreme Being."),
+                    w("blessed", "H1288 - barak", "To confer blessing.", "To make happy or prosperous."),
+                    w("the", "Definite article", "Specifies the day.", "Definite article."),
+                    w("seventh", "H7637 - sh@biy`iy", "The seventh.", "The seventh."),
+                    w("day", "H3117 - yowm", "A day.", "A day."),
+                    w("and", "Conjunction", "Connects.", "Connecting word."),
+                    w("sanctified", "H6942 - qadash (to be holy, sanctify)", "To set apart as holy.", "To make holy; to set apart for sacred use."),
+                    w("it", "Pronoun", "Refers to the seventh day.", "Refers to the day."),
+                    w("because", "H3588 - kiy", "For the reason that.", "For the reason that."),
+                    w("that", "Part of H3588", "That.", "That."),
+                    w("in", "Preposition", "Within.", "In."),
+                    w("it", "Pronoun", "In that day.", "In that day."),
+                    w("he", "Pronoun", "Refers to God.", "Refers to God."),
+                    w("had", "Perfect tense", "Already.", "Already."),
+                    w("rested", "H7673 - shabath", "Ceased from work.", "Ceased from labor."),
+                    w("from", "Preposition", "Away from.", "From."),
+                    w("all", "H3605 - kol", "The whole.", "All."),
+                    w("his", "Possessive", "Belonging to God.", "Belonging to God."),
+                    w("work", "H4399 - m@la'kah", "His work.", "Labor."),
+                    w("which", "H834 - 'asher", "Relative.", "Which."),
+                    w("God", "H430 - 'elohiym", "The supreme God.", "The Supreme Being."),
+                    w("created", "H1254 - bara'", "Brought into existence.", "Brought into being."),
+                    w("and", "Conjunction", "Connects.", "Connecting word."),
+                    w("made", "H6213 - 'asah", "Fashioned.", "Formed.")
+                ]
+            },
+            {
+                ref: "Genesis 2:4",
+                text: "These are the generations of the heavens and of the earth when they were created, in the day that the LORD God made the earth and the heavens,",
+                words: [
+                    w("These", "H428 - 'el-leh", "These things.", "These."),
+                    w("are", "Implied", "Are.", "Are."),
+                    w("the", "Definite article", "Specifies the generations.", "Definite article."),
+                    w("generations", "H8435 - towl@dah (generations, account)", "The account or history.", "An account of the origin."),
+                    w("of", "Preposition", "Relation.", "Belonging to."),
+                    w("the", "Definite article", "Specifies the heavens.", "Definite article."),
+                    w("heavens", "H8064 - shamayim", "The sky.", "The sky."),
+                    w("and", "Conjunction", "Connects.", "Connecting word."),
+                    w("of", "Preposition", "Relation.", "Belonging to."),
+                    w("the", "Definite article", "Specifies the earth.", "Definite article."),
+                    w("earth", "H776 - 'erets", "The dry land.", "The ground."),
+                    w("when", "H3117 - yowm (in the day)", "At the time.", "At the time."),
+                    w("they", "Pronoun", "Refers to heavens and earth.", "Refers to them."),
+                    w("were", "Implied", "Were.", "Were."),
+                    w("created", "H1254 - bara'", "Brought into existence.", "Brought into being."),
+                    w("in", "Preposition", "Within.", "In."),
+                    w("the", "Definite article", "Specifies the day.", "Definite article."),
+                    w("day", "H3117 - yowm", "The time period.", "The time."),
+                    w("that", "Relative", "When.", "When."),
+                    w("the", "Definite article", "Specifies the LORD.", "Definite article."),
+                    w("LORD", "H3068 - Y@hovah (Jehovah)", "The personal name of God.", "The self-existent One; Jehovah."),
+                    w("God", "H430 - 'elohiym", "God.", "The Supreme Being."),
+                    w("made", "H6213 - 'asah", "Fashioned.", "Formed."),
+                    w("the", "Definite article", "Specifies the earth.", "Definite article."),
+                    w("earth", "H776 - 'erets", "The ground.", "The ground."),
+                    w("and", "Conjunction", "Connects.", "Connecting word."),
+                    w("the", "Definite article", "Specifies the heavens.", "Definite article."),
+                    w("heavens", "H8064 - shamayim", "The sky.", "The sky.")
+                ]
+            },
+            {
+                ref: "Genesis 2:5",
+                text: "And every plant of the field before it was in the earth, and every herb of the field before it grew: for the LORD God had not caused it to rain upon the earth, and there was not a man to till the ground.",
+                words: [
+                    w("And", "Conjunction", "Continues.", "Connecting word."),
+                    w("every", "H3605 - kol", "All.", "All."),
+                    w("plant", "H7880 - siyach (plant, shrub)", "A plant or bush.", "A vegetable production."),
+                    w("of", "Preposition", "Relation.", "Belonging to."),
+                    w("the", "Definite article", "Specifies the field.", "Definite article."),
+                    w("field", "H7704 - sadeh (field)", "Open country.", "Open land."),
+                    w("before", "H2962 - terem (before)", "Prior to.", "Prior to."),
+                    w("it", "Pronoun", "Refers to the plant.", "Refers to the plant."),
+                    w("was", "Implied", "Existed.", "Existed."),
+                    w("in", "Preposition", "Within.", "In."),
+                    w("the", "Definite article", "Specifies the earth.", "Definite article."),
+                    w("earth", "H776 - 'erets", "The ground.", "The ground."),
+                    w("and", "Conjunction", "Connects.", "Connecting word."),
+                    w("every", "H3605 - kol", "All.", "All."),
+                    w("herb", "H6212 - 'eseb", "Green plant.", "A plant."),
+                    w("of", "Preposition", "Relation.", "Belonging to."),
+                    w("the", "Definite article", "Specifies the field.", "Definite article."),
+                    w("field", "H7704 - sadeh", "Open country.", "Open land."),
+                    w("before", "H2962 - terem", "Prior to.", "Prior to."),
+                    w("it", "Pronoun", "Refers to the herb.", "Refers to the herb."),
+                    w("grew", "H6779 - tsamach (to sprout)", "To spring up.", "To spring up; to grow."),
+                    w("for", "H3588 - kiy", "Because.", "Because."),
+                    w("the", "Definite article", "Specifies the LORD.", "Definite article."),
+                    w("LORD", "H3068 - Y@hovah", "Jehovah.", "Jehovah."),
+                    w("God", "H430 - 'elohiym", "God.", "The Supreme Being."),
+                    w("had", "Perfect tense", "Already.", "Already."),
+                    w("not", "H3808 - lo'", "Negation.", "Not."),
+                    w("caused", "H4305 - matar (to rain)", "Had not sent rain.", "Had not caused rain."),
+                    w("it", "Pronoun", "Refers to rain.", "Refers to rain."),
+                    w("to", "Preposition", "In order to.", "To."),
+                    w("rain", "Part of H4305", "Rain.", "Rain."),
+                    w("upon", "H5921 - 'al", "On.", "On."),
+                    w("the", "Definite article", "Specifies the earth.", "Definite article."),
+                    w("earth", "H776 - 'erets", "The ground.", "The ground."),
+                    w("and", "Conjunction", "Connects.", "Connecting word."),
+                    w("there", "Existential", "There existed.", "There."),
+                    w("was", "Implied", "Existed.", "Existed."),
+                    w("not", "H369 - 'ayin (there is not)", "There was no.", "There was no."),
+                    w("a", "Indefinite article", "A.", "A."),
+                    w("man", "H120 - 'adam", "A human being.", "A human being."),
+                    w("to", "Preposition of purpose", "In order to.", "To."),
+                    w("till", "H5647 - `abad (to work, serve, till)", "To cultivate.", "To cultivate the ground."),
+                    w("the", "Definite article", "Specifies the ground.", "Definite article."),
+                    w("ground", "H127 - 'adamah", "The soil.", "The soil.")
+                ]
+            },
+            {
+                ref: "Genesis 2:6",
+                text: "But there went up a mist from the earth, and watered the whole face of the ground.",
+                words: [
+                    w("But", "Conjunction", "Contrast.", "But."),
+                    w("there", "Existential", "There.", "There."),
+                    w("went", "H5927 - `alah (to go up)", "Went up.", "Ascended."),
+                    w("up", "Part of H5927", "Upward.", "Upward."),
+                    w("a", "Indefinite article", "A.", "A."),
+                    w("mist", "H108 - 'ed (mist, vapor)", "A vapor or mist.", "A vapor; a thin cloud."),
+                    w("from", "Preposition", "Out of.", "From."),
+                    w("the", "Definite article", "Specifies the earth.", "Definite article."),
+                    w("earth", "H776 - 'erets", "The ground.", "The ground."),
+                    w("and", "Conjunction", "Connects.", "Connecting word."),
+                    w("watered", "H8248 - shaqah (to water)", "To give drink / irrigate.", "To supply with water."),
+                    w("the", "Definite article", "Specifies the face.", "Definite article."),
+                    w("whole", "H3605 - kol", "Entire.", "Entire."),
+                    w("face", "H6440 - paniym", "Surface.", "Surface."),
+                    w("of", "Preposition", "Relation.", "Belonging to."),
+                    w("the", "Definite article", "Specifies the ground.", "Definite article."),
+                    w("ground", "H127 - 'adamah", "The soil.", "The soil.")
+                ]
+            },
+            {
+                ref: "Genesis 2:7",
+                text: "And the LORD God formed man of the dust of the ground, and breathed into his nostrils the breath of life; and man became a living soul.",
+                words: [
+                    w("And", "Conjunction", "Continues.", "Connecting word."),
+                    w("the", "Definite article", "Specifies the LORD.", "Definite article."),
+                    w("LORD", "H3068 - Y@hovah", "Jehovah.", "Jehovah."),
+                    w("God", "H430 - 'elohiym", "God.", "The Supreme Being."),
+                    w("formed", "H3335 - yatsar (to form, fashion)", "To form or shape, as a potter.", "To shape; to mold."),
+                    w("man", "H120 - 'adam", "Mankind / the man.", "A human being."),
+                    w("of", "Preposition", "From.", "From."),
+                    w("the", "Definite article", "Specifies the dust.", "Definite article."),
+                    w("dust", "H6083 - `aphar (dust, dry earth)", "Dust or dry soil.", "Fine dry particles of earth."),
+                    w("of", "Preposition", "Relation.", "Belonging to."),
+                    w("the", "Definite article", "Specifies the ground.", "Definite article."),
+                    w("ground", "H127 - 'adamah", "The soil.", "The soil."),
+                    w("and", "Conjunction", "Connects.", "Connecting word."),
+                    w("breathed", "H5301 - naphach (to breathe, blow)", "To breathe or blow into.", "To force air from the lungs."),
+                    w("into", "Preposition", "Into.", "Into."),
+                    w("his", "Possessive", "Belonging to man.", "Belonging to man."),
+                    w("nostrils", "H639 - 'aph (nose, nostril)", "The nose / nostrils.", "The openings of the nose."),
+                    w("the", "Definite article", "Specifies the breath.", "Definite article."),
+                    w("breath", "H5397 - n@shamah (breath, spirit)", "The breath of life.", "The air inhaled and exhaled."),
+                    w("of", "Preposition", "Relation.", "Belonging to."),
+                    w("life", "H2416 - chay", "Living.", "Life."),
+                    w("and", "Conjunction", "Connects.", "Connecting word."),
+                    w("man", "H120 - 'adam", "The man.", "A human being."),
+                    w("became", "H1961 - hayah", "Became.", "Became."),
+                    w("a", "Indefinite article", "A.", "A."),
+                    w("living", "H2416 - chay", "Living.", "Living."),
+                    w("soul", "H5315 - nephesh (soul, living being)", "A living being / soul.", "A living being; the soul.")
+                ]
+            },
+            {
+                ref: "Genesis 2:8",
+                text: "And the LORD God planted a garden eastward in Eden; and there he put the man whom he had formed.",
+                words: [
+                    w("And", "Conjunction", "Continues.", "Connecting word."),
+                    w("the", "Definite article", "Specifies the LORD.", "Definite article."),
+                    w("LORD", "H3068 - Y@hovah", "Jehovah.", "Jehovah."),
+                    w("God", "H430 - 'elohiym", "God.", "The Supreme Being."),
+                    w("planted", "H5193 - nata` (to plant)", "To plant.", "To set in the ground for growth."),
+                    w("a", "Indefinite article", "A.", "A."),
+                    w("garden", "H1588 - gan (garden)", "An enclosed garden.", "A piece of ground for the cultivation of plants."),
+                    w("eastward", "H6924 - qedem (east, eastward)", "Toward the east.", "Toward the east."),
+                    w("in", "Preposition", "In.", "In."),
+                    w("Eden", "H5731 - `Eden (Eden)", "The place of delight.", "The garden of Eden."),
+                    w("and", "Conjunction", "Connects.", "Connecting word."),
+                    w("there", "Adverb", "In that place.", "In that place."),
+                    w("he", "Pronoun", "Refers to God.", "Refers to God."),
+                    w("put", "H7760 - suwm (to put, place)", "To place.", "To place."),
+                    w("the", "Definite article", "Specifies the man.", "Definite article."),
+                    w("man", "H120 - 'adam", "The man.", "A human being."),
+                    w("whom", "H834 - 'asher", "Relative.", "Whom."),
+                    w("he", "Pronoun", "Refers to God.", "Refers to God."),
+                    w("had", "Perfect tense", "Already.", "Already."),
+                    w("formed", "H3335 - yatsar", "Fashioned.", "Formed.")
+                ]
+            }
+        ];
+
+        const versesDiv = document.getElementById('verses');
+
+        verses.forEach((verse, index) => {
+            const verseDiv = document.createElement('div');
+            verseDiv.className = 'verse';
+
+            let wordsHTML = '';
+            verse.words.forEach(item => {
+                wordsHTML += `
+                    <div class="word-block">
+                        <div class="word-title">${item.word}</div>
+                        <span class="def-label">Strong's:</span>
+                        <div>${item.strongs}</div>
+                        <span class="def-label">Vine's:</span>
+                        <div>${item.vines}</div>
+                        <span class="def-label">Webster's 1828:</span>
+                        <div>${item.webster}</div>
+                    </div>
+                `;
+            });
+
+            verseDiv.innerHTML = `
+                <strong>${verse.ref}</strong>
+                <div class="verse-text">${verse.text}</div>
+                <div class="verse-menu" id="menu-${index}">
+                    ${wordsHTML}
+                    <p style="margin-top:18px;"><strong>My Notes:</strong></p>
+                    <textarea placeholder="Write your notes here..." onblur="saveNote('${verse.ref}', this.value)">${localStorage.getItem('note-' + verse.ref) || ''}</textarea>
+                </div>
+            `;
+
+            verseDiv.onclick = function(e) {
+                if (e.target.tagName === 'TEXTAREA') return;
+                const menu = document.getElementById('menu-' + index);
+                menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+            };
+
+            versesDiv.appendChild(verseDiv);
+        });
+
+        function saveNote(reference, text) {
+            if (text.trim() === '') {
+                localStorage.removeItem('note-' + reference);
+            } else {
+                localStorage.setItem('note-' + reference, text);
+            }
+        }
+    </script>
+</body>
+</html>
