@@ -24,24 +24,19 @@
     <script>
         const chapterList = document.getElementById('chapter-list');
 
-        // Create all 50 chapter buttons with matching style
         for (let i = 1; i <= 50; i++) {
             const btn = document.createElement('div');
             btn.className = 'chapter-btn';
             btn.textContent = 'Chapter ' + i;
 
             if (i === 1) {
-                btn.onclick = function() {
-                    window.location.href = 'chapter-1/index.html';
-                };
+                btn.onclick = function() { window.location.href = 'chapter-1/index.html'; };
             } else if (i === 2) {
-                btn.onclick = function() {
-                    window.location.href = 'chapter-2/index.html';
-                };
+                btn.onclick = function() { window.location.href = 'chapter-2/index.html'; };
+            } else if (i === 3) {
+                btn.onclick = function() { window.location.href = 'chapter-3/index.html'; };
             } else {
-                btn.onclick = function() {
-                    alert('Chapter ' + i + ' is not built yet');
-                };
+                btn.onclick = function() { alert('Chapter ' + i + ' is not built yet'); };
             }
 
             chapterList.appendChild(btn);
