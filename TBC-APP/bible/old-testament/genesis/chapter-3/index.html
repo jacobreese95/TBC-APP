@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genesis 3 - TBC Bible</title>
+    <link rel="stylesheet" href="../../../style.css">
+    <style>
+        .word-block { background:#f8f8f8; border-left:4px solid #1a3a5c; padding:12px 15px; margin:10px 0; border-radius:6px; }
+        .word-title { font-size:1.2rem; font-weight:bold; color:#1a3a5c; margin-bottom:8px; }
+        .def-label { font-weight:bold; color:#333; margin-top:8px; display:block; }
+        .verse-text { font-size:1.15rem; line-height:1.6; margin-bottom:8px; }
+    </style>
+</head>
+<body>
+    <header><h1>Genesis Chapter 3</h1></header>
+    <div class="container">
+        <button class="back-btn" onclick="window.location.href='../index.html'">← Back to Genesis</button>
+        <div id="verses"></div>
+    </div>
+    <script>
+        function w(word, strongs, vines, webster) { return { word, strongs, vines, webster }; }
+
+        const verses = [
+            { ref:"Genesis 3:1", text:"Now the serpent was more subtil than any beast of the field which the LORD God had made. And he said unto the woman, Yea, hath God said, Ye shall not eat of every tree of the garden?", words:[
+                w("Now","Conjunction","Introduces the narrative.","Now."), w("the","Article","Specifies serpent.","Definite article."),
+                w("serpent","H5175 - nachash","The serpent.","Serpent."), w("was","H1961 - hayah","Was.","Was."),
+                w("more","H4480 - min","More than.","More."), w("subtil","H6175 - `aruwm","Crafty / shrewd.","Subtle."),
+                w("than","Preposition","Than.","Than."), w("any","H3605 - kol","Any.","Any."),
+                w("beast","H2416 - chay","Living creature.","Beast."), w("of","Preposition","Of.","Of."),
+                w("the","Article","Specifies field.","Definite article."), w("field","H7704 - sadeh","Field.","Field."),
+                w("which","H834 - 'asher","Which.","Which."), w("the","Article","Specifies the LORD.","Definite article."),
+                w("LORD","H3068 - Y@hovah","Jehovah.","LORD."), w("God","H430 - 'elohiym","God.","God."),
+                w("had","Perfect","Already.","Had."), w("made","H6213 - 'asah","Made.","Made."),
+                w("And","Conjunction","Continues.","And."), w("he","Pronoun","The serpent.","He."),
+                w("said","H559 - 'amar","Said.","Said."), w("unto","H413 - 'el","To.","Unto."),
+                w("the","Article","Specifies woman.","Definite article."), w("woman","H802 - 'ishshah","Woman.","Woman."),
+                w("Yea","H637 - 'aph","Indeed / really.","Yea."), w("hath","Perfect","Has.","Hath."),
+                w("God","H430 - 'elohiym","God.","God."), w("said","H559 - 'amar","Said.","Said."),
+                w("Ye","Pronoun","You (plural).","Ye."), w("shall","Modal","Shall.","Shall."),
+                w("not","H3808 - lo'","Not.","Not."), w("eat","H398 - 'akal","Eat.","Eat."),
+                w("of","Preposition","From.","Of."), w("every","H3605 - kol","Every.","Every."),
+                w("tree","H6086 - 'ets","Tree.","Tree."), w("of","Preposition","Of.","Of."),
+                w("the","Article","Specifies garden.","Definite article."), w("garden","H1588 - gan","Garden.","Garden.")
+            ]},
+            { ref:"Genesis 3:2", text:"And the woman said unto the serpent, We may eat of the fruit of the trees of the garden:", words:[
+                w("And","Conjunction","Continues.","And."), w("the","Article","Specifies woman.","Definite article."),
+                w("woman","H802 - 'ishshah","Woman.","Woman."), w("said","H559 - 'amar","Said.","Said."),
+                w("unto","H413 - 'el","To.","Unto."), w("the","Article","Specifies serpent.","Definite article."),
+                w("serpent","H5175 - nachash","Serpent.","Serpent."), w("We","Pronoun","We.","We."),
+                w("may","Modal","May.","May."), w("eat","H398 - 'akal","Eat.","Eat."),
+                w("of","Preposition","From.","Of."), w("the","Article","Specifies fruit.","Definite article."),
+                w("fruit","H6529 - p@riy","Fruit.","Fruit."), w("of","Preposition","Of.","Of."),
+                w("the","Article","Specifies trees.","Definite article."), w("trees","H6086 - 'ets","Trees.","Trees."),
+                w("of","Preposition","Of.","Of."), w("the","Article","Specifies garden.","Definite article."),
+                w("garden","H1588 - gan","Garden.","Garden.")
+            ]},
+            { ref:"Genesis 3:3", text:"But of the fruit of the tree which is in the midst of the garden, God hath said, Ye shall not eat of it, neither shall ye touch it, lest ye die.", words:[
+                w("But","Conjunction","Contrast.","But."), w("of","Preposition","From.","Of."),
+                w("the","Article","Specifies fruit.","Definite article."), w("fruit","H6529 - p@riy","Fruit.","Fruit."),
+                w("of","Preposition","Of.","Of."), w("the","Article","Specifies tree.","Definite article."),
+                w("tree","H6086 - 'ets","Tree.","Tree."), w("which","H834 - 'asher","Which.","Which."),
+                w("is","Implied","Is.","Is."), w("in","Preposition","In.","In."),
+                w("the","Article","Specifies midst.","Definite article."), w("midst","H8432 - tavek","Middle.","Midst."),
+                w("of","Preposition","Of.","Of."), w("the","Article","Specifies garden.","Definite article."),
+                w("garden","H1588 - gan","Garden.","Garden."), w("God","H430 - 'elohiym","God.","God."),
+                w("hath","Perfect","Has.","Hath."), w("said","H559 - 'amar","Said.","Said."),
+                w("Ye","Pronoun","You.","Ye."), w("shall","Modal","Shall.","Shall."),
+                w("not","H3808 - lo'","Not.","Not."), w("eat","H398 - 'akal","Eat.","Eat."),
+                w("of","Preposition","From.","Of."), w("it","Pronoun","The fruit.","It."),
+                w("neither","H3808 - lo'","Nor.","Neither."), w("shall","Modal","Shall.","Shall."),
+                w("ye","Pronoun","You.","Ye."), w("touch","H5060 - naga`","Touch.","Touch."),
+                w("it","Pronoun","The fruit.","It."), w("lest","H6435 - pen","Lest.","Lest."),
+                w("ye","Pronoun","You.","Ye."), w("die","H4191 - muwth","Die.","Die.")
+            ]},
+            { ref:"Genesis 3:4", text:"And the serpent said unto the woman, Ye shall not surely die:", words:[
+                w("And","Conjunction","Continues.","And."), w("the","Article","Specifies serpent.","Definite article."),
+                w("serpent","H5175 - nachash","Serpent.","Serpent."), w("said","H559 - 'amar","Said.","Said."),
+                w("unto","H413 - 'el","To.","Unto."), w("the","Article","Specifies woman.","Definite article."),
+                w("woman","H802 - 'ishshah","Woman.","Woman."), w("Ye","Pronoun","You.","Ye."),
+                w("shall","Modal","Shall.","Shall."), w("not","H3808 - lo'","Not.","Not."),
+                w("surely","H4191 - muwth (inf. abs.)","Surely.","Surely."), w("die","H4191 - muwth","Die.","Die.")
+            ]},
+            { ref:"Genesis 3:5", text:"For God doth know that in the day ye eat thereof, then your eyes shall be opened, and ye shall be as gods, knowing good and evil.", words:[
+                w("For","H3588 - kiy","Because.","For."), w("God","H430 - 'elohiym","God.","God."),
+                w("doth","Modal","Does.","Doth."), w("know","H3045 - yada`","Know.","Know."),
+                w("that","H3588 - kiy","That.","That."), w("in","Preposition","In.","In."),
+                w("the","Article","Specifies day.","Definite article."), w("day","H3117 - yowm","Day.","Day."),
+                w("ye","Pronoun","You.","Ye."), w("eat","H398 - 'akal","Eat.","Eat."),
+                w("thereof","Preposition","Of it.","Thereof."), w("then","Adverb","Then.","Then."),
+                w("your","Possessive","Your.","Your."), w("eyes","H5869 - `ayin","Eyes.","Eyes."),
+                w("shall","Modal","Shall.","Shall."), w("be","Implied","Be.","Be."),
+                w("opened","H6491 - paqach","Opened.","Opened."), w("and","Conjunction","Connects.","And."),
+                w("ye","Pronoun","You.","Ye."), w("shall","Modal","Shall.","Shall."),
+                w("be","H1961 - hayah","Be.","Be."), w("as","Preposition","As.","As."),
+                w("gods","H430 - 'elohiym","Gods / God.","Gods."), w("knowing","H3045 - yada`","Knowing.","Knowing."),
+                w("good","H2896 - towb","Good.","Good."), w("and","Conjunction","Connects.","And."),
+                w("evil","H7451 - ra`","Evil.","Evil.")
+            ]},
+            { ref:"Genesis 3:6", text:"And when the woman saw that the tree was good for food, and that it was pleasant to the eyes, and a tree to be desired to make one wise, she took of the fruit thereof, and did eat, and gave also unto her husband with her; and he did eat.", words:[
+                w("And","Conjunction","Continues.","And."), w("when","Temporal","When.","When."),
+                w("the","Article","Specifies woman.","Definite article."), w("woman","H802 - 'ishshah","Woman.","Woman."),
+                w("saw","H7200 - ra'ah","Saw.","Saw."), w("that","H3588 - kiy","That.","That."),
+                w("the","Article","Specifies tree.","Definite article."), w("tree","H6086 - 'ets","Tree.","Tree."),
+                w("was","Implied","Was.","Was."), w("good","H2896 - towb","Good.","Good."),
+                w("for","Preposition","For.","For."), w("food","H3978 - ma'akal","Food.","Food."),
+                w("and","Conjunction","Connects.","And."), w("that","H3588 - kiy","That.","That."),
+                w("it","Pronoun","The tree.","It."), w("was","Implied","Was.","Was."),
+                w("pleasant","H8378 - ta'avah","Desirable.","Pleasant."), w("to","Preposition","To.","To."),
+                w("the","Article","Specifies eyes.","Definite article."), w("eyes","H5869 - `ayin","Eyes.","Eyes."),
+                w("and","Conjunction","Connects.","And."), w("a","Article","A.","A."),
+                w("tree","H6086 - 'ets","Tree.","Tree."), w("to","Preposition","To.","To."),
+                w("be","Implied","Be.","Be."), w("desired","H2530 - chamad","Desired.","Desired."),
+                w("to","Preposition","To.","To."), w("make","H7919 - sakal","To make wise.","Make."),
+                w("one","Pronoun","One.","One."), w("wise","Part of sakal","Wise.","Wise."),
+                w("she","Pronoun","The woman.","She."), w("took","H3947 - laqach","Took.","Took."),
+                w("of","Preposition","From.","Of."), w("the","Article","Specifies fruit.","Definite article."),
+                w("fruit","H6529 - p@riy","Fruit.","Fruit."), w("thereof","Possessive","Of it.","Thereof."),
+                w("and","Conjunction","Connects.","And."), w("did","Auxiliary","Did.","Did."),
+                w("eat","H398 - 'akal","Eat.","Eat."), w("and","Conjunction","Connects.","And."),
+                w("gave","H5414 - nathan","Gave.","Gave."), w("also","Adverb","Also.","Also."),
+                w("unto","H413 - 'el","To.","Unto."), w("her","Possessive","Her.","Her."),
+                w("husband","H376 - 'iysh","Husband.","Husband."), w("with","Preposition","With.","With."),
+                w("her","Pronoun","Her.","Her."), w("and","Conjunction","Connects.","And."),
+                w("he","Pronoun","Adam.","He."), w("did","Auxiliary","Did.","Did."),
+                w("eat","H398 - 'akal","Eat.","Eat.")
+            ]},
+            { ref:"Genesis 3:7", text:"And the eyes of them both were opened, and they knew that they were naked; and they sewed fig leaves together, and made themselves aprons.", words:[
+                w("And","Conjunction","Continues.","And."), w("the","Article","Specifies eyes.","Definite article."),
+                w("eyes","H5869 - `ayin","Eyes.","Eyes."), w("of","Preposition","Of.","Of."),
+                w("them","Pronoun","Both of them.","Them."), w("both","H8147 - sh@nayim","Both.","Both."),
+                w("were","Implied","Were.","Were."), w("opened","H6491 - paqach","Opened.","Opened."),
+                w("and","Conjunction","Connects.","And."), w("they","Pronoun","They.","They."),
+                w("knew","H3045 - yada`","Knew.","Knew."), w("that","H3588 - kiy","That.","That."),
+                w("they","Pronoun","They.","They."), w("were","Implied","Were.","Were."),
+                w("naked","H5903 - `eyrom","Naked.","Naked."), w("and","Conjunction","Connects.","And."),
+                w("they","Pronoun","They.","They."), w("sewed","H8609 - taphar","Sewed.","Sewed."),
+                w("fig","H8384 - t@'en","Fig.","Fig."), w("leaves","H5929 - `aleh","Leaves.","Leaves."),
+                w("together","Adverb","Together.","Together."), w("and","Conjunction","Connects.","And."),
+                w("made","H6213 - 'asah","Made.","Made."), w("themselves","Reflexive","Themselves.","Themselves."),
+                w("aprons","H2290 - chagowr","Girdles / coverings.","Aprons.")
+            ]},
+            { ref:"Genesis 3:8", text:"And they heard the voice of the LORD God walking in the garden in the cool of the day: and Adam and his wife hid themselves from the presence of the LORD God amongst the trees of the garden.", words:[
+                w("And","Conjunction","Continues.","And."), w("they","Pronoun","They.","They."),
+                w("heard","H8085 - shama`","Heard.","Heard."), w("the","Article","Specifies voice.","Definite article."),
+                w("voice","H6963 - qowl","Voice / sound.","Voice."), w("of","Preposition","Of.","Of."),
+                w("the","Article","Specifies the LORD.","Definite article."), w("LORD","H3068 - Y@hovah","Jehovah.","LORD."),
+                w("God","H430 - 'elohiym","God.","God."), w("walking","H1980 - halak","Walking.","Walking."),
+                w("in","Preposition","In.","In."), w("the","Article","Specifies garden.","Definite article."),
+                w("garden","H1588 - gan","Garden.","Garden."), w("in","Preposition","In.","In."),
+                w("the","Article","Specifies cool.","Definite article."), w("cool","H7307 - ruwach","Wind / cool.","Cool."),
+                w("of","Preposition","Of.","Of."), w("the","Article","Specifies day.","Definite article."),
+                w("day","H3117 - yowm","Day.","Day."), w("and","Conjunction","Connects.","And."),
+                w("Adam","H120 - 'adam","Adam.","Adam."), w("and","Conjunction","Connects.","And."),
+                w("his","Possessive","His.","His."), w("wife","H802 - 'ishshah","Wife.","Wife."),
+                w("hid","H2244 - chaba'","Hid.","Hid."), w("themselves","Reflexive","Themselves.","Themselves."),
+                w("from","Preposition","From.","From."), w("the","Article","Specifies presence.","Definite article."),
+                w("presence","H6440 - paniym","Presence / face.","Presence."), w("of","Preposition","Of.","Of."),
+                w("the","Article","Specifies the LORD.","Definite article."), w("LORD","H3068 - Y@hovah","Jehovah.","LORD."),
+                w("God","H430 - 'elohiym","God.","God."), w("amongst","H8432 - tavek","Among.","Amongst."),
+                w("the","Article","Specifies trees.","Definite article."), w("trees","H6086 - 'ets","Trees.","Trees."),
+                w("of","Preposition","Of.","Of."), w("the","Article","Specifies garden.","Definite article."),
+                w("garden","H1588 - gan","Garden.","Garden.")
+            ]},
+            { ref:"Genesis 3:9", text:"And the LORD God called unto Adam, and said unto him, Where art thou?", words:[
+                w("And","Conjunction","Continues.","And."), w("the","Article","Specifies the LORD.","Definite article."),
+                w("LORD","H3068 - Y@hovah","Jehovah.","LORD."), w("God","H430 - 'elohiym","God.","God."),
+                w("called","H7121 - qara'","Called.","Called."), w("unto","H413 - 'el","To.","Unto."),
+                w("Adam","H120 - 'adam","Adam.","Adam."), w("and","Conjunction","Connects.","And."),
+                w("said","H559 - 'amar","Said.","Said."), w("unto","H413 - 'el","To.","Unto."),
+                w("him","Pronoun","Adam.","Him."), w("Where","H335 - 'ay","Where.","Where."),
+                w("art","Verb","Are.","Art."), w("thou","Pronoun","You.","Thou.")
+            ]},
+            { ref:"Genesis 3:10", text:"And he said, I heard thy voice in the garden, and I was afraid, because I was naked; and I hid myself.", words:[
+                w("And","Conjunction","Continues.","And."), w("he","Pronoun","Adam.","He."),
+                w("said","H559 - 'amar","Said.","Said."), w("I","Pronoun","I.","I."),
+                w("heard","H8085 - shama`","Heard.","Heard."), w("thy","Possessive","Your.","Thy."),
+                w("voice","H6963 - qowl","Voice.","Voice."), w("in","Preposition","In.","In."),
+                w("the","Article","Specifies garden.","Definite article."), w("garden","H1588 - gan","Garden.","Garden."),
+                w("and","Conjunction","Connects.","And."), w("I","Pronoun","I.","I."),
+                w("was","Implied","Was.","Was."), w("afraid","H3372 - yare'","Afraid.","Afraid."),
+                w("because","H3588 - kiy","Because.","Because."), w("I","Pronoun","I.","I."),
+                w("was","Implied","Was.","Was."), w("naked","H5903 - `eyrom","Naked.","Naked."),
+                w("and","Conjunction","Connects.","And."), w("I","Pronoun","I.","I."),
+                w("hid","H2244 - chaba'","Hid.","Hid."), w("myself","Reflexive","Myself.","Myself.")
+            ]},
+            { ref:"Genesis 3:11", text:"And he said, Who told thee that thou wast naked? Hast thou eaten of the tree, whereof I commanded thee that thou shouldest not eat?", words:[
+                w("And","Conjunction","Continues.","And."), w("he","Pronoun","God.","He."),
+                w("said","H559 - 'amar","Said.","Said."), w("Who","H4310 - miy","Who.","Who."),
+                w("told","H5046 - nagad","Told.","Told."), w("thee","Pronoun","You.","Thee."),
+                w("that","H3588 - kiy","That.","That."), w("thou","Pronoun","You.","Thou."),
+                w("wast","Verb","Were.","Wast."), w("naked","H5903 - `eyrom","Naked.","Naked."),
+                w("Hast","Perfect","Have.","Hast."), w("thou","Pronoun","You.","Thou."),
+                w("eaten","H398 - 'akal","Eaten.","Eaten."), w("of","Preposition","From.","Of."),
+                w("the","Article","Specifies tree.","Definite article."), w("tree","H6086 - 'ets","Tree.","Tree."),
+                w("whereof","Relative","Of which.","Whereof."), w("I","Pronoun","I.","I."),
+                w("commanded","H6680 - tsavah","Commanded.","Commanded."), w("thee","Pronoun","You.","Thee."),
+                w("that","H1115 - biltiy","That not.","That."), w("thou","Pronoun","You.","Thou."),
+                w("shouldest","Modal","Should.","Shouldest."), w("not","Part of biltiy","Not.","Not."),
+                w("eat","H398 - 'akal","Eat.","Eat.")
+            ]},
+            { ref:"Genesis 3:12", text:"And the man said, The woman whom thou gavest to be with me, she gave me of the tree, and I did eat.", words:[
+                w("And","Conjunction","Continues.","And."), w("the","Article","Specifies man.","Definite article."),
+                w("man","H120 - 'adam","The man.","Man."), w("said","H559 - 'amar","Said.","Said."),
+                w("The","Article","Specifies woman.","Definite article."), w("woman","H802 - 'ishshah","Woman.","Woman."),
+                w("whom","H834 - 'asher","Whom.","Whom."), w("thou","Pronoun","You.","Thou."),
+                w("gavest","H5414 - nathan","Gave.","Gavest."), w("to","Preposition","To.","To."),
+                w("be","Implied","Be.","Be."), w("with","Preposition","With.","With."),
+                w("me","Pronoun","Me.","Me."), w("she","Pronoun","The woman.","She."),
+                w("gave","H5414 - nathan","Gave.","Gave."), w("me","Pronoun","Me.","Me."),
+                w("of","Preposition","From.","Of."), w("the","Article","Specifies tree.","Definite article."),
+                w("tree","H6086 - 'ets","Tree.","Tree."), w("and","Conjunction","Connects.","And."),
+                w("I","Pronoun","I.","I."), w("did","Auxiliary","Did.","Did."),
+                w("eat","H398 - 'akal","Eat.","Eat.")
+            ]},
+            { ref:"Genesis 3:13", text:"And the LORD God said unto the woman, What is this that thou hast done? And the woman said, The serpent beguiled me, and I did eat.", words:[
+                w("And","Conjunction","Continues.","And."), w("the","Article","Specifies the LORD.","Definite article."),
+                w("LORD","H3068 - Y@hovah","Jehovah.","LORD."), w("God","H430 - 'elohiym","God.","God."),
+                w("said","H559 - 'amar","Said.","Said."), w("unto","H413 - 'el","To.","Unto."),
+                w("the","Article","Specifies woman.","Definite article."), w("woman","H802 - 'ishshah","Woman.","Woman."),
+                w("What","H4100 - mah","What.","What."), w("is","Implied","Is.","Is."),
+                w("this","H2063 - zo'th","This.","This."), w("that","Relative","That.","That."),
+                w("thou","Pronoun","You.","Thou."), w("hast","Perfect","Have.","Hast."),
+                w("done","H6213 - 'asah","Done.","Done."), w("And","Conjunction","Continues.","And."),
+                w("the","Article","Specifies woman.","Definite article."), w("woman","H802 - 'ishshah","Woman.","Woman."),
+                w("said","H559 - 'amar","Said.","Said."), w("The","Article","Specifies serpent.","Definite article."),
+                w("serpent","H5175 - nachash","Serpent.","Serpent."), w("beguiled","H5377 - nasha'","Deceived.","Beguiled."),
+                w("me","Pronoun","Me.","Me."), w("and","Conjunction","Connects.","And."),
+                w("I","Pronoun","I.","I."), w("did","Auxiliary","Did.","Did."),
+                w("eat","H398 - 'akal","Eat.","Eat.")
+            ]},
+            { ref:"Genesis 3:14", text:"And the LORD God said unto the serpent, Because thou hast done this, thou art cursed above all cattle, and above every beast of the field; upon thy belly shalt thou go, and dust shalt thou eat all the days of thy life:", words:[
+                w("And","Conjunction","Continues.","And."), w("the","Article","Specifies the LORD.","Definite article."),
+                w("LORD","H3068 - Y@hovah","Jehovah.","LORD."), w("God","H430 - 'elohiym","God.","God."),
+                w("said","H559 - 'amar","Said.","Said."), w("unto","H413 - 'el","To.","Unto."),
+                w("the","Article","Specifies serpent.","Definite article."), w("serpent","H5175 - nachash","Serpent.","Serpent."),
+                w("Because","H3588 - kiy","Because.","Because."), w("thou","Pronoun","You.","Thou."),
+                w("hast","Perfect","Have.","Hast."), w("done","H6213 - 'asah","Done.","Done."),
+                w("this","H2063 - zo'th","This.","This."), w("thou","Pronoun","You.","Thou."),
+                w("art","Verb","Are.","Art."), w("cursed","H779 - 'arar","Cursed.","Cursed."),
+                w("above","H4480 - min","Above.","Above."), w("all","H3605 - kol","All.","All."),
+                w("cattle","H929 - b@hemah","Cattle.","Cattle."), w("and","Conjunction","Connects.","And."),
+                w("above","H4480 - min","Above.","Above."), w("every","H3605 - kol","Every.","Every."),
+                w("beast","H2416 - chay","Beast.","Beast."), w("of","Preposition","Of.","Of."),
+                w("the","Article","Specifies field.","Definite article."), w("field","H7704 - sadeh","Field.","Field."),
+                w("upon","H5921 - 'al","Upon.","Upon."), w("thy","Possessive","Your.","Thy."),
+                w("belly","H1512 - gachown","Belly.","Belly."), w("shalt","Modal","Shall.","Shalt."),
+                w("thou","Pronoun","You.","Thou."), w("go","H3212 - yalak","Go.","Go."),
+                w("and","Conjunction","Connects.","And."), w("dust","H6083 - `aphar","Dust.","Dust."),
+                w("shalt","Modal","Shall.","Shalt."), w("thou","Pronoun","You.","Thou."),
+                w("eat","H398 - 'akal","Eat.","Eat."), w("all","H3605 - kol","All.","All."),
+                w("the","Article","Specifies days.","Definite article."), w("days","H3117 - yowm","Days.","Days."),
+                w("of","Preposition","Of.","Of."), w("thy","Possessive","Your.","Thy."),
+                w("life","H2416 - chay","Life.","Life.")
+            ]},
+            { ref:"Genesis 3:15", text:"And I will put enmity between thee and the woman, and between thy seed and her seed; it shall bruise thy head, and thou shalt bruise his heel.", words:[
+                w("And","Conjunction","Continues.","And."), w("I","Pronoun","God.","I."),
+                w("will","Future","Will.","Will."), w("put","H7896 - shiyth","Put.","Put."),
+                w("enmity","H342 - 'eybah","Enmity / hostility.","Enmity."), w("between","H996 - beyn","Between.","Between."),
+                w("thee","Pronoun","You (serpent).","Thee."), w("and","Conjunction","Connects.","And."),
+                w("the","Article","Specifies woman.","Definite article."), w("woman","H802 - 'ishshah","Woman.","Woman."),
+                w("and","Conjunction","Connects.","And."), w("between","H996 - beyn","Between.","Between."),
+                w("thy","Possessive","Your.","Thy."), w("seed","H2233 - zera`","Offspring.","Seed."),
+                w("and","Conjunction","Connects.","And."), w("her","Possessive","Her.","Her."),
+                w("seed","H2233 - zera`","Offspring.","Seed."), w("it","Pronoun","Her seed.","It."),
+                w("shall","Modal","Shall.","Shall."), w("bruise","H7779 - shuwph","Crush / bruise.","Bruise."),
+                w("thy","Possessive","Your.","Thy."), w("head","H7218 - ro'sh","Head.","Head."),
+                w("and","Conjunction","Connects.","And."), w("thou","Pronoun","You.","Thou."),
+                w("shalt","Modal","Shall.","Shalt."), w("bruise","H7779 - shuwph","Bruise.","Bruise."),
+                w("his","Possessive","His.","His."), w("heel","H6119 - `aqeb","Heel.","Heel.")
+            ]},
+            { ref:"Genesis 3:16", text:"Unto the woman he said, I will greatly multiply thy sorrow and thy conception; in sorrow thou shalt bring forth children; and thy desire shall be to thy husband, and he shall rule over thee.", words:[
+                w("Unto","H413 - 'el","To.","Unto."), w("the","Article","Specifies woman.","Definite article."),
+                w("woman","H802 - 'ishshah","Woman.","Woman."), w("he","Pronoun","God.","He."),
+                w("said","H559 - 'amar","Said.","Said."), w("I","Pronoun","I.","I."),
+                w("will","Future","Will.","Will."), w("greatly","H7235 - rabah (inf. abs.)","Greatly.","Greatly."),
+                w("multiply","H7235 - rabah","Multiply.","Multiply."), w("thy","Possessive","Your.","Thy."),
+                w("sorrow","H6093 - `itstsabown","Pain / toil.","Sorrow."), w("and","Conjunction","Connects.","And."),
+                w("thy","Possessive","Your.","Thy."), w("conception","H2032 - herown","Conception.","Conception."),
+                w("in","Preposition","In.","In."), w("sorrow","H6089 - `etseb","Pain.","Sorrow."),
+                w("thou","Pronoun","You.","Thou."), w("shalt","Modal","Shall.","Shalt."),
+                w("bring","H3205 - yalad","Bring forth.","Bring."), w("forth","Part of yalad","Forth.","Forth."),
+                w("children","H1121 - ben","Children.","Children."), w("and","Conjunction","Connects.","And."),
+                w("thy","Possessive","Your.","Thy."), w("desire","H8669 - t@shuwqah","Desire.","Desire."),
+                w("shall","Modal","Shall.","Shall."), w("be","Implied","Be.","Be."),
+                w("to","Preposition","To.","To."), w("thy","Possessive","Your.","Thy."),
+                w("husband","H376 - 'iysh","Husband.","Husband."), w("and","Conjunction","Connects.","And."),
+                w("he","Pronoun","Husband.","He."), w("shall","Modal","Shall.","Shall."),
+                w("rule","H4910 - mashal","Rule.","Rule."), w("over","H5921 - 'al","Over.","Over."),
+                w("thee","Pronoun","You.","Thee.")
+            ]},
+            { ref:"Genesis 3:17", text:"And unto Adam he said, Because thou hast hearkened unto the voice of thy wife, and hast eaten of the tree, of which I commanded thee, saying, Thou shalt not eat of it: cursed is the ground for thy sake; in sorrow shalt thou eat of it all the days of thy life;", words:[
+                w("And","Conjunction","Continues.","And."), w("unto","H413 - 'el","To.","Unto."),
+                w("Adam","H120 - 'adam","Adam.","Adam."), w("he","Pronoun","God.","He."),
+                w("said","H559 - 'amar","Said.","Said."), w("Because","H3588 - kiy","Because.","Because."),
+                w("thou","Pronoun","You.","Thou."), w("hast","Perfect","Have.","Hast."),
+                w("hearkened","H8085 - shama`","Listened.","Hearkened."), w("unto","H413 - 'el","To.","Unto."),
+                w("the","Article","Specifies voice.","Definite article."), w("voice","H6963 - qowl","Voice.","Voice."),
+                w("of","Preposition","Of.","Of."), w("thy","Possessive","Your.","Thy."),
+                w("wife","H802 - 'ishshah","Wife.","Wife."), w("and","Conjunction","Connects.","And."),
+                w("hast","Perfect","Have.","Hast."), w("eaten","H398 - 'akal","Eaten.","Eaten."),
+                w("of","Preposition","From.","Of."), w("the","Article","Specifies tree.","Definite article."),
+                w("tree","H6086 - 'ets","Tree.","Tree."), w("of","Preposition","Of.","Of."),
+                w("which","H834 - 'asher","Which.","Which."), w("I","Pronoun","I.","I."),
+                w("commanded","H6680 - tsavah","Commanded.","Commanded."), w("thee","Pronoun","You.","Thee."),
+                w("saying","H559 - 'amar","Saying.","Saying."), w("Thou","Pronoun","You.","Thou."),
+                w("shalt","Modal","Shall.","Shalt."), w("not","H3808 - lo'","Not.","Not."),
+                w("eat","H398 - 'akal","Eat.","Eat."), w("of","Preposition","From.","Of."),
+                w("it","Pronoun","It.","It."), w("cursed","H779 - 'arar","Cursed.","Cursed."),
+                w("is","Implied","Is.","Is."), w("the","Article","Specifies ground.","Definite article."),
+                w("ground","H127 - 'adamah","Ground.","Ground."), w("for","Preposition","For.","For."),
+                w("thy","Possessive","Your.","Thy."), w("sake","H5668 - `abuwr","Sake.","Sake."),
+                w("in","Preposition","In.","In."), w("sorrow","H6093 - `itstsabown","Toil / pain.","Sorrow."),
+                w("shalt","Modal","Shall.","Shalt."), w("thou","Pronoun","You.","Thou."),
+                w("eat","H398 - 'akal","Eat.","Eat."), w("of","Preposition","From.","Of."),
+                w("it","Pronoun","The ground.","It."), w("all","H3605 - kol","All.","All."),
+                w("the","Article","Specifies days.","Definite article."), w("days","H3117 - yowm","Days.","Days."),
+                w("of","Preposition","Of.","Of."), w("thy","Possessive","Your.","Thy."),
+                w("life","H2416 - chay","Life.","Life.")
+            ]},
+            { ref:"Genesis 3:18", text:"Thorns also and thistles shall it bring forth to thee; and thou shalt eat the herb of the field;", words:[
+                w("Thorns","H6975 - qowts","Thorns.","Thorns."), w("also","Adverb","Also.","Also."),
+                w("and","Conjunction","Connects.","And."), w("thistles","H1863 - dardar","Thistles.","Thistles."),
+                w("shall","Modal","Shall.","Shall."), w("it","Pronoun","The ground.","It."),
+                w("bring","H6779 - tsamach","Bring forth.","Bring."), w("forth","Part of tsamach","Forth.","Forth."),
+                w("to","Preposition","To.","To."), w("thee","Pronoun","You.","Thee."),
+                w("and","Conjunction","Connects.","And."), w("thou","Pronoun","You.","Thou."),
+                w("shalt","Modal","Shall.","Shalt."), w("eat","H398 - 'akal","Eat.","Eat."),
+                w("the","Article","Specifies herb.","Definite article."), w("herb","H6212 - 'eseb","Herb.","Herb."),
+                w("of","Preposition","Of.","Of."), w("the","Article","Specifies field.","Definite article."),
+                w("field","H7704 - sadeh","Field.","Field.")
+            ]},
+            { ref:"Genesis 3:19", text:"In the sweat of thy face shalt thou eat bread, till thou return unto the ground; for out of it wast thou taken: for dust thou art, and unto dust shalt thou return.", words:[
+                w("In","Preposition","In.","In."), w("the","Article","Specifies sweat.","Definite article."),
+                w("sweat","H2188 - ze`ah","Sweat.","Sweat."), w("of","Preposition","Of.","Of."),
+                w("thy","Possessive","Your.","Thy."), w("face","H639 - 'aph","Face / nose.","Face."),
+                w("shalt","Modal","Shall.","Shalt."), w("thou","Pronoun","You.","Thou."),
+                w("eat","H398 - 'akal","Eat.","Eat."), w("bread","H3899 - lechem","Bread / food.","Bread."),
+                w("till","H5704 - `ad","Until.","Till."), w("thou","Pronoun","You.","Thou."),
+                w("return","H7725 - shuwb","Return.","Return."), w("unto","H413 - 'el","To.","Unto."),
+                w("the","Article","Specifies ground.","Definite article."), w("ground","H127 - 'adamah","Ground.","Ground."),
+                w("for","H3588 - kiy","Because.","For."), w("out","Preposition","Out.","Out."),
+                w("of","Preposition","Of.","Of."), w("it","Pronoun","The ground.","It."),
+                w("wast","Verb","Were.","Wast."), w("thou","Pronoun","You.","Thou."),
+                w("taken","H3947 - laqach","Taken.","Taken."), w("for","H3588 - kiy","Because.","For."),
+                w("dust","H6083 - `aphar","Dust.","Dust."), w("thou","Pronoun","You.","Thou."),
+                w("art","Verb","Are.","Art."), w("and","Conjunction","Connects.","And."),
+                w("unto","H413 - 'el","To.","Unto."), w("dust","H6083 - `aphar","Dust.","Dust."),
+                w("shalt","Modal","Shall.","Shalt."), w("thou","Pronoun","You.","Thou."),
+                w("return","H7725 - shuwb","Return.","Return.")
+            ]},
+            { ref:"Genesis 3:20", text:"And Adam called his wife's name Eve; because she was the mother of all living.", words:[
+                w("And","Conjunction","Continues.","And."), w("Adam","H120 - 'adam","Adam.","Adam."),
+                w("called","H7121 - qara'","Called.","Called."), w("his","Possessive","His.","His."),
+                w("wife's","H802 - 'ishshah","Wife's.","Wife's."), w("name","H8034 - shem","Name.","Name."),
+                w("Eve","H2332 - Chavvah","Eve / life.","Eve."), w("because","H3588 - kiy","Because.","Because."),
+                w("she","Pronoun","She.","She."), w("was","Implied","Was.","Was."),
+                w("the","Article","Specifies mother.","Definite article."), w("mother","H517 - 'em","Mother.","Mother."),
+                w("of","Preposition","Of.","Of."), w("all","H3605 - kol","All.","All."),
+                w("living","H2416 - chay","Living.","Living.")
+            ]},
+            { ref:"Genesis 3:21", text:"Unto Adam also and to his wife did the LORD God make coats of skins, and clothed them.", words:[
+                w("Unto","H413 - 'el","To.","Unto."), w("Adam","H120 - 'adam","Adam.","Adam."),
+                w("also","Adverb","Also.","Also."), w("and","Conjunction","Connects.","And."),
+                w("to","Preposition","To.","To."), w("his","Possessive","His.","His."),
+                w("wife","H802 - 'ishshah","Wife.","Wife."), w("did","Auxiliary","Did.","Did."),
+                w("the","Article","Specifies the LORD.","Definite article."), w("LORD","H3068 - Y@hovah","Jehovah.","LORD."),
+                w("God","H430 - 'elohiym","God.","God."), w("make","H6213 - 'asah","Make.","Make."),
+                w("coats","H3801 - k@thoneth","Tunics / coats.","Coats."), w("of","Preposition","Of.","Of."),
+                w("skins","H5785 - `owr","Skins.","Skins."), w("and","Conjunction","Connects.","And."),
+                w("clothed","H3847 - labash","Clothed.","Clothed."), w("them","Pronoun","Them.","Them.")
+            ]},
+            { ref:"Genesis 3:22", text:"And the LORD God said, Behold, the man is become as one of us, to know good and evil: and now, lest he put forth his hand, and take also of the tree of life, and eat, and live for ever:", words:[
+                w("And","Conjunction","Continues.","And."), w("the","Article","Specifies the LORD.","Definite article."),
+                w("LORD","H3068 - Y@hovah","Jehovah.","LORD."), w("God","H430 - 'elohiym","God.","God."),
+                w("said","H559 - 'amar","Said.","Said."), w("Behold","H2005 - hen","Behold.","Behold."),
+                w("the","Article","Specifies man.","Definite article."), w("man","H120 - 'adam","Man.","Man."),
+                w("is","Implied","Is.","Is."), w("become","H1961 - hayah","Become.","Become."),
+                w("as","Preposition","As.","As."), w("one","H259 - 'echad","One.","One."),
+                w("of","Preposition","Of.","Of."), w("us","Pronoun","Us.","Us."),
+                w("to","Preposition","To.","To."), w("know","H3045 - yada`","Know.","Know."),
+                w("good","H2896 - towb","Good.","Good."), w("and","Conjunction","Connects.","And."),
+                w("evil","H7451 - ra`","Evil.","Evil."), w("and","Conjunction","Connects.","And."),
+                w("now","H6258 - `attah","Now.","Now."), w("lest","H6435 - pen","Lest.","Lest."),
+                w("he","Pronoun","Man.","He."), w("put","H7971 - shalach","Put forth.","Put."),
+                w("forth","Part of shalach","Forth.","Forth."), w("his","Possessive","His.","His."),
+                w("hand","H3027 - yad","Hand.","Hand."), w("and","Conjunction","Connects.","And."),
+                w("take","H3947 - laqach","Take.","Take."), w("also","Adverb","Also.","Also."),
+                w("of","Preposition","From.","Of."), w("the","Article","Specifies tree.","Definite article."),
+                w("tree","H6086 - 'ets","Tree.","Tree."), w("of","Preposition","Of.","Of."),
+                w("life","H2416 - chay","Life.","Life."), w("and","Conjunction","Connects.","And."),
+                w("eat","H398 - 'akal","Eat.","Eat."), w("and","Conjunction","Connects.","And."),
+                w("live","H2425 - chayay","Live.","Live."), w("for","Preposition","For.","For."),
+                w("ever","H5769 - `owlam","Forever.","Ever.")
+            ]},
+            { ref:"Genesis 3:23", text:"Therefore the LORD God sent him forth from the garden of Eden, to till the ground from whence he was taken.", words:[
+                w("Therefore","H3651 - ken","Therefore.","Therefore."), w("the","Article","Specifies the LORD.","Definite article."),
+                w("LORD","H3068 - Y@hovah","Jehovah.","LORD."), w("God","H430 - 'elohiym","God.","God."),
+                w("sent","H7971 - shalach","Sent.","Sent."), w("him","Pronoun","Adam.","Him."),
+                w("forth","Part of shalach","Forth.","Forth."), w("from","Preposition","From.","From."),
+                w("the","Article","Specifies garden.","Definite article."), w("garden","H1588 - gan","Garden.","Garden."),
+                w("of","Preposition","Of.","Of."), w("Eden","H5731 - `Eden","Eden.","Eden."),
+                w("to","Preposition","To.","To."), w("till","H5647 - `abad","Cultivate.","Till."),
+                w("the","Article","Specifies ground.","Definite article."), w("ground","H127 - 'adamah","Ground.","Ground."),
+                w("from","Preposition","From.","From."), w("whence","H834 + H8033","From which.","Whence."),
+                w("he","Pronoun","Adam.","He."), w("was","Implied","Was.","Was."),
+                w("taken","H3947 - laqach","Taken.","Taken.")
+            ]},
+            { ref:"Genesis 3:24", text:"So he drove out the man; and he placed at the east of the garden of Eden Cherubims, and a flaming sword which turned every way, to keep the way of the tree of life.", words:[
+                w("So","Conjunction","So.","So."), w("he","Pronoun","God.","He."),
+                w("drove","H1644 - garash","Drove out.","Drove."), w("out","Part of garash","Out.","Out."),
+                w("the","Article","Specifies man.","Definite article."), w("man","H120 - 'adam","Man.","Man."),
+                w("and","Conjunction","Connects.","And."), w("he","Pronoun","God.","He."),
+                w("placed","H7931 - shakan","Placed / caused to dwell.","Placed."), w("at","Preposition","At.","At."),
+                w("the","Article","Specifies east.","Definite article."), w("east","H6924 - qedem","East.","East."),
+                w("of","Preposition","Of.","Of."), w("the","Article","Specifies garden.","Definite article."),
+                w("garden","H1588 - gan","Garden.","Garden."), w("of","Preposition","Of.","Of."),
+                w("Eden","H5731 - `Eden","Eden.","Eden."), w("Cherubims","H3742 - k@ruwb","Cherubim.","Cherubims."),
+                w("and","Conjunction","Connects.","And."), w("a","Article","A.","A."),
+                w("flaming","H3858 - lahat","Flaming.","Flaming."), w("sword","H2719 - chereb","Sword.","Sword."),
+                w("which","H834 - 'asher","Which.","Which."), w("turned","H2015 - haphak","Turned.","Turned."),
+                w("every","H3605 - kol","Every.","Every."), w("way","Part of haphak","Way.","Way."),
+                w("to","Preposition","To.","To."), w("keep","H8104 - shamar","Guard.","Keep."),
+                w("the","Article","Specifies way.","Definite article."), w("way","H1870 - derek","Way / path.","Way."),
+                w("of","Preposition","Of.","Of."), w("the","Article","Specifies tree.","Definite article."),
+                w("tree","H6086 - 'ets","Tree.","Tree."), w("of","Preposition","Of.","Of."),
+                w("life","H2416 - chay","Life.","Life.")
+            ]}
+        ];
+
+        const versesDiv = document.getElementById('verses');
+        verses.forEach((verse, index) => {
+            const verseDiv = document.createElement('div');
+            verseDiv.className = 'verse';
+            let wordsHTML = '';
+            verse.words.forEach(item => {
+                wordsHTML += `<div class="word-block"><div class="word-title">${item.word}</div><span class="def-label">Strong's:</span><div>${item.strongs}</div><span class="def-label">Vine's:</span><div>${item.vines}</div><span class="def-label">Webster's 1828:</span><div>${item.webster}</div></div>`;
+            });
+            verseDiv.innerHTML = `<strong>${verse.ref}</strong><div class="verse-text">${verse.text}</div><div class="verse-menu" id="menu-${index}">${wordsHTML}<p style="margin-top:18px;"><strong>My Notes:</strong></p><textarea placeholder="Write your notes here..." onblur="saveNote('${verse.ref}', this.value)">${localStorage.getItem('note-' + verse.ref) || ''}</textarea></div>`;
+            verseDiv.onclick = function(e) {
+                if (e.target.tagName === 'TEXTAREA') return;
+                const menu = document.getElementById('menu-' + index);
+                menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+            };
+            versesDiv.appendChild(verseDiv);
+        });
+        function saveNote(reference, text) {
+            if (text.trim() === '') localStorage.removeItem('note-' + reference);
+            else localStorage.setItem('note-' + reference, text);
+        }
+    </script>
+</body>
+</html>
