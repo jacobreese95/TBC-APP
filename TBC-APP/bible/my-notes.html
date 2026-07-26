@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Notes - TBC Bible</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>My Notes</h1>
+    </header>
+
+    <div class="container">
+        <button class="back-btn" onclick="window.location.href='index.html'">← Back to Bible</button>
+
+        <p style="margin-bottom: 20px; color: #555;">
+            All the notes you save on individual verses will appear here.
+        </p>
+
+        <div id="notes-list">
+            <p style="color: #888;">You don’t have any notes yet.</p>
+        </div>
+    </div>
+
+    <script>
+        // This will load and display all saved notes later
+        function loadNotes() {
+            const notesList = document.getElementById('notes-list');
+            const notes = [];
+
+            // Look through localStorage for any notes
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('note-')) {
+                    notes.push({
+                        reference: key.replace('note-', ''),
+                        text: localStorage.getItem(key)
+                    });
+                }
+            }
+
+            if (notes.length === 0) {
+                notesList.innerHTML = `<p style="color: #888;">You don’t have any notes yet.</p>`;
+                return;
+            }
+
+            // Sort notes by reference
+            notes.sort((a, b) => a.reference.localeCompare(b.reference));
+
+            let html = '';
+            notes.forEach(note => {
+                html

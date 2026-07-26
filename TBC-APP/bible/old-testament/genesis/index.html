@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genesis - TBC Bible</title>
+    <link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+    <header>
+        <h1>Genesis</h1>
+    </header>
+
+    <div class="container">
+        <button class="back-btn" onclick="window.location.href='../index.html'">← Back to Old Testament</button>
+
+        <input type="text" id="genesis-search" class="search-bar" placeholder="Search the book of Genesis..." onkeyup="searchGenesis()">
+
+        <!-- Hard-coded Chapter 1 button for testing -->
+        <button class="chapter-btn" style="width:100%; margin:15px 0; padding:18px; font-size:1.2rem;" onclick="window.location.href='chapter-1/index.html'">
+            Chapter 1
+        </button>
+
+        <div class="chapter-list" id="chapter-list"></div>
+
+        <div id="search-results"></div>
+    </div>
+
+    <script>
+        // Create the rest of the chapters (2–50)
+        const chapterList = document.getElementById('chapter-list');
+
+        for (let i = 2; i <= 50; i++) {
+            const btn = document.createElement('div');
+            btn.className = 'chapter-btn';
+            btn.textContent = "Chapter " + i;
+            btn.onclick = function() {
+                alert("Chapter " + i + " is not built yet");
+            };
+            chapterList.appendChild(btn);
+        }
+
+        function searchGenesis() {
+            const query = document.getElementById('genesis-search').value.trim().toLowerCase();
+            const resultsDiv = document.getElementById('search-results');
+
+            if (query.length < 2) {
+                resultsDiv.innerHTML = '';
+                return;
+            }
+
+            resultsDiv.innerHTML = `<p>Searching Genesis for "<strong>${query}</strong>"... (Full search coming soon)</p>`;
+        }
+    </script>
+</body>
+</html>
