@@ -5,6 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Notes - TBC Bible</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .note-card {
+            background: #f8f8f8;
+            border-left: 4px solid #1a3a5c;
+            padding: 15px;
+            margin: 12px 0;
+            border-radius: 6px;
+        }
+        .note-ref {
+            font-weight: bold;
+            color: #1a3a5c;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+        .note-text {
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+        .empty-msg {
+            color: #888;
+            text-align: center;
+            margin-top: 40px;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -19,35 +43,52 @@
         </p>
 
         <div id="notes-list">
-            <p style="color: #888;">You don’t have any notes yet.</p>
+            <p class="empty-msg">Loading notes...</p>
         </div>
     </div>
 
     <script>
-        // This will load and display all saved notes later
         function loadNotes() {
             const notesList = document.getElementById('notes-list');
             const notes = [];
 
-            // Look through localStorage for any notes
+            // Collect every note that starts with "note-"
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
                 if (key && key.startsWith('note-')) {
-                    notes.push({
-                        reference: key.replace('note-', ''),
-                        text: localStorage.getItem(key)
-                    });
+                    const text = localStorage.getItem(key);
+                    if (text && text.trim() !== '') {
+                        notes.push({
+                            reference: key.replace('note-', ''),
+                            text: text
+                        });
+                    }
                 }
             }
 
             if (notes.length === 0) {
-                notesList.innerHTML = `<p style="color: #888;">You don’t have any notes yet.</p>`;
+                notesList.innerHTML = `<p class="empty-msg">You don’t have any notes yet.<br>Open a verse and write something in the notes box.</p>`;
                 return;
             }
 
-            // Sort notes by reference
-            notes.sort((a, b) => a.reference.localeCompare(b.reference));
+            // Sort by reference (Genesis 1:1, Genesis 1:2, etc.)
+            notes.sort((a, b) => a.reference.localeCompare(b.reference, undefined, { numeric: true }));
 
             let html = '';
             notes.forEach(note => {
-                html
+                html += `
+                    <div class="note-card">
+                        <div class="note-ref">${note.reference}</div>
+                        <div class="note-text">${note.text}</div>
+                    </div>
+                `;
+            });
+
+            notesList.innerHTML = html;
+        }
+
+        // Load notes as soon as the page opens
+        loadNotes();
+    </script>
+</body>
+</html>
