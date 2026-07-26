@@ -5,6 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Genesis - TBC Bible</title>
     <link rel="stylesheet" href="../../style.css">
+    <style>
+        .search-result {
+            background: #f8f8f8;
+            border-left: 4px solid #1a3a5c;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .search-result:hover { background: #eef3f8; }
+        .search-ref { font-weight: bold; color: #1a3a5c; margin-bottom: 4px; }
+        .search-text { font-size: 0.95rem; line-height: 1.4; color: #333; }
+        .search-count { color: #666; margin: 10px 0; font-size: 0.9rem; }
+        mark { background: #ffe066; padding: 0 2px; }
+    </style>
 </head>
 <body>
     <header>
@@ -14,32 +29,119 @@
     <div class="container">
         <button class="back-btn" onclick="window.location.href='../index.html'">← Back to Old Testament</button>
 
-        <input type="text" id="genesis-search" class="search-bar" placeholder="Search the book of Genesis..." onkeyup="searchGenesis()">
-
-        <div class="chapter-list" id="chapter-list"></div>
+        <input type="text" id="genesis-search" class="search-bar" placeholder="Search Genesis (e.g. light, Adam, garden)..." oninput="searchGenesis()">
 
         <div id="search-results"></div>
+
+        <div class="chapter-list" id="chapter-list"></div>
     </div>
 
     <script>
+        // Searchable text for the chapters we have built
+        const genesisVerses = [
+            { ref: "Genesis 1:1", text: "In the beginning God created the heaven and the earth.", chapter: 1 },
+            { ref: "Genesis 1:2", text: "And the earth was without form, and void; and darkness was upon the face of the deep. And the Spirit of God moved upon the face of the waters.", chapter: 1 },
+            { ref: "Genesis 1:3", text: "And God said, Let there be light: and there was light.", chapter: 1 },
+            { ref: "Genesis 1:4", text: "And God saw the light, that it was good: and God divided the light from the darkness.", chapter: 1 },
+            { ref: "Genesis 1:5", text: "And God called the light Day, and the darkness he called Night. And the evening and the morning were the first day.", chapter: 1 },
+            { ref: "Genesis 1:6", text: "And God said, Let there be a firmament in the midst of the waters, and let it divide the waters from the waters.", chapter: 1 },
+            { ref: "Genesis 1:7", text: "And God made the firmament, and divided the waters which were under the firmament from the waters which were above the firmament: and it was so.", chapter: 1 },
+            { ref: "Genesis 1:8", text: "And God called the firmament Heaven. And the evening and the morning were the second day.", chapter: 1 },
+            { ref: "Genesis 1:9", text: "And God said, Let the waters under the heaven be gathered together unto one place, and let the dry land appear: and it was so.", chapter: 1 },
+            { ref: "Genesis 1:10", text: "And God called the dry land Earth; and the gathering together of the waters called he Seas: and God saw that it was good.", chapter: 1 },
+            { ref: "Genesis 1:11", text: "And God said, Let the earth bring forth grass, the herb yielding seed, and the fruit tree yielding fruit after his kind, whose seed is in itself, upon the earth: and it was so.", chapter: 1 },
+            { ref: "Genesis 1:12", text: "And the earth brought forth grass, and herb yielding seed after his kind, and the tree yielding fruit, whose seed was in itself, after his kind: and God saw that it was good.", chapter: 1 },
+            { ref: "Genesis 1:13", text: "And the evening and the morning were the third day.", chapter: 1 },
+            { ref: "Genesis 1:14", text: "And God said, Let there be lights in the firmament of the heaven to divide the day from the night; and let them be for signs, and for seasons, and for days, and years:", chapter: 1 },
+            { ref: "Genesis 1:15", text: "And let them be for lights in the firmament of the heaven to give light upon the earth: and it was so.", chapter: 1 },
+            { ref: "Genesis 1:16", text: "And God made two great lights; the greater light to rule the day, and the lesser light to rule the night: he made the stars also.", chapter: 1 },
+            { ref: "Genesis 1:17", text: "And God set them in the firmament of the heaven to give light upon the earth,", chapter: 1 },
+            { ref: "Genesis 1:18", text: "And to rule over the day and over the night, and to divide the light from the darkness: and God saw that it was good.", chapter: 1 },
+            { ref: "Genesis 1:19", text: "And the evening and the morning were the fourth day.", chapter: 1 },
+            { ref: "Genesis 1:20", text: "And God said, Let the waters bring forth abundantly the moving creature that hath life, and fowl that may fly above the earth in the open firmament of heaven.", chapter: 1 },
+            { ref: "Genesis 1:21", text: "And God created great whales, and every living creature that moveth, which the waters brought forth abundantly, after their kind, and every winged fowl after his kind: and God saw that it was good.", chapter: 1 },
+            { ref: "Genesis 1:22", text: "And God blessed them, saying, Be fruitful, and multiply, and fill the waters in the seas, and let fowl multiply in the earth.", chapter: 1 },
+            { ref: "Genesis 1:23", text: "And the evening and the morning were the fifth day.", chapter: 1 },
+            { ref: "Genesis 1:24", text: "And God said, Let the earth bring forth the living creature after his kind, cattle, and creeping thing, and beast of the earth after his kind: and it was so.", chapter: 1 },
+            { ref: "Genesis 1:25", text: "And God made the beast of the earth after his kind, and cattle after their kind, and every thing that creepeth upon the earth after his kind: and God saw that it was good.", chapter: 1 },
+            { ref: "Genesis 1:26", text: "And God said, Let us make man in our image, after our likeness: and let them have dominion over the fish of the sea, and over the fowl of the air, and over the cattle, and over all the earth, and over every creeping thing that creepeth upon the earth.", chapter: 1 },
+            { ref: "Genesis 1:27", text: "So God created man in his own image, in the image of God created he him; male and female created he them.", chapter: 1 },
+            { ref: "Genesis 1:28", text: "And God blessed them, and God said unto them, Be fruitful, and multiply, and replenish the earth, and subdue it: and have dominion over the fish of the sea, and over the fowl of the air, and over every living thing that moveth upon the earth.", chapter: 1 },
+            { ref: "Genesis 1:29", text: "And God said, Behold, I have given you every herb bearing seed, which is upon the face of all the earth, and every tree, in the which is the fruit of a tree yielding seed; to you it shall be for meat.", chapter: 1 },
+            { ref: "Genesis 1:30", text: "And to every beast of the earth, and to every fowl of the air, and to every thing that creepeth upon the earth, wherein there is life, I have given every green herb for meat: and it was so.", chapter: 1 },
+            { ref: "Genesis 1:31", text: "And God saw every thing that he had made, and, behold, it was very good. And the evening and the morning were the sixth day.", chapter: 1 },
+            { ref: "Genesis 2:1", text: "Thus the heavens and the earth were finished, and all the host of them.", chapter: 2 },
+            { ref: "Genesis 2:2", text: "And on the seventh day God ended his work which he had made; and he rested on the seventh day from all his work which he had made.", chapter: 2 },
+            { ref: "Genesis 2:3", text: "And God blessed the seventh day, and sanctified it: because that in it he had rested from all his work which God created and made.", chapter: 2 },
+            { ref: "Genesis 2:4", text: "These are the generations of the heavens and of the earth when they were created, in the day that the LORD God made the earth and the heavens,", chapter: 2 },
+            { ref: "Genesis 2:5", text: "And every plant of the field before it was in the earth, and every herb of the field before it grew: for the LORD God had not caused it to rain upon the earth, and there was not a man to till the ground.", chapter: 2 },
+            { ref: "Genesis 2:6", text: "But there went up a mist from the earth, and watered the whole face of the ground.", chapter: 2 },
+            { ref: "Genesis 2:7", text: "And the LORD God formed man of the dust of the ground, and breathed into his nostrils the breath of life; and man became a living soul.", chapter: 2 },
+            { ref: "Genesis 2:8", text: "And the LORD God planted a garden eastward in Eden; and there he put the man whom he had formed.", chapter: 2 },
+            { ref: "Genesis 2:9", text: "And out of the ground made the LORD God to grow every tree that is pleasant to the sight, and good for food; the tree of life also in the midst of the garden, and the tree of knowledge of good and evil.", chapter: 2 },
+            { ref: "Genesis 2:10", text: "And a river went out of Eden to water the garden; and from thence it was parted, and became into four heads.", chapter: 2 },
+            { ref: "Genesis 2:15", text: "And the LORD God took the man, and put him into the garden of Eden to dress it and to keep it.", chapter: 2 },
+            { ref: "Genesis 2:16", text: "And the LORD God commanded the man, saying, Of every tree of the garden thou mayest freely eat:", chapter: 2 },
+            { ref: "Genesis 2:17", text: "But of the tree of the knowledge of good and evil, thou shalt not eat of it: for in the day that thou eatest thereof thou shalt surely die.", chapter: 2 },
+            { ref: "Genesis 2:18", text: "And the LORD God said, It is not good that the man should be alone; I will make him an help meet for him.", chapter: 2 },
+            { ref: "Genesis 2:21", text: "And the LORD God caused a deep sleep to fall upon Adam, and he slept: and he took one of his ribs, and closed up the flesh instead thereof;", chapter: 2 },
+            { ref: "Genesis 2:22", text: "And the rib, which the LORD God had taken from man, made he a woman, and brought her unto the man.", chapter: 2 },
+            { ref: "Genesis 2:23", text: "And Adam said, This is now bone of my bones, and flesh of my flesh: she shall be called Woman, because she was taken out of Man.", chapter: 2 },
+            { ref: "Genesis 2:24", text: "Therefore shall a man leave his father and his mother, and shall cleave unto his wife: and they shall be one flesh.", chapter: 2 },
+            { ref: "Genesis 2:25", text: "And they were both naked, the man and his wife, and were not ashamed.", chapter: 2 },
+            { ref: "Genesis 3:1", text: "Now the serpent was more subtil than any beast of the field which the LORD God had made. And he said unto the woman, Yea, hath God said, Ye shall not eat of every tree of the garden?", chapter: 3 },
+            { ref: "Genesis 3:2", text: "And the woman said unto the serpent, We may eat of the fruit of the trees of the garden:", chapter: 3 },
+            { ref: "Genesis 3:3", text: "But of the fruit of the tree which is in the midst of the garden, God hath said, Ye shall not eat of it, neither shall ye touch it, lest ye die.", chapter: 3 },
+            { ref: "Genesis 3:4", text: "And the serpent said unto the woman, Ye shall not surely die:", chapter: 3 },
+            { ref: "Genesis 3:5", text: "For God doth know that in the day ye eat thereof, then your eyes shall be opened, and ye shall be as gods, knowing good and evil.", chapter: 3 },
+            { ref: "Genesis 3:6", text: "And when the woman saw that the tree was good for food, and that it was pleasant to the eyes, and a tree to be desired to make one wise, she took of the fruit thereof, and did eat, and gave also unto her husband with her; and he did eat.", chapter: 3 },
+            { ref: "Genesis 3:7", text: "And the eyes of them both were opened, and they knew that they were naked; and they sewed fig leaves together, and made themselves aprons.", chapter: 3 },
+            { ref: "Genesis 3:8", text: "And they heard the voice of the LORD God walking in the garden in the cool of the day: and Adam and his wife hid themselves from the presence of the LORD God amongst the trees of the garden.", chapter: 3 },
+            { ref: "Genesis 3:9", text: "And the LORD God called unto Adam, and said unto him, Where art thou?", chapter: 3 },
+            { ref: "Genesis 3:10", text: "And he said, I heard thy voice in the garden, and I was afraid, because I was naked; and I hid myself.", chapter: 3 },
+            { ref: "Genesis 3:11", text: "And he said, Who told thee that thou wast naked? Hast thou eaten of the tree, whereof I commanded thee that thou shouldest not eat?", chapter: 3 },
+            { ref: "Genesis 3:12", text: "And the man said, The woman whom thou gavest to be with me, she gave me of the tree, and I did eat.", chapter: 3 },
+            { ref: "Genesis 3:13", text: "And the LORD God said unto the woman, What is this that thou hast done? And the woman said, The serpent beguiled me, and I did eat.", chapter: 3 },
+            { ref: "Genesis 3:14", text: "And the LORD God said unto the serpent, Because thou hast done this, thou art cursed above all cattle, and above every beast of the field; upon thy belly shalt thou go, and dust shalt thou eat all the days of thy life:", chapter: 3 },
+            { ref: "Genesis 3:15", text: "And I will put enmity between thee and the woman, and between thy seed and her seed; it shall bruise thy head, and thou shalt bruise his heel.", chapter: 3 },
+            { ref: "Genesis 3:16", text: "Unto the woman he said, I will greatly multiply thy sorrow and thy conception; in sorrow thou shalt bring forth children; and thy desire shall be to thy husband, and he shall rule over thee.", chapter: 3 },
+            { ref: "Genesis 3:17", text: "And unto Adam he said, Because thou hast hearkened unto the voice of thy wife, and hast eaten of the tree, of which I commanded thee, saying, Thou shalt not eat of it: cursed is the ground for thy sake; in sorrow shalt thou eat of it all the days of thy life;", chapter: 3 },
+            { ref: "Genesis 3:19", text: "In the sweat of thy face shalt thou eat bread, till thou return unto the ground; for out of it wast thou taken: for dust thou art, and unto dust shalt thou return.", chapter: 3 },
+            { ref: "Genesis 3:20", text: "And Adam called his wife's name Eve; because she was the mother of all living.", chapter: 3 },
+            { ref: "Genesis 3:21", text: "Unto Adam also and to his wife did the LORD God make coats of skins, and clothed them.", chapter: 3 },
+            { ref: "Genesis 3:22", text: "And the LORD God said, Behold, the man is become as one of us, to know good and evil: and now, lest he put forth his hand, and take also of the tree of life, and eat, and live for ever:", chapter: 3 },
+            { ref: "Genesis 3:23", text: "Therefore the LORD God sent him forth from the garden of Eden, to till the ground from whence he was taken.", chapter: 3 },
+            { ref: "Genesis 3:24", text: "So he drove out the man; and he placed at the east of the garden of Eden Cherubims, and a flaming sword which turned every way, to keep the way of the tree of life.", chapter: 3 }
+        ];
+
         const chapterList = document.getElementById('chapter-list');
 
-        for (let i = 1; i <= 50; i++) {
-            const btn = document.createElement('div');
-            btn.className = 'chapter-btn';
-            btn.textContent = 'Chapter ' + i;
+        function renderChapters() {
+            chapterList.innerHTML = '';
+            for (let i = 1; i <= 50; i++) {
+                const btn = document.createElement('div');
+                btn.className = 'chapter-btn';
+                btn.textContent = 'Chapter ' + i;
 
-            if (i === 1) {
-                btn.onclick = function() { window.location.href = 'chapter-1/index.html'; };
-            } else if (i === 2) {
-                btn.onclick = function() { window.location.href = 'chapter-2/index.html'; };
-            } else if (i === 3) {
-                btn.onclick = function() { window.location.href = 'chapter-3/index.html'; };
-            } else {
-                btn.onclick = function() { alert('Chapter ' + i + ' is not built yet'); };
+                if (i === 1) {
+                    btn.onclick = function() { window.location.href = 'chapter-1/index.html'; };
+                } else if (i === 2) {
+                    btn.onclick = function() { window.location.href = 'chapter-2/index.html'; };
+                } else if (i === 3) {
+                    btn.onclick = function() { window.location.href = 'chapter-3/index.html'; };
+                } else {
+                    btn.onclick = function() { alert('Chapter ' + i + ' is not built yet'); };
+                }
+
+                chapterList.appendChild(btn);
             }
+        }
 
-            chapterList.appendChild(btn);
+        function highlight(text, query) {
+            if (!query) return text;
+            const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const re = new RegExp('(' + escaped + ')', 'gi');
+            return text.replace(re, '<mark>$1</mark>');
         }
 
         function searchGenesis() {
@@ -48,11 +150,36 @@
 
             if (query.length < 2) {
                 resultsDiv.innerHTML = '';
+                chapterList.style.display = 'block';
                 return;
             }
 
-            resultsDiv.innerHTML = `<p>Searching Genesis for "<strong>${query}</strong>"... (Full search coming soon)</p>`;
+            chapterList.style.display = 'none';
+
+            const matches = genesisVerses.filter(v =>
+                v.text.toLowerCase().includes(query) || v.ref.toLowerCase().includes(query)
+            );
+
+            if (matches.length === 0) {
+                resultsDiv.innerHTML = '<p class="search-count">No results found for "' + query + '". (Search currently covers Genesis 1–3)</p>';
+                return;
+            }
+
+            let html = '<p class="search-count">' + matches.length + ' result' + (matches.length === 1 ? '' : 's') + ' in Genesis 1–3</p>';
+
+            matches.forEach(v => {
+                html += `
+                    <div class="search-result" onclick="window.location.href='chapter-${v.chapter}/index.html'">
+                        <div class="search-ref">${v.ref}</div>
+                        <div class="search-text">${highlight(v.text, query)}</div>
+                    </div>
+                `;
+            });
+
+            resultsDiv.innerHTML = html;
         }
+
+        renderChapters();
     </script>
 </body>
 </html>
