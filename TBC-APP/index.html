@@ -21,6 +21,7 @@
         <a href="soul-winning.html" id="drawer-soulwinning">Soul Winning</a>
         <a href="upload-photos.html" id="drawer-upload">Upload Photos</a>
         <a href="profile.html" id="drawer-profile">Profile</a>
+        <a href="admin.html" id="drawer-admin" style="display:none;">Admin</a>
         <a href="#" id="drawer-logout" onclick="signOutUser().then(() => window.location.reload())">Logout</a>
     </div>
 
@@ -71,6 +72,7 @@
             const drawerChats = document.getElementById('drawer-chats');
             const drawerSoul = document.getElementById('drawer-soulwinning');
             const drawerUpload = document.getElementById('drawer-upload');
+            const drawerAdmin = document.getElementById('drawer-admin');
             const btnCalendar = document.getElementById('btn-calendar');
             const btnChats = document.getElementById('btn-chats');
             const btnSoul = document.getElementById('btn-soulwinning');
@@ -84,6 +86,7 @@
                 drawerChats.style.display = 'none';
                 drawerSoul.style.display = 'none';
                 drawerUpload.style.display = 'none';
+                drawerAdmin.style.display = 'none';
                 btnCalendar.style.display = 'none';
                 btnChats.style.display = 'none';
                 btnSoul.style.display = 'none';
@@ -105,6 +108,11 @@
 
             try {
                 const profile = await ensureUserProfile(user);
+                if (profile && profile.role === 'admin') {
+                    drawerAdmin.style.display = 'block';
+                } else {
+                    drawerAdmin.style.display = 'none';
+                }
                 if (profile && !profile.approved) {
                     drawerProfile.style.display = 'none';
                 }
