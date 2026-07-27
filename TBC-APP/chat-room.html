@@ -111,7 +111,7 @@
             width: 100%;
             box-sizing: border-box;
             position: relative;
-            z-index: 20;
+            z-index: 50;
             pointer-events: auto;
         }
         .composer textarea {
@@ -129,7 +129,8 @@
             -webkit-user-select: text;
             user-select: text;
             position: relative;
-            z-index: 21;
+            z-index: 51;
+            background: #fff;
         }
         .composer button {
             width: 100% !important;
@@ -145,7 +146,7 @@
             box-sizing: border-box !important;
             pointer-events: auto !important;
             position: relative;
-            z-index: 21;
+            z-index: 51;
         }
         .composer .prayer-btn {
             background: #8845a5 !important;
@@ -166,9 +167,9 @@
         <div class="chat-messages" id="chat-messages"></div>
 
         <div class="composer" id="composer">
-            <textarea id="message-input" placeholder="Type a message..." onclick="this.focus()" ontouchstart="this.focus()" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); sendMessage(false);}"></textarea>
-            <button type="button" onclick="sendMessage(false)">Send</button>
-            <button type="button" id="prayerBtn" class="prayer-btn" onclick="sendMessage(true)" style="display:none;">🙏 Prayer Request</button>
+            <textarea id="message-input" placeholder="Type a message..."></textarea>
+            <button type="button" id="sendBtn">Send</button>
+            <button type="button" id="prayerBtn" class="prayer-btn" style="display:none;">🙏 Prayer Request</button>
         </div>
     </div>
 
@@ -192,6 +193,7 @@
     <script>
         let room = new URLSearchParams(window.location.search).get('room') || 'Whole Church';
         let currentUser = null;
+        let displayName = 'User';
         let isSending = false;
 
         function toggleDrawer() {
@@ -216,75 +218,67 @@
 
         function scrollToBottom() {
             const container = document.getElementById('chat-messages');
-            setTimeout(() => {
-                container.scrollTop = container.scrollHeight;
-            }, 50);
+            container.scrollTop = container.scrollHeight;
         }
 
-        async function loadMessages() {
+        function loadMessages() {
             const container = document.getElementById('chat-messages');
-            try {
-                const snapshot = await db.collection('chats').doc(room).collection('messages').orderBy('createdAt').get();
-                container.innerHTML = '';
-                snapshot.forEach(doc => {
-                    const m = doc.data();
-                    const div = document.createElement('div');
-                    let classes = 'message ';
-                    if (m.isPrayer) {
-                        classes += 'prayer';
-                    } else {
-                        classes += (m.uid === currentUser.uid ? 'sent' : 'received');
-                    }
-                    div.className = classes;
-                    const displayName = m.name || currentUser.displayName || currentUser.name || 'User';
-                    let html = `<strong>${displayName}</strong><br>${m.text}`;
-                    if (m.isPrayer) {
-                        html += `<div class="prayer-tag">🙏 Prayer Request</div>`;
-                    }
-                    div.innerHTML = html;
-                    container.appendChild(div);
-                });
-                scrollToBottom();
-            } catch(e) {
-                console.error(e);
-            }
+            db.collection('chats').doc(room).collection('messages').orderBy('createdAt').get()
+              .then(snapshot => {
+                  container.innerHTML = '';
+                  snapshot.forEach(doc => {
+                      const m = doc.data();
+                      const div = document.createElement('div');
+                      let classes = 'message ';
+                      if (m.isPrayer) {
+                          classes += 'prayer';
+                      } else {
+                          classes += (m.uid === currentUser.uid ? 'sent' : 'received');
+                      }
+                      div.className = classes;
+                      const name = m.name || displayName || 'User';
+                      let html = `<strong>${name}</strong><br>${m.text}`;
+                      if (m.isPrayer) {
+                          html += `<div class="prayer-tag">🙏 Prayer Request</div>`;
+                      }
+                      div.innerHTML = html;
+                      container.appendChild(div);
+                  });
+                  scrollToBottom();
+              })
+              .catch(e => console.error(e));
         }
 
-        async function sendMessage(isPrayer) {
-            if (isSending) return;
+        function sendMessage(isPrayer) {
+            if (isSending || !currentUser) return;
 
             const input = document.getElementById('message-input');
             const text = input.value.trim();
-            if (!text || !currentUser) return;
+            if (!text) return;
 
             isSending = true;
+
+            // Clear and keep focus right away (same user tap)
             input.value = '';
+            input.focus();
 
-            let displayName = currentUser.displayName || currentUser.name || 'User';
-            if (displayName === 'User' && currentUser.uid) {
-                try {
-                    const userDoc = await db.collection('users').doc(currentUser.uid).get();
-                    if (userDoc.exists) {
-                        const u = userDoc.data();
-                        displayName = u.name || u.displayName || 'User';
-                    }
-                } catch(e) {}
-            }
-
-            try {
-                await db.collection('chats').doc(room).collection('messages').add({
-                    text,
-                    uid: currentUser.uid,
-                    name: displayName,
-                    isPrayer: !!isPrayer,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-            } catch(e) {
+            db.collection('chats').doc(room).collection('messages').add({
+                text,
+                uid: currentUser.uid,
+                name: displayName,
+                isPrayer: !!isPrayer,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .then(() => {
+                isSending = false;
+                input.focus();
+            })
+            .catch(e => {
+                isSending = false;
                 alert('Error sending: ' + e.message);
                 input.value = text;
-            } finally {
-                isSending = false;
-            }
+                input.focus();
+            });
         }
 
         async function init() {
@@ -294,10 +288,13 @@
                     const userDoc = await db.collection('users').doc(currentUser.uid).get();
                     if (userDoc.exists) {
                         const u = userDoc.data();
-                        currentUser.displayName = u.name || u.displayName || currentUser.displayName || 'User';
-                        currentUser.name = currentUser.displayName;
+                        displayName = u.name || u.displayName || currentUser.displayName || 'User';
+                    } else {
+                        displayName = currentUser.displayName || currentUser.name || 'User';
                     }
-                } catch(e) {}
+                } catch(e) {
+                    displayName = currentUser.displayName || currentUser.name || 'User';
+                }
             }
 
             document.getElementById('room-title').textContent = room;
@@ -308,17 +305,28 @@
 
             renderWeekHeader();
 
-            // Make sure tapping the composer always focuses the text box
             const input = document.getElementById('message-input');
-            const composer = document.getElementById('composer');
-            composer.addEventListener('click', function(e) {
-                if (e.target === composer || e.target === input) {
-                    input.focus();
+
+            // Enter key sends
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage(false);
                 }
             });
-            input.addEventListener('touchend', function(e) {
+
+            // Buttons
+            document.getElementById('sendBtn').addEventListener('click', function() {
+                sendMessage(false);
+            });
+            document.getElementById('prayerBtn').addEventListener('click', function() {
+                sendMessage(true);
+            });
+
+            // Always allow tapping back into the text box
+            input.addEventListener('click', function() {
                 input.focus();
-            }, { passive: true });
+            });
 
             db.collection('chats').doc(room).collection('messages')
               .orderBy('createdAt')
