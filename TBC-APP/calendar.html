@@ -84,7 +84,7 @@
 
         let currentDate = new Date();
         let allEvents = [];
-        let currentFilter = 'all';
+        let currentFilter = 'Whole Church';
 
         function toggleDrawer() {
             const drawer = document.getElementById('drawer');
@@ -99,18 +99,22 @@
             const container = document.getElementById('filter-bar');
             container.innerHTML = '';
 
-            // Always show All and Whole Church
-            const allBtn = document.createElement('button');
-            allBtn.className = 'filter-btn active';
-            allBtn.dataset.filter = 'all';
-            allBtn.textContent = 'All';
-            container.appendChild(allBtn);
-
+            // Always show Whole Church
             const wholeBtn = document.createElement('button');
-            wholeBtn.className = 'filter-btn';
+            wholeBtn.className = 'filter-btn active';
             wholeBtn.dataset.filter = 'Whole Church';
             wholeBtn.textContent = 'Whole Church';
             container.appendChild(wholeBtn);
+
+            // Only show All if user has multiple ministries or is admin
+            const hasMultiple = isAdmin || userMinistries.length > 1;
+            if (hasMultiple) {
+                const allBtn = document.createElement('button');
+                allBtn.className = 'filter-btn';
+                allBtn.dataset.filter = 'all';
+                allBtn.textContent = 'All';
+                container.appendChild(allBtn);
+            }
 
             allMinistries.forEach(ministry => {
                 if (ministry !== 'Whole Church' && (isAdmin || userMinistries.includes(ministry))) {
@@ -127,7 +131,7 @@
                 btn.onclick = () => {
                     container.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
-                    currentFilter = btn.dataset-filter;
+                    currentFilter = btn.dataset.filter;
                     renderCalendar();
                 };
             });
