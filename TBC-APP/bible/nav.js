@@ -23,6 +23,7 @@
     '<a href="#" onclick="window.open(\'https://www.google.com/maps/place/11801+E+Lincoln+St,+Wichita,+KS+67207\', \'_blank\'); toggleMenu(); return false;">View Location on Google Maps</a>' +
     '<a href="../../../../soul-winning.html">Soul Winning</a>' +
     '<a href="../../../../profile.html">Profile</a>' +
+    '<a href="../../../../admin.html" id="drawer-admin" style="display:none;">Admin</a>' +
     '<a href="#" onclick="signOutUser().then(() => window.location.href=\'../../../../index.html\')">Logout</a>' +
     '</div>';
 
@@ -33,4 +34,16 @@
       document.body.insertAdjacentHTML('afterbegin', html);
     });
   }
+
+  // Show Admin link only to admins
+  setTimeout(async function() {
+    const user = firebase.auth().currentUser;
+    if (user) {
+      const snap = await firebase.firestore().collection('users').doc(user.uid).get();
+      if (snap.exists && snap.data().role === 'admin') {
+        const adminLink = document.getElementById('drawer-admin');
+        if (adminLink) adminLink.style.display = 'block';
+      }
+    }
+  }, 800);
 })();
