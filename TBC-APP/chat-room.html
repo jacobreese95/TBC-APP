@@ -9,11 +9,12 @@
         html, body {
             height: 100%;
             margin: 0;
-            overflow: hidden;
+            padding: 0;
         }
         body {
             display: flex;
             flex-direction: column;
+            min-height: 100vh;
         }
         header {
             flex-shrink: 0;
@@ -22,9 +23,9 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-            padding: 10px 16px 0;
+            padding: 10px 16px;
             box-sizing: border-box;
+            overflow: hidden;
         }
         .week-header {
             display: flex;
@@ -43,7 +44,6 @@
             background: white;
             cursor: pointer;
         }
-        .week-day.has-event { background: #4cb8b9; color: white; }
         .week-day.today { border-color: #7bafdd; border-width: 2px; }
         .chat-messages {
             flex: 1;
@@ -52,6 +52,7 @@
             background: #f9f9f9;
             border-radius: 12px;
             -webkit-overflow-scrolling: touch;
+            margin-bottom: 10px;
         }
         .message {
             margin: 8px 0;
@@ -72,21 +73,12 @@
             font-weight: bold;
         }
         .composer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            flex-shrink: 0;
             background: #fff;
-            padding: 12px 16px;
-            box-shadow: 0 -2px 12px rgba(0,0,0,0.12);
-            z-index: 50;
+            padding: 10px 0 16px;
             display: flex;
             flex-direction: column;
             gap: 8px;
-            transition: transform 0.25s ease;
-        }
-        .composer.hidden {
-            transform: translateY(110%);
         }
         .composer textarea {
             width: 100%;
@@ -113,10 +105,6 @@
         .composer .prayer-btn {
             background: #8845a5;
         }
-        /* space so last messages aren't hidden behind the fixed composer */
-        .chat-messages {
-            padding-bottom: 160px;
-        }
     </style>
 </head>
 <body>
@@ -131,12 +119,12 @@
     <div class="container">
         <div class="week-header" id="week-header"></div>
         <div class="chat-messages" id="chat-messages"></div>
-    </div>
 
-    <div class="composer" id="composer">
-        <textarea id="message-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); sendMessage(false);}"></textarea>
-        <button onclick="sendMessage(false)">Send</button>
-        <button id="prayerBtn" class="prayer-btn" onclick="sendMessage(true)" style="display:none;">🙏 Prayer Request</button>
+        <div class="composer" id="composer">
+            <textarea id="message-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); sendMessage(false);}"></textarea>
+            <button onclick="sendMessage(false)">Send</button>
+            <button id="prayerBtn" class="prayer-btn" onclick="sendMessage(true)" style="display:none;">🙏 Prayer Request</button>
+        </div>
     </div>
 
     <div class="nav-overlay" id="overlay" onclick="toggleDrawer()"></div>
@@ -159,7 +147,6 @@
     <script>
         let room = new URLSearchParams(window.location.search).get('room') || 'Whole Church';
         let currentUser = null;
-        let isNearBottom = true;
 
         function toggleDrawer() {
             document.getElementById('drawer').classList.toggle('open');
@@ -181,24 +168,13 @@
             }
         }
 
-        function checkScrollPosition() {
+        function scrollToBottom() {
             const container = document.getElementById('chat-messages');
-            const threshold = 80; // pixels from bottom
-            const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
-            isNearBottom = distanceFromBottom < threshold;
-
-            const composer = document.getElementById('composer');
-            if (isNearBottom) {
-                composer.classList.remove('hidden');
-            } else {
-                composer.classList.add('hidden');
-            }
+            container.scrollTop = container.scrollHeight;
         }
 
         async function loadMessages() {
             const container = document.getElementById('chat-messages');
-            const wasNearBottom = isNearBottom;
-
             try {
                 const snapshot = await db.collection('chats').doc(room).collection('messages').orderBy('createdAt').get();
                 container.innerHTML = '';
@@ -220,13 +196,7 @@
                     div.innerHTML = html;
                     container.appendChild(div);
                 });
-
-                // Always jump to newest if we were already near the bottom
-                if (wasNearBottom) {
-                    container.scrollTop = container.scrollHeight;
-                    isNearBottom = true;
-                    document.getElementById('composer').classList.remove('hidden');
-                }
+                scrollToBottom();
             } catch(e) {
                 console.error(e);
             }
@@ -237,13 +207,18 @@
             const text = input.value.trim();
             if (!text || !currentUser) return;
 
+            // Clear immediately so it feels responsive
+            input.value = '';
+
             let displayName = currentUser.displayName || currentUser.name || 'User';
             if (displayName === 'User' && currentUser.uid) {
-                const userDoc = await db.collection('users').doc(currentUser.uid).get();
-                if (userDoc.exists) {
-                    const u = userDoc.data();
-                    displayName = u.name || u.displayName || 'User';
-                }
+                try {
+                    const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                    if (userDoc.exists) {
+                        const u = userDoc.data();
+                        displayName = u.name || u.displayName || 'User';
+                    }
+                } catch(e) {}
             }
 
             try {
@@ -254,13 +229,10 @@
                     isPrayer: !!isPrayer,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                input.value = '';
-                // force show composer and scroll to bottom after sending
-                isNearBottom = true;
-                document.getElementById('composer').classList.remove('hidden');
-                await loadMessages();
+                // The onSnapshot listener will refresh the list and scroll to bottom
             } catch(e) {
                 alert('Error sending: ' + e.message);
+                input.value = text; // put the text back if it failed
             }
         }
 
@@ -285,15 +257,12 @@
 
             renderWeekHeader();
 
-            const messagesEl = document.getElementById('chat-messages');
-            messagesEl.addEventListener('scroll', checkScrollPosition);
-
-            await loadMessages();
-
-            // Real-time updates
+            // Real-time listener – this is the only place that refreshes messages
             db.collection('chats').doc(room).collection('messages')
               .orderBy('createdAt')
-              .onSnapshot(() => loadMessages());
+              .onSnapshot(() => {
+                  loadMessages();
+              });
         }
 
         init();
