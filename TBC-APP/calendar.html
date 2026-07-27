@@ -41,12 +41,13 @@
         <div class="calendar-grid" id="calendar-grid"></div>
 
         <h3 style="margin-top:30px; color:#404040;">Add New Event</h3>
-        <div style="background:white; padding:20px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+        <div style="background:white; padding:20px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.1);;">
             <input type="date" id="event-date" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:8px;">
             <input type="text" id="event-title" placeholder="Event Title" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:8px;">
             <textarea id="event-desc" placeholder="Description (optional)" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:8px; height:80px;"></textarea>
             <select id="event-ministry" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:8px;">
                 <option value="Whole Church">Whole Church</option>
+                <option value="Music Ministry">Music Ministry</option>
             </select>
             <button onclick="addEvent()" class="menu-btn" style="margin-top:10px;">Add Event</button>
         </div>
@@ -90,7 +91,7 @@
             overlay.classList.toggle('open');
         }
 
-        const allMinistries = ['Whole Church'];
+        const allMinistries = ['Whole Church', 'Music Ministry'];
 
         function renderFilterBar(userMinistries, isAdmin) {
             const container = document.getElementById('filter-bar');
@@ -164,11 +165,6 @@
                 const cell = document.createElement('div');
                 cell.className = 'day-cell';
                 const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-
-                const num = document.createElement('div');
-                num.className = 'day-number';
-                num.textContent = day;
-                cell.appendChild(num);
 
                 const dayEvents = allEvents.filter(e => e.date === dateStr && (currentFilter === 'all' || e.ministry === currentFilter));
                 dayEvents.forEach(ev => {
