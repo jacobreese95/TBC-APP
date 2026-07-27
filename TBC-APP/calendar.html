@@ -1,1 +1,54 @@
-updated calendar.html with correct filters and dedicated links
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Church Calendar</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <button class="hamburger" onclick="toggleMenu()" aria-label="Open menu">
+        <span></span><span></span><span></span>
+    </button>
+    <div class="nav-overlay" id="navOverlay" onclick="toggleMenu()"></div>
+    <div class="nav-drawer" id="navDrawer">
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="chat.html">Ministry Chats</a>
+        <a href="bible/index.html">Bible</a>
+        <a href="give.html">Give on Tithe.ly</a>
+        <a href="sermons.html">Sermons & Live Streams</a>
+        <a href="profile.html">Profile</a>
+        <a href="admin.html" id="drawer-admin" style="display:none;">Admin</a>
+        <a href="#" onclick="signOutUser().then(() => window.location.reload())">Logout</a>
+    </div>
+
+    <div class="container">
+        <h1 style="text-align:center; margin-bottom:20px;">Church Calendar</h1>
+        
+        <div id="filters" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; justify-content:center;">
+        </div>
+        
+        <div id="calendar-grid" class="calendar-grid">
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+    <script src="auth.js"></script>
+    <script src="app.js"></script>
+    <script>
+        function toggleMenu() {
+            document.getElementById('navDrawer').classList.toggle('open');
+            document.getElementById('navOverlay').classList.toggle('open');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof initCalendar === 'function') {
+                initCalendar();
+            }
+        });
+    </script>
+</body>
+</html>
