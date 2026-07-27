@@ -1,167 +1,194 @@
-/* ===== GLOBAL STYLES FOR BIBLE SECTION ===== */
-
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+/* TBC Bible section – same church theme as app */
+:root {
+  --slate: #7a8fac;
+  --sky: #7bafdd;
+  --cream: #dedcd0;
+  --charcoal: #404040;
+  --lime: #b0dc77;
+  --teal: #4cb8b9;
+  --purple: #8845a5;
+  --lilac: #ac8ce6;
+  --white: #ffffff;
+  --radius: 14px;
+  --shadow: 0 4px 14px rgba(64, 64, 64, 0.12);
+  --shadow-hover: 0 6px 20px rgba(64, 64, 64, 0.18);
 }
 
+* { box-sizing: border-box; }
+
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
-    color: #333;
-    line-height: 1.5;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: var(--cream);
+  color: var(--charcoal);
+  line-height: 1.5;
 }
 
 header {
-    background-color: #1a3a5c;
-    color: white;
-    padding: 20px;
-    text-align: center;
+  background: linear-gradient(135deg, var(--teal) 0%, var(--sky) 55%, var(--lilac) 100%);
+  color: var(--white);
+  padding: 18px 16px;
+  text-align: center;
+  box-shadow: var(--shadow);
 }
 
 header h1 {
-    font-size: 1.8rem;
-    margin: 0;
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
 }
 
 .container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 18px 16px 28px;
 }
 
-/* Buttons */
+button,
+.back-btn,
+.big-btn,
+.notes-btn,
+.chapter-btn,
+.book-btn,
+.menu-btn {
+  display: block;
+  width: 100%;
+  background: linear-gradient(135deg, var(--teal) 0%, var(--sky) 100%);
+  color: var(--white);
+  border: none;
+  padding: 16px 20px;
+  margin: 10px 0;
+  border-radius: var(--radius);
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  box-shadow: var(--shadow);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+button:hover,
+.back-btn:hover,
+.big-btn:hover,
+.notes-btn:hover,
+.chapter-btn:hover,
+.book-btn:hover {
+  filter: brightness(1.05);
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-1px);
+}
+
 .back-btn {
-    background-color: #666;
-    color: white;
-    border: none;
-    padding: 10px 16px;
-    border-radius: 6px;
-    margin-bottom: 20px;
-    cursor: pointer;
-    font-size: 1rem;
-}
-
-.back-btn:hover {
-    background-color: #555;
+  background: linear-gradient(135deg, var(--slate) 0%, var(--sky) 100%);
+  font-size: 0.95rem;
+  padding: 12px 18px;
+  margin-bottom: 16px;
 }
 
 .big-btn {
-    display: block;
-    width: 100%;
-    background-color: #1a3a5c;
-    color: white;
-    border: none;
-    padding: 22px;
-    margin: 12px 0;
-    border-radius: 10px;
-    font-size: 1.3rem;
-    cursor: pointer;
-    text-align: center;
-}
-
-.big-btn:hover {
-    background-color: #2a4a6c;
+  padding: 20px;
+  font-size: 1.2rem;
 }
 
 .notes-btn {
-    display: block;
-    width: 100%;
-    background-color: #4a7c59;
-    color: white;
-    border: none;
-    padding: 16px;
-    margin: 20px 0;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    cursor: pointer;
+  background: linear-gradient(135deg, var(--purple) 0%, var(--lilac) 100%);
 }
 
-.notes-btn:hover {
-    background-color: #3a6b49;
+.book-list,
+.chapter-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 12px;
 }
 
-/* Search Bar */
-.search-bar {
-    width: 100%;
-    padding: 14px;
-    font-size: 1.1rem;
-    border: 2px solid #ccc;
-    border-radius: 8px;
-    margin-bottom: 20px;
+.book-btn,
+.chapter-btn {
+  margin: 0;
+  padding: 14px 12px;
+  font-size: 0.95rem;
 }
 
-.search-bar:focus {
-    outline: none;
-    border-color: #1a3a5c;
+.search-bar,
+input[type="text"],
+textarea {
+  width: 100%;
+  padding: 14px 16px;
+  margin: 8px 0 14px;
+  border: 2px solid var(--slate);
+  border-radius: var(--radius);
+  font-size: 1rem;
+  background: var(--white);
+  color: var(--charcoal);
+  outline: none;
 }
 
-/* Main Buttons Container */
-.main-buttons {
-    margin: 20px 0;
+.search-bar:focus,
+input:focus,
+textarea:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(76, 184, 185, 0.25);
 }
 
-/* Search Results */
-#search-results {
-    margin-top: 20px;
-    padding: 15px;
-    background: white;
-    border-radius: 8px;
+.section,
+.verse,
+.search-result {
+  background: var(--white);
+  border: 1px solid rgba(122, 143, 172, 0.35);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin: 12px 0;
+  box-shadow: 0 2px 8px rgba(64, 64, 64, 0.06);
 }
 
-/* Book & Chapter Lists */
-.book-list, .chapter-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 10px;
-    margin-top: 20px;
-}
-
-.book-btn, .chapter-btn {
-    background-color: #e8eef5;
-    border: 1px solid #ccc;
-    padding: 14px 10px;
-    border-radius: 8px;
-    text-align: center;
-    cursor: pointer;
-    font-size: 1rem;
-    color: #1a3a5c;
-}
-
-.book-btn:hover, .chapter-btn:hover {
-    background-color: #d0dceb;
-}
-
-/* Verse Styling (for later) */
-.verse {
-    background: white;
-    padding: 15px;
-    margin-bottom: 12px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    cursor: pointer;
-}
-
-.verse:hover {
-    background: #f0f7ff;
-}
-
+.verse { cursor: pointer; }
+.verse:hover { border-color: var(--teal); box-shadow: var(--shadow); }
+.verse strong { color: var(--purple); }
+.verse-text { font-size: 1.1rem; line-height: 1.55; margin: 8px 0 4px; }
 .verse-menu {
-    display: none;
-    margin-top: 12px;
-    padding: 12px;
-    background: #f8f8f8;
-    border-radius: 6px;
-    border-left: 4px solid #1a3a5c;
+  display: none;
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(122, 143, 172, 0.3);
 }
 
-.verse-menu textarea {
-    width: 100%;
-    min-height: 80px;
-    margin-top: 10px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-family: Arial, sans-serif;
+.word-block {
+  background: linear-gradient(180deg, #f7fafb 0%, #eef5f6 100%);
+  border-left: 4px solid var(--teal);
+  padding: 12px 14px;
+  margin: 10px 0;
+  border-radius: 0 10px 10px 0;
 }
+
+.word-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--purple);
+  margin-bottom: 6px;
+}
+
+.def-label {
+  font-weight: 700;
+  color: var(--slate);
+  margin-top: 8px;
+  display: block;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.search-result {
+  cursor: pointer;
+  border-left: 4px solid var(--sky);
+}
+.search-result:hover { background: #f0f7fb; }
+.search-ref { font-weight: 700; color: var(--purple); margin-bottom: 4px; }
+.search-text { font-size: 0.95rem; color: var(--charcoal); }
+.search-count { color: var(--slate); margin: 10px 0; font-size: 0.9rem; }
+
+mark { background: var(--lime); padding: 0 3px; border-radius: 3px; }
+
+a { color: var(--teal); font-weight: 600; }
+a:hover { color: var(--purple); }
+h2 { color: var(--charcoal); font-size: 1.2rem; margin: 8px 0 12px; }
