@@ -5,15 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Soul Winning - TBC</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
-    <style>
-        #map { height: 400px; }
-        .sidebar { position: absolute; top: 10px; right: 10px; width: 320px; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 500; padding: 15px; }
-        .hamburger { z-index: 2100; }
-        .nav-drawer { z-index: 2101; }
-        .nav-overlay { z-index: 2100; }
-    </style>
 </head>
 <body>
     <button class="hamburger" onclick="toggleMenu()" aria-label="Open menu">
@@ -29,140 +20,25 @@
         <a href="give.html">Give on Tithe.ly</a>
         <a href="sermons.html">Sermons & Live Streams</a>
         <a href="#" onclick="window.open('https://www.google.com/maps/place/11801+E+Lincoln+St,+Wichita,+KS+67207', '_blank'); toggleMenu(); return false;">View Location on Google Maps</a>
+        <a href="profile.html">Profile</a>
+        <a href="#" onclick="signOutUser().then(() => window.location.href='index.html')">Logout</a>
     </div>
 
-    <div id="map"></div>
-    
-    <div class="sidebar">
+    <header><h1>Soul Winning</h1></header>
+    <div class="container">
         <button class="back-btn" onclick="window.location.href='index.html'">← Back to Home</button>
-        
-        <h2>Outreach Map</h2>
-        <button class="menu-btn" onclick="toggleDraw()">Draw Area</button>
-        
-        <h2 style="margin-top:20px;">Add New Lead</h2>
-        <input type="text" id="name" placeholder="Name">
-        <input type="text" id="address" placeholder="Address">
-        <select id="status">
-          <option value="">Visit Status</option>
-          <option value="Visited - Interested">Visited - Interested</option>
-          <option value="Visited - Not Interested">Visited - Not Interested</option>
-          <option value="Follow-up Needed">Follow-up Needed</option>
-          <option value="Prayer Request">Prayer Request</option>
-        </select>
-        <textarea id="notes" placeholder="Custom Notes"></textarea>
-        <button class="menu-btn" onclick="addPerson()">Save Lead & Add Pin</button>
-        
-        <h2 style="margin-top:20px;">Leads</h2>
-        <div id="people-list"></div>
-        
-        <h2 style="margin-top:20px;">Follow-Ups</h2>
-        <div id="followups-list"></div>
+        <p>Leads and follow-up tracking will go here.</p>
     </div>
-
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
     <script src="auth.js"></script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
     <script>
       function toggleMenu() {
         document.getElementById('navDrawer').classList.toggle('open');
         document.getElementById('navOverlay').classList.toggle('open');
       }
-
-      // Soul Winning requires approved login
       requireApprovedUser();
-
-      const map = L.map('map').setView([37.7, -97.33], 12);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
-      let drawnItems = new L.FeatureGroup();
-      map.addLayer(drawnItems);
-
-      const drawControl = new L.Control.Draw({
-        draw: { polygon: true, rectangle: true, polyline: true, marker: true },
-        edit: { featureGroup: drawnItems }
-      });
-
-      function toggleDraw() {
-        if (map.hasLayer(drawControl)) map.removeControl(drawControl);
-        else map.addControl(drawControl);
-      }
-
-      map.on(L.Draw.Event.CREATED, function (e) {
-        const layer = e.layer;
-        const title = prompt("Name this Soul Winning Area:");
-        if (title) layer.bindPopup(title).openPopup();
-        drawnItems.addLayer(layer);
-      });
-
-      let people = JSON.parse(localStorage.getItem('soulwinning_people') || '[]');
-      let followups = JSON.parse(localStorage.getItem('soulwinning_followups') || '[]');
-
-      function addPerson() {
-        const name = document.getElementById('name').value;
-        const address = document.getElementById('address').value;
-        const status = document.getElementById('status').value;
-        const notes = document.getElementById('notes').value;
-
-        if (!name || !address) {
-          alert("Name and Address are required.");
-          return;
-        }
-
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`)
-          .then(response => response.json())
-          .then(data => {
-            if (data && data.length > 0) {
-              const lat = parseFloat(data[0].lat);
-              const lon = parseFloat(data[0].lon);
-              const marker = L.marker([lat, lon]).addTo(map).bindPopup(`<strong>${name}</strong><br>${address}<br>${status}<br>${notes}`);
-              marker.openPopup();
-            }
-          });
-
-        people.push({name, address, status, notes, date: new Date().toLocaleDateString()});
-        localStorage.setItem('soulwinning_people', JSON.stringify(people));
-        renderPeople();
-
-        document.getElementById('name').value = '';
-        document.getElementById('address').value = '';
-        document.getElementById('status').value = '';
-        document.getElementById('notes').value = '';
-      }
-
-      function renderPeople() {
-        const container = document.getElementById('people-list');
-        let html = '<ul>';
-        people.forEach((p, index) => {
-          html += `<li><strong>${p.name}</strong> - ${p.address} <br><small>${p.status} (${p.date})</small> <button onclick="markFollowup(${index})">Follow-up</button></li>`;
-        });
-        html += '</ul>';
-        container.innerHTML = html;
-      }
-
-      function markFollowup(index) {
-        const lead = people[index];
-        const notes = prompt("Follow-up Notes:");
-        followups.push({name: lead.name, address: lead.address, notes, date: new Date().toLocaleDateString()});
-        localStorage.setItem('soulwinning_followups', JSON.stringify(followups));
-        alert("Follow-up added!");
-        renderFollowups();
-      }
-
-      function renderFollowups() {
-        const container = document.getElementById('followups-list');
-        let html = '<ul>';
-        followups.forEach(f => {
-          html += `<li><strong>${f.name}</strong> - ${f.address} <br><small>${f.notes} (${f.date})</small></li>`;
-        });
-        html += '</ul>';
-        container.innerHTML = html;
-      }
-
-      renderPeople();
-      renderFollowups();
     </script>
 </body>
 </html>

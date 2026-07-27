@@ -1,132 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign Up - TBC</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    .auth-card {
-      background: #fff;
-      border-radius: 14px;
-      padding: 22px 18px;
-      box-shadow: 0 4px 14px rgba(64,64,64,0.12);
-      margin-top: 12px;
-    }
-    .auth-error {
-      background: #fde8e8;
-      color: #9b1c1c;
-      border-left: 4px solid #e02424;
-      padding: 10px 12px;
-      border-radius: 8px;
-      margin: 10px 0;
-      display: none;
-      font-size: 0.95rem;
-    }
-    .auth-error.show { display: block; }
-    .auth-links {
-      text-align: center;
-      margin-top: 18px;
-      font-size: 0.95rem;
-    }
-    label {
-      display: block;
-      font-weight: 600;
-      margin-top: 8px;
-      color: #404040;
-      font-size: 0.9rem;
-    }
-    .hint {
-      font-size: 0.85rem;
-      color: #7a8fac;
-      margin: 0 0 8px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account - TBC</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header><h1>Temple Baptist Church</h1></header>
-  <div class="container">
-    <button class="back-btn" onclick="window.location.href='login.html'">← Back to Login</button>
-    <div class="auth-card">
-      <h2>Create Account</h2>
-      <p class="hint">After you sign up, a church admin must approve your account before you can use chats and other member features.</p>
-      <div id="error" class="auth-error"></div>
-
-      <label for="name">Full Name</label>
-      <input type="text" id="name" autocomplete="name" placeholder="Your full name">
-
-      <label for="birthday">Birthday</label>
-      <input type="date" id="birthday">
-
-      <label for="phone">Phone</label>
-      <input type="tel" id="phone" autocomplete="tel" placeholder="(316) 555-1234">
-
-      <label for="email">Email</label>
-      <input type="email" id="email" autocomplete="email" placeholder="you@example.com">
-
-      <label for="address">Address</label>
-      <input type="text" id="address" autocomplete="street-address" placeholder="Street, City, State ZIP">
-
-      <label for="password">Password</label>
-      <input type="password" id="password" autocomplete="new-password" placeholder="At least 6 characters">
-
-      <label for="password2">Confirm Password</label>
-      <input type="password" id="password2" autocomplete="new-password" placeholder="Type password again">
-
-      <button id="signupBtn" onclick="doSignup()">Create Account</button>
-      <div class="auth-links">
-        Already have an account? <a href="login.html">Login</a>
-      </div>
+    <button class="hamburger" onclick="toggleMenu()" aria-label="Open menu">
+        <span></span><span></span><span></span>
+    </button>
+    <div class="nav-overlay" id="navOverlay" onclick="toggleMenu()"></div>
+    <div class="nav-drawer" id="navDrawer">
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="calendar.html">Calendar</a>
+        <a href="chat.html">Ministry Chats</a>
+        <a href="bible/index.html">Bible</a>
+        <a href="give.html">Give on Tithe.ly</a>
+        <a href="sermons.html">Sermons & Live Streams</a>
+        <a href="#" onclick="window.open('https://www.google.com/maps/place/11801+E+Lincoln+St,+Wichita,+KS+67207', '_blank'); toggleMenu(); return false;">View Location on Google Maps</a>
+        <a href="soul-winning.html">Soul Winning</a>
+        <a href="profile.html">Profile</a>
+        <a href="#" onclick="signOutUser().then(() => window.location.href='index.html')">Logout</a>
     </div>
-  </div>
 
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-  <script src="auth.js"></script>
-  <script>
-    async function doSignup() {
-      const name = document.getElementById("name").value.trim();
-      const birthday = document.getElementById("birthday").value;
-      const phone = document.getElementById("phone").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const address = document.getElementById("address").value.trim();
-      const password = document.getElementById("password").value;
-      const password2 = document.getElementById("password2").value;
-      const errBox = document.getElementById("error");
-      const btn = document.getElementById("signupBtn");
+    <div class="container" style="max-width:360px; margin-top:60px;">
+        <h2 style="text-align:center;">Create an Account</h2>
+        <input type="text" id="name" placeholder="Full Name">
+        <input type="date" id="birthday">
+        <input type="tel" id="phone" placeholder="Phone Number">
+        <input type="email" id="email" placeholder="Email">
+        <input type="text" id="address" placeholder="Address">
+        <input type="password" id="password" placeholder="Password (min 6 characters)">
+        <button class="menu-btn" onclick="createAccount()">Create Account</button>
+        <p style="text-align:center; margin-top:12px;"><a href="login.html">Already have an account? Login</a></p>
+        <p id="error" style="color:#c0392b; text-align:center; display:none;"></p>
+    </div>
 
-      errBox.classList.remove("show");
-
-      if (!name || !email || !password) {
-        errBox.textContent = "Name, email, and password are required.";
-        errBox.classList.add("show");
-        return;
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+    <script src="auth.js"></script>
+    <script>
+      function toggleMenu() {
+        document.getElementById('navDrawer').classList.toggle('open');
+        document.getElementById('navOverlay').classList.toggle('open');
       }
-      if (password.length < 6) {
-        errBox.textContent = "Password must be at least 6 characters.";
-        errBox.classList.add("show");
-        return;
+      async function createAccount() {
+        const errEl = document.getElementById('error');
+        errEl.style.display = 'none';
+        try {
+          await signUpUser({
+            name: document.getElementById('name').value,
+            birthday: document.getElementById('birthday').value,
+            phone: document.getElementById('phone').value,
+            email: document.getElementById('email').value,
+            address: document.getElementById('address').value,
+            password: document.getElementById('password').value
+          });
+          window.location.href = 'pending.html';
+        } catch (e) {
+          errEl.textContent = authErrorMessage(e);
+          errEl.style.display = 'block';
+        }
       }
-      if (password !== password2) {
-        errBox.textContent = "Passwords do not match.";
-        errBox.classList.add("show");
-        return;
-      }
-
-      btn.disabled = true;
-      btn.textContent = "Creating account...";
-      try {
-        await signUpUser({ name, birthday, phone, email, address, password });
-        window.location.href = "pending.html";
-      } catch (err) {
-        errBox.textContent = authErrorMessage(err);
-        errBox.classList.add("show");
-      } finally {
-        btn.disabled = false;
-        btn.textContent = "Create Account";
-      }
-    }
-  </script>
+    </script>
 </body>
 </html>

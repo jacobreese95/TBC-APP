@@ -3,115 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat - TBC</title>
+    <title>Chat Room - TBC</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-      #week-schedule {
-        padding: 14px 16px;
-        background: linear-gradient(180deg, rgba(123,175,221,0.25) 0%, #dedcd0 100%);
-        overflow-x: auto;
-      }
-      .week-row { display:flex; gap:8px; overflow-x:auto; }
-      .week-day {
-        border: 1px solid rgba(122,143,172,0.45);
-        background: #fff;
-        padding: 10px;
-        min-width: 88px;
-        text-align: center;
-        border-radius: 12px;
-        font-size: 0.85rem;
-        box-shadow: 0 2px 8px rgba(64,64,64,0.08);
-      }
-      #chat-messages {
-        height: 42vh;
-        overflow-y: auto;
-        padding: 16px;
-        background: #fafbfc;
-      }
-      #chat-messages .msg {
-        background: #fff;
-        border-left: 4px solid #4cb8b9;
-        padding: 10px 12px;
-        border-radius: 0 10px 10px 0;
-        margin: 8px 0;
-        box-shadow: 0 1px 4px rgba(64,64,64,0.06);
-      }
-      #chat-messages .msg.prayer {
-        border-left-color: #8b5cf6;
-        background: #f5f0ff;
-      }
-      .prayer-badge {
-        display: inline-block;
-        background: #8b5cf6;
-        color: #fff;
-        font-size: 0.72rem;
-        font-weight: 700;
-        letter-spacing: 0.03em;
-        padding: 2px 8px;
-        border-radius: 999px;
-        margin-bottom: 6px;
-      }
-      .msg-meta {
-        font-size: 0.75rem;
-        color: #7a8fac;
-        margin-top: 4px;
-      }
-      .chat-composer {
-        position: fixed;
-        bottom: 0; left: 0; right: 0;
-        background: #fff;
-        padding: 10px 12px;
-        border-top: 1px solid rgba(122,143,172,0.35);
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        box-shadow: 0 -4px 16px rgba(64,64,64,0.08);
-      }
-      .composer-row {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-      }
-      .chat-composer input {
-        flex: 1;
-        margin: 0;
-        width: auto;
-      }
-      .chat-composer button {
-        width: auto;
-        margin: 0;
-        padding: 14px 16px;
-        flex-shrink: 0;
-      }
-      #prayer-btn {
-        background: #e8e0f8;
-        color: #5b21b6;
-        border: 2px solid #c4b5fd;
-        font-weight: 600;
-        font-size: 0.9rem;
-      }
-      #prayer-btn.active {
-        background: #8b5cf6;
-        color: #fff;
-        border-color: #7c3aed;
-      }
-      #chat-header { padding: 8px 12px 0; }
-      #chat-header h2 { margin: 8px 4px 12px; color: #404040; }
-      body { padding-bottom: 110px; }
-      #prayer-hint {
-        display: none;
-        font-size: 0.8rem;
-        color: #5b21b6;
-        padding: 0 2px;
-      }
-      #prayer-hint.show { display: block; }
-      #chat-status {
-        text-align: center;
-        color: #7a8fac;
-        font-size: 0.85rem;
-        padding: 8px;
-      }
-    </style>
 </head>
 <body>
     <button class="hamburger" onclick="toggleMenu()" aria-label="Open menu">
@@ -120,25 +13,27 @@
     <div class="nav-overlay" id="navOverlay" onclick="toggleMenu()"></div>
     <div class="nav-drawer" id="navDrawer">
         <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
         <a href="calendar.html">Calendar</a>
+        <a href="chat.html">Ministry Chats</a>
         <a href="bible/index.html">Bible</a>
         <a href="give.html">Give on Tithe.ly</a>
         <a href="sermons.html">Sermons & Live Streams</a>
         <a href="#" onclick="window.open('https://www.google.com/maps/place/11801+E+Lincoln+St,+Wichita,+KS+67207', '_blank'); toggleMenu(); return false;">View Location on Google Maps</a>
         <a href="soul-winning.html">Soul Winning</a>
+        <a href="profile.html">Profile</a>
+        <a href="#" onclick="signOutUser().then(() => window.location.href='index.html')">Logout</a>
     </div>
 
-    <div id="chat-header"></div>
-    <div id="week-schedule"></div>
-    <div id="chat-status">Loading chat...</div>
-    <div id="chat-messages"></div>
-    <div class="chat-composer" id="composer" style="display:none;">
-      <div id="prayer-hint">Prayer request mode is on — this will be marked as a prayer request.</div>
-      <div class="composer-row">
-        <input type="text" id="chat-input" placeholder="Type message..." onkeypress="if(event.key==='Enter') sendMessage()">
-        <button id="prayer-btn" type="button" onclick="togglePrayer()" style="display:none;">🙏 Prayer</button>
-        <button type="button" onclick="sendMessage()">Send</button>
-      </div>
+    <header><h1 id="roomTitle">Chat</h1></header>
+    <div class="container" id="chatContainer" style="display:none; flex-direction:column; height:70vh;">
+        <div id="messages" style="flex:1; overflow-y:auto; border:1px solid #ccc; padding:10px; margin-bottom:10px; border-radius:8px; background:#fff;"></div>
+        <div style="display:flex; gap:8px;">
+            <input type="text" id="messageInput" placeholder="Type a message..." style="flex:1;" onkeypress="if(event.key==='Enter') sendMessage()">
+            <button class="menu-btn" onclick="sendMessage()">Send</button>
+            <button class="menu-btn" id="prayerBtn" onclick="togglePrayer()" style="background:#7a8fac;">🙏 Prayer</button>
+        </div>
+        <p id="prayerHint" style="color:#8845a5; font-size:0.85rem; margin:4px 0 0; display:none;">This message will be marked as a prayer request</p>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -151,140 +46,81 @@
         document.getElementById('navOverlay').classList.toggle('open');
       }
 
-      function escapeHtml(str) {
-        return String(str)
-          .replace(/&/g, '&')
-          .replace(/</g, '<')
-          .replace(/>/g, '>')
-          .replace(/"/g, '"');
-      }
+      let currentRoom = localStorage.getItem('currentChatRoom') || 'Whole Church';
+      let isPrayer = false;
+      let unsubscribe = null;
 
-      function roomIdFromName(name) {
-        return String(name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'room';
-      }
+      document.getElementById('roomTitle').textContent = currentRoom;
 
-      const room = localStorage.getItem('currentChatRoom') || 'Nursery';
-      const roomId = roomIdFromName(room);
-      const isWholeChurch = room === 'Whole Church';
-      let isPrayerRequest = false;
-      let currentProfile = null;
-      let messagesUnsub = null;
-
-      document.getElementById('chat-header').innerHTML =
-        '<button class="back-btn" onclick="window.location.href=\'chat.html\'">← Back</button>' +
-        '<h2>' + escapeHtml(room) + ' Chat</h2>';
-
-      if (isWholeChurch) {
-        document.getElementById('prayer-btn').style.display = 'inline-block';
-      }
+      requireApprovedUser().then(function(profile) {
+        if (!profile) return;
+        document.getElementById('chatContainer').style.display = 'flex';
+        loadMessages();
+      });
 
       function togglePrayer() {
-        isPrayerRequest = !isPrayerRequest;
-        const btn = document.getElementById('prayer-btn');
-        const hint = document.getElementById('prayer-hint');
-        btn.classList.toggle('active', isPrayerRequest);
-        hint.classList.toggle('show', isPrayerRequest);
-        btn.textContent = isPrayerRequest ? '🙏 Prayer ✓' : '🙏 Prayer';
-      }
-
-      // Week strip still uses local calendar events for now
-      let events = JSON.parse(localStorage.getItem('events') || '[]');
-      const weekEvents = events.filter(function (e) {
-        return (e.ministry === room || e.ministry === 'Church Wide') && e.day >= 19 && e.day <= 26;
-      });
-      let weekHTML = '<div class="week-row">';
-      for (let d = 19; d <= 26; d++) {
-        const dayEvents = weekEvents.filter(function (e) { return e.day === d; });
-        weekHTML += '<div class="week-day"><strong>Day ' + d + '</strong><br>' +
-          (dayEvents.length ? dayEvents.map(function (e) { return e.time + ' - ' + e.title; }).join('<br>') : 'No events') +
-          '</div>';
-      }
-      weekHTML += '</div>';
-      document.getElementById('week-schedule').innerHTML = weekHTML;
-
-      function renderMessages(list) {
-        const container = document.getElementById('chat-messages');
-        if (!list.length) {
-          container.innerHTML = '<p class="msg">No messages yet. Say hello!</p>';
-          return;
+        isPrayer = !isPrayer;
+        const btn = document.getElementById('prayerBtn');
+        const hint = document.getElementById('prayerHint');
+        if (isPrayer) {
+          btn.style.background = '#8845a5';
+          btn.innerHTML = '🙏 Prayer ✓';
+          hint.style.display = 'block';
+        } else {
+          btn.style.background = '#7a8fac';
+          btn.innerHTML = '🙏 Prayer';
+          hint.style.display = 'none';
         }
-        let html = '';
-        list.forEach(function (msg) {
-          const name = escapeHtml(msg.userName || 'Member');
-          const text = escapeHtml(msg.text || '');
-          const timeStr = msg.createdAt && msg.createdAt.toDate
-            ? msg.createdAt.toDate().toLocaleString()
-            : '';
-          if (msg.isPrayer) {
-            html += '<div class="msg prayer"><span class="prayer-badge">🙏 Prayer Request</span>' +
-              '<div><strong>' + name + ':</strong> ' + text + '</div>' +
-              (timeStr ? '<div class="msg-meta">' + timeStr + '</div>' : '') +
-              '</div>';
-          } else {
-            html += '<div class="msg"><strong>' + name + ':</strong> ' + text +
-              (timeStr ? '<div class="msg-meta">' + timeStr + '</div>' : '') +
-              '</div>';
-          }
-        });
-        container.innerHTML = html;
-        container.scrollTop = container.scrollHeight;
       }
 
-      function listenForMessages() {
-        const status = document.getElementById('chat-status');
-        const ref = db.collection('chats').doc(roomId).collection('messages')
-          .orderBy('createdAt', 'asc')
-          .limitToLast(200);
+      function loadMessages() {
+        const container = document.getElementById('messages');
+        const roomRef = db.collection('chats').doc(currentRoom).collection('messages');
 
-        messagesUnsub = ref.onSnapshot(function (snap) {
-          status.textContent = 'Live · ' + room;
-          const list = [];
-          snap.forEach(function (doc) {
-            list.push(doc.data());
+        if (unsubscribe) unsubscribe();
+
+        unsubscribe = roomRef.orderBy('timestamp').onSnapshot(snapshot => {
+          container.innerHTML = '';
+          snapshot.forEach(doc => {
+            const msg = doc.data();
+            const div = document.createElement('div');
+            div.style.marginBottom = '12px';
+            div.style.padding = '8px 12px';
+            div.style.borderRadius = '12px';
+            div.style.maxWidth = '80%';
+            if (msg.isPrayer) {
+              div.style.background = '#f5e6ff';
+              div.style.border = '1px solid #ac8ce6';
+              div.innerHTML = `<strong>${msg.name || 'Member'}</strong><br>${msg.text}<br><span style="color:#8845a5; font-size:0.8rem;">🙏 Prayer Request</span>`;
+            } else {
+              div.style.background = msg.uid === auth.currentUser.uid ? '#d4f0f0' : '#f0f0f0';
+              div.innerHTML = `<strong>${msg.name || 'Member'}</strong><br>${msg.text}`;
+            }
+            container.appendChild(div);
           });
-          renderMessages(list);
-        }, function (err) {
-          console.error(err);
-          status.textContent = 'Could not load messages. Check Firestore rules.';
+          container.scrollTop = container.scrollHeight;
         });
       }
 
       async function sendMessage() {
-        const input = document.getElementById('chat-input');
+        const input = document.getElementById('messageInput');
         const text = input.value.trim();
-        if (!text || !currentProfile) return;
+        if (!text) return;
 
-        const payload = {
-          text: text,
-          isPrayer: isWholeChurch && isPrayerRequest,
-          userId: currentProfile.uid,
-          userName: currentProfile.name || currentProfile.email || 'Member',
-          room: room,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
+        const user = auth.currentUser;
+        const profile = await getUserProfile(user.uid);
 
-        try {
-          await db.collection('chats').doc(roomId).collection('messages').add(payload);
-          input.value = '';
-          if (isPrayerRequest) {
-            isPrayerRequest = false;
-            document.getElementById('prayer-btn').classList.remove('active');
-            document.getElementById('prayer-btn').textContent = '🙏 Prayer';
-            document.getElementById('prayer-hint').classList.remove('show');
-          }
-        } catch (err) {
-          console.error(err);
-          alert(authErrorMessage(err));
-        }
+        await db.collection('chats').doc(currentRoom).collection('messages').add({
+          text,
+          uid: user.uid,
+          name: profile ? profile.name : (user.email || 'Member'),
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+          isPrayer: currentRoom === 'Whole Church' ? isPrayer : false
+        });
+
+        input.value = '';
+        if (isPrayer) togglePrayer();
       }
-
-      requireApprovedUser().then(function (profile) {
-        if (!profile) return;
-        currentProfile = profile;
-        document.getElementById('composer').style.display = 'flex';
-        document.getElementById('chat-status').textContent = 'Connecting...';
-        listenForMessages();
-      });
     </script>
 </body>
 </html>

@@ -1,65 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pending Approval - TBC</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    .auth-card {
-      background: #fff;
-      border-radius: 14px;
-      padding: 24px 18px;
-      box-shadow: 0 4px 14px rgba(64,64,64,0.12);
-      margin-top: 12px;
-      text-align: center;
-    }
-    .auth-card p { line-height: 1.55; }
-    .status {
-      display: inline-block;
-      background: #fef3c7;
-      color: #92400e;
-      font-weight: 700;
-      padding: 6px 14px;
-      border-radius: 999px;
-      margin: 8px 0 16px;
-      font-size: 0.9rem;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pending Approval - TBC</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header><h1>Temple Baptist Church</h1></header>
-  <div class="container">
-    <div class="auth-card">
-      <h2>Account Pending</h2>
-      <div class="status">Waiting for approval</div>
-      <p>Thanks for signing up. A church admin needs to approve your account before you can use member features like chats and scheduling.</p>
-      <p>Once you’re approved, log in again and everything will open up.</p>
-      <button onclick="doLogout()">Log Out</button>
-      <button class="back-btn" onclick="window.location.href='index.html'">Back to Home</button>
+    <button class="hamburger" onclick="toggleMenu()" aria-label="Open menu">
+        <span></span><span></span><span></span>
+    </button>
+    <div class="nav-overlay" id="navOverlay" onclick="toggleMenu()"></div>
+    <div class="nav-drawer" id="navDrawer">
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="calendar.html">Calendar</a>
+        <a href="chat.html">Ministry Chats</a>
+        <a href="bible/index.html">Bible</a>
+        <a href="give.html">Give on Tithe.ly</a>
+        <a href="sermons.html">Sermons & Live Streams</a>
+        <a href="#" onclick="window.open('https://www.google.com/maps/place/11801+E+Lincoln+St,+Wichita,+KS+67207', '_blank'); toggleMenu(); return false;">View Location on Google Maps</a>
+        <a href="soul-winning.html">Soul Winning</a>
+        <a href="profile.html">Profile</a>
+        <a href="#" onclick="signOutUser().then(() => window.location.href='index.html')">Logout</a>
     </div>
-  </div>
 
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-  <script src="auth.js"></script>
-  <script>
-    auth.onAuthStateChanged(async (user) => {
-      if (!user) {
-        window.location.href = "login.html";
-        return;
+    <div class="container" style="text-align:center; margin-top:100px;">
+        <h2>Account Pending Approval</h2>
+        <p>Your account has been created. A church leader will review and approve your access shortly.</p>
+        <button class="back-btn" onclick="signOutUser().then(() => window.location.href='index.html')">Back to Home</button>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+    <script src="auth.js"></script>
+    <script>
+      function toggleMenu() {
+        document.getElementById('navDrawer').classList.toggle('open');
+        document.getElementById('navOverlay').classList.toggle('open');
       }
-      const profile = await getUserProfile(user.uid);
-      if (profile && profile.approved) {
-        window.location.href = "index.html";
-      }
-    });
-
-    async function doLogout() {
-      await signOutUser();
-      window.location.href = "login.html";
-    }
-  </script>
+    </script>
 </body>
 </html>

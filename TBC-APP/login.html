@@ -1,121 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - TBC</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    .auth-card {
-      background: #fff;
-      border-radius: 14px;
-      padding: 22px 18px;
-      box-shadow: 0 4px 14px rgba(64,64,64,0.12);
-      margin-top: 12px;
-    }
-    .auth-error {
-      background: #fde8e8;
-      color: #9b1c1c;
-      border-left: 4px solid #e02424;
-      padding: 10px 12px;
-      border-radius: 8px;
-      margin: 10px 0;
-      display: none;
-      font-size: 0.95rem;
-    }
-    .auth-error.show { display: block; }
-    .auth-links {
-      text-align: center;
-      margin-top: 18px;
-      font-size: 0.95rem;
-    }
-    label {
-      display: block;
-      font-weight: 600;
-      margin-top: 8px;
-      color: #404040;
-      font-size: 0.9rem;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - TBC Church App</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header><h1>Temple Baptist Church</h1></header>
-  <div class="container">
-    <button class="back-btn" onclick="window.location.href='index.html'">← Back to Home</button>
-    <div class="auth-card">
-      <h2>Login</h2>
-      <div id="error" class="auth-error"></div>
-      <label for="email">Email</label>
-      <input type="email" id="email" autocomplete="email" placeholder="you@example.com">
-      <label for="password">Password</label>
-      <input type="password" id="password" autocomplete="current-password" placeholder="Password">
-      <button id="loginBtn" onclick="doLogin()">Login</button>
-      <div class="auth-links">
-        New here? <a href="signup.html">Create an account</a>
-      </div>
+    <button class="hamburger" onclick="toggleMenu()" aria-label="Open menu">
+        <span></span><span></span><span></span>
+    </button>
+    <div class="nav-overlay" id="navOverlay" onclick="toggleMenu()"></div>
+    <div class="nav-drawer" id="navDrawer">
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="calendar.html">Calendar</a>
+        <a href="chat.html">Ministry Chats</a>
+        <a href="bible/index.html">Bible</a>
+        <a href="give.html">Give on Tithe.ly</a>
+        <a href="sermons.html">Sermons & Live Streams</a>
+        <a href="#" onclick="window.open('https://www.google.com/maps/place/11801+E+Lincoln+St,+Wichita,+KS+67207', '_blank'); toggleMenu(); return false;">View Location on Google Maps</a>
+        <a href="soul-winning.html">Soul Winning</a>
+        <a href="profile.html">Profile</a>
+        <a href="#" onclick="signOutUser().then(() => window.location.href='index.html')">Logout</a>
     </div>
-  </div>
 
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-  <script src="auth.js"></script>
-  <script>
-    auth.onAuthStateChanged(async function (user) {
-      if (!user) return;
-      try {
-        const profile = await ensureUserProfile(user);
-        if (profile && profile.approved) {
-          window.location.href = "index.html";
-        } else if (profile && !profile.approved) {
-          window.location.href = "pending.html";
-        }
-      } catch (e) {
-        console.error(e);
+    <div class="container" style="max-width:360px; margin-top:80px;">
+        <h2 style="text-align:center;">Login</h2>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <button class="menu-btn" onclick="login()">Login</button>
+        <p style="text-align:center; margin-top:12px;"><a href="signup.html">Create an account</a></p>
+        <p id="error" style="color:#c0392b; text-align:center; display:none;"></p>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+    <script src="auth.js"></script>
+    <script>
+      function toggleMenu() {
+        document.getElementById('navDrawer').classList.toggle('open');
+        document.getElementById('navOverlay').classList.toggle('open');
       }
-    });
-
-    async function doLogin() {
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-      const errBox = document.getElementById("error");
-      const btn = document.getElementById("loginBtn");
-
-      errBox.classList.remove("show");
-      if (!email || !password) {
-        errBox.textContent = "Enter email and password.";
-        errBox.classList.add("show");
-        return;
-      }
-
-      btn.disabled = true;
-      btn.textContent = "Logging in...";
-      try {
-        const user = await signInUser(email, password);
-        const profile = await ensureUserProfile(user);
-        if (!profile) {
-          errBox.textContent = "Could not load or create your profile. Check Firestore rules.";
-          errBox.classList.add("show");
-          return;
+      async function login() {
+        const email = document.getElementById('email').value;
+        const pass = document.getElementById('password').value;
+        const errEl = document.getElementById('error');
+        errEl.style.display = 'none';
+        try {
+          await signInUser(email, pass);
+          window.location.href = 'index.html';
+        } catch (e) {
+          errEl.textContent = authErrorMessage(e);
+          errEl.style.display = 'block';
         }
-        if (!profile.approved) {
-          window.location.href = "pending.html";
-          return;
-        }
-        window.location.href = "index.html";
-      } catch (err) {
-        console.error(err);
-        errBox.textContent = authErrorMessage(err);
-        errBox.classList.add("show");
-      } finally {
-        btn.disabled = false;
-        btn.textContent = "Login";
       }
-    }
-
-    document.getElementById("password").addEventListener("keypress", function (e) {
-      if (e.key === "Enter") doLogin();
-    });
-  </script>
+    </script>
 </body>
 </html>

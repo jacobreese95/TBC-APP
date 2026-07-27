@@ -20,26 +20,22 @@
         <a href="sermons.html">Sermons & Live Streams</a>
         <a href="#" onclick="window.open('https://www.google.com/maps/place/11801+E+Lincoln+St,+Wichita,+KS+67207', '_blank'); toggleMenu(); return false;">View Location on Google Maps</a>
         <a href="soul-winning.html">Soul Winning</a>
-        <a href="login.html" id="drawer-login">Login</a>
+        <a href="profile.html">Profile</a>
+        <a href="#" onclick="signOutUser().then(() => window.location.href='index.html')">Logout</a>
     </div>
 
     <header><h1>About Temple Baptist Church</h1></header>
     <div class="container">
         <button class="back-btn" onclick="window.location.href='index.html'">← Back to Home</button>
-
-        <h2>Our Beliefs</h2>
-        <p>Placeholder for doctrine and statement of faith. We'll fill this in with the full beliefs of Temple Baptist Church.</p>
-
+        <h2>Our Beliefs & Doctrine</h2>
+        <p>Placeholder for statement of faith and core beliefs.</p>
         <h2>Our Staff</h2>
-        <p>Placeholder for pastor and staff bios.</p>
-
+        <p>Placeholder for pastor and leadership team.</p>
         <h2>What We Do</h2>
-        <p>Placeholder for ministries, outreach, and community involvement.</p>
-
+        <p>Placeholder for ministries and outreach.</p>
         <h2>Service Times</h2>
-        <p>Sunday School: 9:30 AM<br>Sunday Morning: 10:30 AM<br>Sunday Evening: 6:00 PM<br>Wednesday: 7:00 PM</p>
+        <p>Sunday 10:30 AM &amp; Wednesday 7:00 PM</p>
     </div>
-
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
@@ -49,22 +45,6 @@
         document.getElementById('navDrawer').classList.toggle('open');
         document.getElementById('navOverlay').classList.toggle('open');
       }
-
-      // About Us is public - no login required
-      auth.onAuthStateChanged(function(user) {
-        const drawerLogin = document.getElementById('drawer-login');
-        if (!user) {
-          drawerLogin.textContent = 'Login';
-          drawerLogin.href = 'login.html';
-        } else {
-          drawerLogin.textContent = 'Logout';
-          drawerLogin.href = '#';
-          drawerLogin.onclick = function(e) {
-            e.preventDefault();
-            signOutUser().then(() => window.location.reload());
-          };
-        }
-      });
     </script>
 </body>
 </html>
