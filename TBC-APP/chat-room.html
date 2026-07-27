@@ -17,16 +17,13 @@
             width: 100%;
             top: 0;
             left: 0;
-            -webkit-overflow-scrolling: auto;
         }
         body {
             display: flex;
             flex-direction: column;
-            touch-action: none;
         }
         header {
             flex-shrink: 0;
-            touch-action: manipulation;
         }
         .container {
             flex: 1;
@@ -36,7 +33,6 @@
             box-sizing: border-box;
             overflow: hidden;
             min-height: 0;
-            touch-action: none;
         }
         .week-header {
             display: flex;
@@ -44,7 +40,6 @@
             margin-bottom: 10px;
             overflow-x: auto;
             flex-shrink: 0;
-            touch-action: pan-x;
         }
         .week-day {
             flex: 1;
@@ -60,11 +55,10 @@
         .chat-messages {
             flex: 1 1 auto;
             height: 0;
-            overflow-y: auto;
+            overflow-y: scroll;
             overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
-            overscroll-behavior: contain;
-            touch-action: pan-y;
+            overscroll-behavior-y: contain;
             padding: 12px;
             background: #f9f9f9;
             border-radius: 12px;
@@ -95,7 +89,6 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
-            touch-action: manipulation;
         }
         .composer textarea {
             width: 100%;
@@ -108,7 +101,6 @@
             height: 56px;
             line-height: 1.4;
             box-sizing: border-box;
-            touch-action: manipulation;
         }
         .composer button {
             align-self: flex-end;
@@ -119,7 +111,6 @@
             border: none;
             font-weight: bold;
             font-size: 15px;
-            touch-action: manipulation;
         }
         .composer .prayer-btn {
             background: #8845a5;
@@ -275,13 +266,6 @@
             }
 
             renderWeekHeader();
-
-            // Prevent the whole page from being pulled/dragged
-            document.body.addEventListener('touchmove', function(e) {
-                if (!e.target.closest('.chat-messages') && !e.target.closest('.week-header')) {
-                    e.preventDefault();
-                }
-            }, { passive: false });
 
             db.collection('chats').doc(room).collection('messages')
               .orderBy('createdAt')
