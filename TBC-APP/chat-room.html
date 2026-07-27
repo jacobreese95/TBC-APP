@@ -119,18 +119,19 @@
         }
         .composer button {
             align-self: flex-end;
-            padding: 10px 28px;
-            border-radius: 20px;
-            background: #4cb8b9;
-            color: white;
-            border: none;
-            font-weight: bold;
-            font-size: 15px;
-            width: auto;
-            margin: 0;
+            padding: 10px 28px !important;
+            border-radius: 20px !important;
+            background: #4cb8b9 !important;
+            color: white !important;
+            border: none !important;
+            font-weight: bold !important;
+            font-size: 15px !important;
+            width: auto !important;
+            margin: 0 !important;
+            display: inline-block !important;
         }
         .composer .prayer-btn {
-            background: #8845a5;
+            background: #8845a5 !important;
         }
     </style>
 </head>
@@ -149,8 +150,8 @@
 
         <div class="composer" id="composer">
             <textarea id="message-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); sendMessage(false);}"></textarea>
-            <button onclick="sendMessage(false)">Send</button>
-            <button id="prayerBtn" class="prayer-btn" onclick="sendMessage(true)" style="display:none;">🙏 Prayer Request</button>
+            <button type="button" onclick="sendMessage(false)">Send</button>
+            <button type="button" id="prayerBtn" class="prayer-btn" onclick="sendMessage(true)" style="display:none;">🙏 Prayer Request</button>
         </div>
     </div>
 
@@ -174,6 +175,7 @@
     <script>
         let room = new URLSearchParams(window.location.search).get('room') || 'Whole Church';
         let currentUser = null;
+        let isSending = false;
 
         function toggleDrawer() {
             document.getElementById('drawer').classList.toggle('open');
@@ -232,11 +234,16 @@
         }
 
         async function sendMessage(isPrayer) {
+            if (isSending) return;
+
             const input = document.getElementById('message-input');
             const text = input.value.trim();
             if (!text || !currentUser) return;
 
+            isSending = true;
             input.value = '';
+            // Keep the keyboard open and ready for the next message
+            input.focus();
 
             let displayName = currentUser.displayName || currentUser.name || 'User';
             if (displayName === 'User' && currentUser.uid) {
@@ -260,6 +267,10 @@
             } catch(e) {
                 alert('Error sending: ' + e.message);
                 input.value = text;
+            } finally {
+                isSending = false;
+                // Refocus again after the network call finishes
+                setTimeout(() => input.focus(), 100);
             }
         }
 
