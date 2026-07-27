@@ -4,7 +4,16 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Genesis 10 - TBC Bible</title>
 <link rel="stylesheet" href="../../../style.css">
-<style>.word-block{background:#f8f8f8;border-left:4px solid #1a3a5c;padding:12px 15px;margin:10px 0;border-radius:6px}.word-title{font-size:1.2rem;font-weight:bold;color:#1a3a5c;margin-bottom:8px}.def-label{font-weight:bold;color:#333;margin-top:8px;display:block}.verse-text{font-size:1.15rem;line-height:1.6;margin-bottom:8px}</style>
+<style>
+.word-block{background:#f8f8f8;border-left:4px solid #1a3a5c;padding:12px 15px;margin:10px 0;border-radius:6px}
+.word-title{font-size:1.2rem;font-weight:bold;color:#1a3a5c;margin-bottom:8px}
+.def-label{font-weight:bold;color:#333;margin-top:8px;display:block}
+.verse-text{font-size:1.15rem;line-height:1.6;margin-bottom:8px}
+.verse{background:#fff;border:1px solid #ddd;border-radius:8px;padding:12px;margin:10px 0;cursor:pointer}
+.verse-menu{display:none;margin-top:12px}
+.back-btn{background:#003087;color:#fff;border:none;padding:12px 20px;margin:8px 0;border-radius:8px;font-size:16px;cursor:pointer;width:100%}
+.chapter-btn{background:#003087;color:#fff;border:none;padding:12px 20px;margin:8px 0;border-radius:8px;font-size:16px;cursor:pointer;display:block;text-align:center}
+</style>
 </head>
 <body>
 <header><h1>Genesis Chapter 10</h1></header>
@@ -13,12 +22,50 @@
 <div id="verses"></div>
 </div>
 <script>
-function w(word,strongs,vines,webster){return{word,strongs,vines,webster}}
+function w(word,strongs,vines,webster){return{word:word,strongs:strongs,vines:vines,webster:webster}}
 function makeWords(text){
-const d={'and':['Conjunction','And.','And.'],'the':['Article','The.','The.'],'of':['Preposition','Of.','Of.'],'a':['Article','A.','A.'],'in':['Preposition','In.','In.'],'to':['Preposition','To.','To.'],'for':['H3588 - kiy','For.','For.'],'with':['Preposition','With.','With.'],'from':['Preposition','From.','From.'],'unto':["H413 - 'el",'To.','Unto.'],'after':['Preposition','After.','After.'],'by':['Preposition','By.','By.'],'he':['Pronoun','He.','He.'],'his':['Possessive','His.','His.'],'him':['Pronoun','Him.','Him.'],'they':['Pronoun','They.','They.'],'them':['Pronoun','Them.','Them.'],'their':['Possessive','Their.','Their.'],'these':['Demonstrative','These.','These.'],'are':['Implied','Are.','Are.'],'was':['Implied','Was.','Was.'],'were':['Implied','Were.','Were.'],'is':['Implied','Is.','Is.'],'be':['H1961 - hayah','Be.','Be.'],'all':['H3605 - kol','All.','All.'],'every':['H3605 - kol','Every.','Every.'],'that':['Relative','That.','That.'],'which':["H834 - 'asher",'Which.','Which.'],'now':['Conjunction','Now.','Now.'],'before':['H6440 - paniym','Before.','Before.'],'even':['Adverb','Even.','Even.'],'as':['Preposition','As.','As.'],'said':["H559 - 'amar",'Said.','Said.'],'god':["H430 - 'elohiym",'God.','God.'],'lord':['H3068 - Y@hovah','Jehovah.','LORD.'],'noah':['H5146 - Noach','Noah.','Noah.'],'shem':['H8035 - Shem','Shem.','Shem.'],'ham':['H2526 - Cham','Ham.','Ham.'],'japheth':['H3315 - Yepheth','Japheth.','Japheth.'],'sons':['H1121 - ben','Sons.','Sons.'],'son':['H1121 - ben','Son.','Son.'],'born':['H3205 - yalad','Born.','Born.'],'begat':['H3205 - yalad','Begat.','Begat.'],'flood':['H3999 - mabbuwl','Flood.','Flood.'],'generations':['H8435 - towl@dah','Generations.','Generations.'],'families':['H4940 - mishpachah','Families.','Families.'],'nations':['H1471 - gowy','Nations.','Nations.'],'earth':["H776 - 'erets",'Earth.','Earth.'],'divided':['H6504 - parad','Divided.','Divided.'],'mighty':['H1368 - gibbowr','Mighty.','Mighty.'],'hunter':['H6718 - tsayid','Hunter.','Hunter.'],'began':['H2490 - chalal','Began.','Began.'],'one':['Implied','One.','One.'],'cush':['H3568 - Kuwsh','Cush.','Cush.'],'nimrod':['H5248 - Nimrowd','Nimrod.','Nimrod.'],'gomer':['H1586 - Gomer','Gomer.','Gomer.'],'magog':['H4031 - Magowg','Magog.','Magog.'],'madai':['H4074 - Maday','Madai.','Madai.'],'javan':['H3120 - Yavan','Javan.','Javan.'],'tubal':['H8422 - Tuwbal','Tubal.','Tubal.'],'meshech':['H4902 - Meshek','Meshech.','Meshech.'],'tiras':['H8494 - Tiyrac','Tiras.','Tiras.'],'ashkenaz':["H813 - 'Ashk@naz",'Ashkenaz.','Ashkenaz.'],'riphath':['H7384 - Riyphath','Riphath.','Riphath.'],'togarmah':['H8425 - Togarmah','Togarmah.','Togarmah.'],'elishah':["H473 - 'Eliyshah",'Elishah.','Elishah.'],'tarshish':['H8659 - Tarshiysh','Tarshish.','Tarshish.'],'kittim':['H3794 - Kittiy','Kittim.','Kittim.'],'dodanim':['H1721 - Dodaniym','Dodanim.','Dodanim.'],'isles':["H339 - 'iy",'Isles.','Isles.'],'lands':["H776 - 'erets",'Lands.','Lands.'],'tongue':['H3956 - lashown','Tongue.','Tongue.'],'mizraim':['H4714 - Mitsrayim','Mizraim.','Mizraim.'],'phut':['H6316 - Puwt','Phut.','Phut.'],'canaan':['H3667 - K@na`an','Canaan.','Canaan.'],'seba':['H5434 - C@ba','Seba.','Seba.'],'havilah':['H2341 - Chaviylah','Havilah.','Havilah.'],'sabtah':['H5454 - Cabta','Sabtah.','Sabtah.'],'raamah':['H7484 - Ra`mah','Raamah.','Raamah.'],'sabtechah':['H5455 - Cabt@ka','Sabtechah.','Sabtechah.'],'sheba':['H7614 - Sh@ba','Sheba.','Sheba.'],'dedan':['H1719 - D@dan','Dedan.','Dedan.'],'babel':['H894 - Babel','Babel.','Babel.'],'erech':["H751 - 'Erek",'Erech.','Erech.'],'accad':["H390 - 'Akkad",'Accad.','Accad.'],'calneh':['H3641 - Kalneh','Calneh.','Calneh.'],'shinar':['H8152 - Shin`ar','Shinar.','Shinar.'],'kingdom':['H4467 - mamlakah','Kingdom.','Kingdom.'],'beginning':['H7225 - re'shiyth','Beginning.','Beginning.'],'out':['Preposition','Out.','Out.'],'went':['H3318 - yatsa','Went.','Went.'],'asshur':["H804 - 'Ashshuwr",'Asshur.','Asshur.'],'builded':['H1129 - banah','Builded.','Builded.'],'nineveh':['H5210 - Niyn@veh','Nineveh.','Nineveh.'],'city':["H5892 - `iyr",'City.','City.'],'rehoboth':['H7344 - R@chobowth','Rehoboth.','Rehoboth.'],'calah':['H3625 - Kelach','Calah.','Calah.'],'resen':['H7449 - Recen','Resen.','Resen.'],'great':['H1419 - gadowl','Great.','Great.'],'ludim':['H3866 - Luwdiy','Ludim.','Ludim.'],'anamim':["H6047 - `Anamim",'Anamim.','Anamim.'],'lehabim':['H3853 - L@habiym','Lehabim.','Lehabim.'],'naphtuhim':['H5320 - Naphtuchiym','Naphtuhim.','Naphtuhim.'],'pathrusim':['H6625 - Pathruciy','Pathrusim.','Pathrusim.'],'casluhim':['H3695 - Kacluchiym','Casluhim.','Casluhim.'],'philistim':['H6430 - P@lishtiy','Philistim.','Philistim.'],'came':["H3318 - yatsa'",'Came.','Came.'],'caphtorim':['H3732 - Kaphtoriy','Caphtorim.','Caphtorim.'],'sidon':['H6721 - Tsiydown','Sidon.','Sidon.'],'firstborn':['H1060 - b@kowr','Firstborn.','Firstborn.'],'heth':['H2845 - Cheth','Heth.','Heth.'],'jebusite':['H2983 - Y@buwciy','Jebusite.','Jebusite.'],'amorite':["H567 - 'Emoriy",'Amorite.','Amorite.'],'girgasite':['H1622 - Girgashiy','Girgasite.','Girgasite.'],'hivite':['H2340 - Chivviy','Hivite.','Hivite.'],'arkite':["H6208 - `Arqiy",'Arkite.','Arkite.'],'sinite':['H5513 - Ciyniy','Sinite.','Sinite.'],'arvadite':["H721 - 'Arvadiy",'Arvadite.','Arvadite.'],'zemarite':['H6786 - Ts@mariy','Zemarite.','Zemarite.'],'hamathite':['H2577 - Chamathiy','Hamathite.','Hamathite.'],'afterward':["H310 - 'achar",'Afterward.','Afterward.'],'spread':['H5310 - naphats','Spread.','Spread.'],'abroad':['Adverb','Abroad.','Abroad.'],'border':['H1366 - g@buwl','Border.','Border.'],'gerar':['H1642 - G@rar','Gerar.','Gerar.'],'gaza':["H5804 - `Azzah",'Gaza.','Gaza.'],'sodoma':['H5467 - C@dom','Sodom.','Sodom.'],'gomorrah':["H6017 - `Amorah",'Gomorrah.','Gomorrah.'],'admah':["H126 - 'Admah",'Admah.','Admah.'],'zeboiim':['H6636 - Ts@bo'iym','Zeboiim.','Zeboiim.'],'lasha':['H3962 - Lesha`','Lasha.','Lasha.'],'elam':["H5867 - `Eylam",'Elam.','Elam.'],'arpachshad':["H775 - 'Arpakshad",'Arphaxad.','Arphaxad.'],'lud':['H3865 - Luwd','Lud.','Lud.'],'aram':["H758 - 'Aram",'Aram.','Aram.'],'uz':["H5780 - `Uwts",'Uz.','Uz.'],'hul':['H2343 - Chuwl','Hul.','Hul.'],'gether':['H1666 - Gether','Gether.','Gether.'],'mash':['H4851 - Mash','Mash.','Mash.'],'salah':['H7974 - Shelach','Salah.','Salah.'],'eber':["H5677 - `Eber",'Eber.','Eber.'],'peleg':['H6389 - Peleg','Peleg.','Peleg.'],'days':['H3117 - yowm','Days.','Days.'],'name':['H8034 - shem','Name.','Name.'],'because':['H3588 - kiy','Because.','Because.'],'overthrown':['H6385 - palag','Divided.','Overthrown / divided.'],'brother':["H251 - 'ach",'Brother.','Brother.'],'joktan':['H3355 - Yoqtan','Joktan.','Joktan.'],'almodad':["H486 - 'Almowdad",'Almodad.','Almodad.'],'sheleph':['H8026 - Sheleph','Sheleph.','Sheleph.'],'hazarmaveth':['H2700 - Chatsarmaveth','Hazarmaveth.','Hazarmaveth.'],'jerah':['H3392 - Yerach','Jerah.','Jerah.'],'hadoram':['H1913 - Hadowram','Hadoram.','Hadoram.'],'uzal':["H187 - 'Uwzal",'Uzal.','Uzal.'],'diklah':['H1853 - Diqlah','Diklah.','Diklah.'],'obal':["H5745 - `Owbal",'Obal.','Obal.'],'abimael':["H39 - 'Abiyma'el",'Abimael.','Abimael.'],'ophir':["H211 - 'Owphiyr",'Ophir.','Ophir.'],'jobab':['H3103 - Yowbab','Jobab.','Jobab.'],'dwelling':['H4186 - mowshab','Dwelling.','Dwelling.'],'mesha':['H4852 - Mesha','Mesha.','Mesha.'],'sephar':['H5611 - C@phar','Sephar.','Sephar.'],'mount':['H2022 - har','Mount.','Mount.'],'east':['H6924 - qedem','East.','East.']};
-return text.replace(/[.,:;?!]/g,'').split(/\s+/).filter(Boolean).map(wd=>{const k=wd.toLowerCase().replace("'",'');if(d[k])return w(wd,d[k][0],d[k][1],d[k][2]);return w(wd,'—','—',wd+'.');});
+var d={
+"and":["Conjunction","And.","And."],"the":["Article","The.","The."],"of":["Preposition","Of.","Of."],
+"a":["Article","A.","A."],"in":["Preposition","In.","In."],"to":["Preposition","To.","To."],
+"for":["H3588 - kiy","For.","For."],"with":["Preposition","With.","With."],"from":["Preposition","From.","From."],
+"unto":["H413 - el","To.","Unto."],"after":["Preposition","After.","After."],"by":["Preposition","By.","By."],
+"he":["Pronoun","He.","He."],"his":["Possessive","His.","His."],"him":["Pronoun","Him.","Him."],
+"they":["Pronoun","They.","They."],"them":["Pronoun","Them.","Them."],"their":["Possessive","Their.","Their."],
+"these":["Demonstrative","These.","These."],"are":["Implied","Are.","Are."],"was":["Implied","Was.","Was."],
+"were":["Implied","Were.","Were."],"is":["Implied","Is.","Is."],"be":["H1961 - hayah","Be.","Be."],
+"all":["H3605 - kol","All.","All."],"every":["H3605 - kol","Every.","Every."],"that":["Relative","That.","That."],
+"which":["H834 - asher","Which.","Which."],"now":["Conjunction","Now.","Now."],"before":["H6440 - paniym","Before.","Before."],
+"even":["Adverb","Even.","Even."],"as":["Preposition","As.","As."],"said":["H559 - amar","Said.","Said."],
+"god":["H430 - elohiym","God.","God."],"lord":["H3068 - Yehovah","Jehovah.","LORD."],
+"noah":["H5146 - Noach","Noah.","Noah."],"shem":["H8035 - Shem","Shem.","Shem."],"ham":["H2526 - Cham","Ham.","Ham."],
+"japheth":["H3315 - Yepheth","Japheth.","Japheth."],"sons":["H1121 - ben","Sons.","Sons."],"son":["H1121 - ben","Son.","Son."],
+"born":["H3205 - yalad","Born.","Born."],"begat":["H3205 - yalad","Begat.","Begat."],"flood":["H3999 - mabbuwl","Flood.","Flood."],
+"generations":["H8435 - toledah","Generations.","Generations."],"families":["H4940 - mishpachah","Families.","Families."],
+"nations":["H1471 - goy","Nations.","Nations."],"earth":["H776 - erets","Earth.","Earth."],"divided":["H6504 - parad","Divided.","Divided."],
+"mighty":["H1368 - gibbor","Mighty.","Mighty."],"hunter":["H6718 - tsayid","Hunter.","Hunter."],"began":["H2490 - chalal","Began.","Began."],
+"one":["Implied","One.","One."],"cush":["H3568 - Kush","Cush.","Cush."],"nimrod":["H5248 - Nimrod","Nimrod.","Nimrod."],
+"children":["H1121 - ben","Children.","Children."],"father":["H1 - ab","Father.","Father."],"brother":["H251 - ach","Brother.","Brother."],
+"name":["H8034 - shem","Name.","Name."],"days":["H3117 - yom","Days.","Days."],"land":["H776 - erets","Land.","Land."],
+"city":["H5892 - ir","City.","City."],"great":["H1419 - gadol","Great.","Great."],"same":["Demonstrative","Same.","Same."],
+"out":["Preposition","Out.","Out."],"went":["H3318 - yatsa","Went.","Went."],"forth":["Part of yatsa","Forth.","Forth."],
+"builded":["H1129 - banah","Builded.","Builded."],"came":["H3318 - yatsa","Came.","Came."],"whom":["Relative","Whom.","Whom."],
+"firstborn":["H1060 - bekor","Firstborn.","Firstborn."],"afterward":["H310 - achar","Afterward.","Afterward."],
+"spread":["H5310 - naphats","Spread.","Spread."],"abroad":["Adverb","Abroad.","Abroad."],"border":["H1366 - gebul","Border.","Border."],
+"thou":["Pronoun","You.","Thou."],"comest":["H935 - bo","Comest.","Comest."],"goest":["H935 - bo","Goest.","Goest."],
+"tongues":["H3956 - lashon","Tongues.","Tongues."],"tongue":["H3956 - lashon","Tongue.","Tongue."],
+"countries":["H776 - erets","Countries.","Countries."],"lands":["H776 - erets","Lands.","Lands."],
+"isles":["H339 - iy","Isles.","Isles."],"gentiles":["H1471 - goy","Gentiles.","Gentiles."],
+"elder":["H1419 - gadol","Elder.","Elder."],"also":["Adverb","Also.","Also."],"two":["H8147 - shenayim","Two.","Two."],
+"because":["H3588 - kiy","Because.","Because."],"dwelling":["H4186 - moshab","Dwelling.","Dwelling."],
+"mount":["H2022 - har","Mount.","Mount."],"east":["H6924 - qedem","East.","East."],"between":["H996 - beyn","Between.","Between."]
+};
+return text.replace(/[.,:;?!()]/g,"").split(/\s+/).filter(Boolean).map(function(wd){
+var k=wd.toLowerCase().replace(/'/g,"");
+if(d[k])return w(wd,d[k][0],d[k][1],d[k][2]);
+return w(wd,"—","—",wd+".");
+});
 }
-const data=[
+var data=[
 ["Genesis 10:1","Now these are the generations of the sons of Noah, Shem, Ham, and Japheth: and unto them were sons born after the flood."],
 ["Genesis 10:2","The sons of Japheth; Gomer, and Magog, and Madai, and Javan, and Tubal, and Meshech, and Tiras."],
 ["Genesis 10:3","And the sons of Gomer; Ashkenaz, and Riphath, and Togarmah."],
@@ -52,10 +99,21 @@ const data=[
 ["Genesis 10:31","These are the sons of Shem, after their families, after their tongues, in their lands, after their nations."],
 ["Genesis 10:32","These are the families of the sons of Noah, after their generations, in their nations: and by these were the nations divided in the earth after the flood."]
 ];
-const verses=data.map(([ref,text])=>({ref,text,words:makeWords(text)}));
-const root=document.getElementById('verses');
-verses.forEach((v,i)=>{const d=document.createElement('div');d.className='verse';let h='';v.words.forEach(x=>{h+=`<div class="word-block"><div class="word-title">${x.word}</div><span class="def-label">Strong's:</span><div>${x.strongs}</div><span class="def-label">Vine's:</span><div>${x.vines}</div><span class="def-label">Webster's 1828:</span><div>${x.webster}</div></div>`});d.innerHTML=`<strong>${v.ref}</strong><div class="verse-text">${v.text}</div><div class="verse-menu" id="menu-${i}">${h}<p style="margin-top:18px;"><strong>My Notes:</strong></p><textarea placeholder="Write your notes here..." onblur="saveNote('${v.ref}',this.value)">${localStorage.getItem('note-'+v.ref)||''}</textarea></div>`;d.onclick=function(e){if(e.target.tagName==='TEXTAREA')return;const m=document.getElementById('menu-'+i);m.style.display=m.style.display==='block'?'none':'block'};root.appendChild(d)});
-function saveNote(r,t){if(t.trim()==='')localStorage.removeItem('note-'+r);else localStorage.setItem('note-'+r,t)}
+var verses=data.map(function(pair){return{ref:pair[0],text:pair[1],words:makeWords(pair[1])};});
+var root=document.getElementById("verses");
+verses.forEach(function(v,i){
+var d=document.createElement("div");
+d.className="verse";
+var h="";
+v.words.forEach(function(x){
+h+="<div class=\"word-block\"><div class=\"word-title\">"+x.word+"</div><span class=\"def-label\">Strong's:</span><div>"+x.strongs+"</div><span class=\"def-label\">Vine's:</span><div>"+x.vines+"</div><span class=\"def-label\">Webster's 1828:</span><div>"+x.webster+"</div></div>";
+});
+var note=localStorage.getItem("note-"+v.ref)||"";
+d.innerHTML="<strong>"+v.ref+"</strong><div class=\"verse-text\">"+v.text+"</div><div class=\"verse-menu\" id=\"menu-"+i+"\">"+h+"<p style=\"margin-top:18px;\"><strong>My Notes:</strong></p><textarea placeholder=\"Write your notes here...\" onblur=\"saveNote('"+v.ref+"',this.value)\">"+note+"</textarea></div>";
+d.onclick=function(e){if(e.target.tagName==="TEXTAREA")return;var m=document.getElementById("menu-"+i);m.style.display=m.style.display==="block"?"none":"block";};
+root.appendChild(d);
+});
+function saveNote(r,t){if(t.trim()==="")localStorage.removeItem("note-"+r);else localStorage.setItem("note-"+r,t);}
 </script>
 </body>
 </html>
