@@ -28,12 +28,8 @@
     </header>
 
     <div class="container">
-        <div class="filter-bar">
-            <button class="filter-btn active" data-filter="all">All</button>
-            <button class="filter-btn" data-filter="Whole Church">Whole Church</button>
-            <button class="filter-btn" data-filter="Nursery">Nursery</button>
-            <button class="filter-btn" data-filter="Music">Music</button>
-            <button class="filter-btn" data-filter="Media">Media</button>
+        <div class="filter-bar" id="filter-bar">
+            <!-- Populated dynamically based on user ministries -->
         </div>
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin:15px 0;">
@@ -95,6 +91,46 @@
             const overlay = document.getElementById('overlay');
             drawer.classList.toggle('open');
             overlay.classList.toggle('open');
+        }
+
+        const allMinistries = ['Whole Church', 'Nursery', 'Music', 'Media'];
+
+        function renderFilterBar(userMinistries, isAdmin) {
+            const container = document.getElementById('filter-bar');
+            container.innerHTML = '';
+
+            // Always show All and Whole Church
+            const allBtn = document.createElement('button');
+            allBtn.className = 'filter-btn active';
+            allBtn.dataset.filter = 'all';
+            allBtn.textContent = 'All';
+            container.appendChild(allBtn);
+
+            const wholeBtn = document.createElement('button');
+            wholeBtn.className = 'filter-btn';
+            wholeBtn.dataset.filter = 'Whole Church';
+            wholeBtn.textContent = 'Whole Church';
+            container.appendChild(wholeBtn);
+
+            allMinistries.forEach(ministry => {
+                if (ministry !== 'Whole Church' && (isAdmin || userMinistries.includes(ministry))) {
+                    const btn = document.createElement('button');
+                    btn.className = 'filter-btn';
+                    btn.dataset.filter = ministry;
+                    btn.textContent = ministry;
+                    container.appendChild(btn);
+                }
+            });
+
+            // Re-attach click handlers
+            container.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.onclick = () => {
+                    container.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentFilter = btn.dataset-filter;
+                    renderCalendar();
+                };
+            });
         }
 
         function renderCalendar() {
@@ -201,18 +237,15 @@
         function prevMonth() { currentDate.setMonth(currentDate.getMonth() - 1); renderCalendar(); }
         function nextMonth() { currentDate.setMonth(currentDate.getMonth() + 1); renderCalendar(); }
 
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.onclick = () => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentFilter = btn.dataset-filter;
-                renderCalendar();
-            };
-        });
-
         // Init
-        requireApprovedUser().then(() => {
-            loadEvents();
+        requireApprovedUser().then(user => {
+            if (user) {
+                const userData = user.data || {};
+                const userMinistries = userData.ministries || [];
+                const isAdmin = userData.role === 'admin';
+                renderFilterBar(userMinistries, isAdmin);
+                loadEvents();
+            }
         });
     </script>
 </body>
