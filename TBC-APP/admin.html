@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - TBC Church App</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .user-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 12px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .user-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .user-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .user-email {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .role-select, .ministry-select {
+            width: 100%;
+            padding: 8px;
+            margin: 6px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .save-btn {
+            background: linear-gradient(135deg, #4cb8b9, #7bafdd);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+        .pending { background: #fff3cd; }
+        .approved { background: #d4edda; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Admin Panel</h1>
+    </header>
+
+    <div class="container">
+        <button class="back-btn" onclick="window.location.href='index.html'">← Back to Home</button>
+        
+        <h2>Manage Users</h2>
+        <div id="users-list">Loading users...</div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        let currentUser = null;
+
+        async function loadUsers() {
+            const container = document.getElementById('users-list');
+            container.innerHTML = 'Loading...';
+
+            try {
+                const snapshot = await db.collection('users').orderBy('createdAt', 'desc').get();
+                container.innerHTML = '';
+
+                snapshot.forEach(doc => {
+                    const user = { uid: doc.id, ...doc.data() };
+                    const card = createUserCard(user);
+                    container.appendChild(card);
+                });
+            } catch (err) {
+                container.innerHTML = 'Error loading users: ' + err.message;
+            }
+        }
+
+        function createUserCard(user) {
+            const div = document.createElement('div');
+            div.className = `user-card ${user.approved ? 'approved' : 'pending'}`;
+            
+            const ministries = user.ministries || [];
+            const ministryStr = ministries.join(', ');
+
+            div.innerHTML = `
+                <div class="user-header">
+                    <div>
+                        <div class="user-name">${user.name || 'No name'}</div>
+                        <div class="user-email">${user.email || ''}</div>
+                    </div>
+                    <div style="text-align: right; font-size: 0.85rem;">
+                        <div><strong>Role:</strong> ${user.role || 'member'}</div>
+                        <div><strong>Ministries:</strong> ${ministryStr || 'None'}</div>
+                    </div>
+                </div>
+                
+                <label>Change Role:</label>
+                <select class="role-select" id="role-${user.uid}">
+                    <option value="member" ${user.role === 'member' ? 'selected' : ''}>Member (Regular User)</option>
+                    <option value="leader" ${user.role === 'leader' ? 'selected' : ''}>Leader</option>
+                    <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
+                </select>
+
+                <label>Assign Ministries (comma separated):</label>
+                <input type="text" class="ministry-select" id="min-${user.uid}" value="${ministryStr}" placeholder="Nursery, Music, Whole Church">
+
+                <label>Approval Status:</label>
+                <select class="role-select" id="approved-${user.uid}">
+                    <option value="true" ${user.approved ? 'selected' : ''}>Approved</option>
+                    <option value="false" ${!user.approved ? 'selected' : ''}>Pending Approval</option>
+                </select>
+
+                <button class="save-btn" onclick="saveUser('${user.uid}')">Save Changes</button>
+            `;
+            return div;
+        }
+
+        window.saveUser = async function(uid) {
+            const role = document.getElementById(`role-${uid}`).value;
+            const minInput = document.getElementById(`min-${uid}`).value;
+            const ministries = minInput.split(',').map(m => m.trim()).filter(m => m);
+            const approved = document.getElementById(`approved-${uid}`).value === 'true';
+
+            try {
+                await db.collection('users').doc(uid).update({
+                    role: role,
+                    ministries: ministries,
+                    approved: approved
+                });
+                alert('User updated successfully!');
+                loadUsers();
+            } catch (err) {
+                alert('Error saving: ' + err.message);
+            }
+        };
+
+        // Check if current user is admin
+        auth.onAuthStateChanged(async function(user) {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+            const profile = await getUserProfile(user.uid);
+            if (!profile || profile.role !== 'admin') {
+                alert('Access denied. Admins only.');
+                window.location.href = 'index.html';
+                return;
+            }
+            currentUser = profile;
+            loadUsers();
+        });
+    </script>
+</body>
+</html>
