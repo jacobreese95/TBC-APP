@@ -27,6 +27,16 @@
             color: '#666';
             font-size: 0.9rem;
         }
+        .profile-fields {
+            background: #f8f9fa;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 0.9rem;
+        }
+        .profile-fields div {
+            margin: 4px 0;
+        }
         .role-select {
             width: 100%;
             padding: 8px;
@@ -128,6 +138,16 @@
             });
             ministryHTML += '</div>';
 
+            // Show all other profile fields
+            let profileHTML = '<div class="profile-fields">';
+            const exclude = ['uid', 'name', 'email', 'role', 'ministries', 'approved'];
+            Object.keys(user).forEach(key => {
+                if (!exclude.includes(key) && user[key] != null && user[key] !== '') {
+                    profileHTML += `<div><strong>${key}:</strong> ${user[key]}</div>`;
+                }
+            });
+            profileHTML += '</div>';
+
             div.innerHTML = `
                 <div class="user-header">
                     <div>
@@ -139,6 +159,8 @@
                         <div><strong>Ministries:</strong> ${userMinistries.join(', ')}</div>
                     </div>
                 </div>
+                
+                ${profileHTML}
                 
                 <label>Change Role:</label>
                 <select class="role-select" id="role-${user.uid}">
@@ -168,7 +190,8 @@
             checkboxes.forEach(cb => {
                 if (cb.checked || cb.disabled) ministries.push(cb.value);
             });
-            const approved = document.getElementById(`approved-${user.uid}`).value === 'true';
+            const approvedEl = document.getElementById(`approved-${uid}`);
+            const approved = approvedEl ? approvedEl.value === 'true' : false;
 
             try {
                 await db.collection('users').doc(uid).update({
