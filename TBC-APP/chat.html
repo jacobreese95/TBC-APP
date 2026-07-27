@@ -14,10 +14,8 @@
     <div class="container">
         <button class="back-btn" onclick="window.location.href='index.html'">← Back to Home</button>
         
-        <div style="margin: 20px 0;">
-            <a href="chat-room.html?room=Whole Church" class="menu-btn">Whole Church</a>
-            <a href="chat-room.html?room=Nursery" class="menu-btn" style="margin-top:12px; background: linear-gradient(135deg, #b0dc77, #4cb8b9);">Nursery</a>
-            <a href="chat-room.html?room=Music" class="menu-btn" style="margin-top:12px; background: linear-gradient(135deg, #ac8ce6, #8845a5);">Music Ministry</a>
+        <div id="chat-list" style="margin: 20px 0;">
+            Loading chats...
         </div>
     </div>
 
@@ -26,7 +24,47 @@
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
     <script src="auth.js"></script>
     <script>
-        requireApprovedUser();
+        requireApprovedUser().then(async function(profile) {
+            if (!profile) return;
+            
+            const container = document.getElementById('chat-list');
+            container.innerHTML = '';
+            
+            const userMinistries = profile.ministries || ['Whole Church'];
+            
+            // Always show Whole Church
+            const wholeChurch = document.createElement('a');
+            wholeChurch.href = 'chat-room.html?room=Whole Church';
+            wholeChurch.className = 'menu-btn';
+            wholeChurch.textContent = 'Whole Church';
+            container.appendChild(wholeChurch);
+            
+            // Show only assigned ministry chats
+            const ministryChats = [
+                { name: 'Nursery', color: 'linear-gradient(135deg, #b0dc77, #4cb8b9)' },
+                { name: 'Music Ministry', color: 'linear-gradient(135deg, #ac8ce6, #8845a5)' }
+            ];
+            
+            ministryChats.forEach(chat => {
+                if (userMinistries.includes(chat.name)) {
+                    const link = document.createElement('a');
+                    link.href = `chat-room.html?room=${encodeURIComponent(chat.name)}`;
+                    link.className = 'menu-btn';
+                    link.style.marginTop = '12px';
+                    link.style.background = chat.color;
+                    link.textContent = chat.name;
+                    container.appendChild(link);
+                }
+            });
+            
+            if (container.children.length === 1) {
+                const note = document.createElement('p');
+                note.style.marginTop = '20px';
+                note.style.color = '#666';
+                note.textContent = 'You are only in the Whole Church chat. Ask an admin to add you to other ministry chats.';
+                container.appendChild(note);
+            }
+        });
     </script>
 </body>
 </html>
