@@ -3,50 +3,252 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Church Calendar</title>
+    <title>Calendar - TBC Church App</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Sentry Error Tracking -->
+    <script src="https://browser.sentry-cdn.com/7.119.0/bundle.min.js" integrity="sha384-..." crossorigin="anonymous"></script>
+    <style>
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin: 20px 0; }
+        .day-header { font-weight: bold; text-align: center; padding: 8px; background: #7bafdd; color: white; border-radius: 6px; }
+        .day-cell { min-height: 70px; border: 1px solid #ddd; padding: 6px; border-radius: 8px; background: white; cursor: pointer; position: relative; }
+        .day-cell.other-month { background: #f8f8f8; color: #aaa; }
+        .day-number { font-weight: bold; margin-bottom: 4px; }
+        .event { font-size: 0.75rem; background: #4cb8b9; color: white; padding: 2px 6px; border-radius: 4px; margin: 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; }
+        .filter-btn { padding: 8px 16px; border: 2px solid #4cb8b9; background: white; color: #4cb8b9; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        .filter-btn.active { background: #4cb8b9; color: white; }
+    </style>
 </head>
 <body>
-    <button class="hamburger" onclick="toggleMenu()" aria-label="Open menu">
-        <span></span><span></span><span></span>
-    </button>
-    <div class="nav-overlay" id="navOverlay" onclick="toggleMenu()"></div>
-    <div class="nav-drawer" id="navDrawer">
+    <header>
+        <h1>Church Calendar</h1>
+        <button class="hamburger" onclick="toggleDrawer()" aria-label="Open menu">
+            <span></span><span></span><span></span>
+        </button>
+    </header>
+
+    <div class="container">
+        <div class="filter-bar" id="filter-bar">
+            <!-- Populated dynamically based on user ministries -->
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin:15px 0;">
+            <button onclick="prevMonth()" style="padding:8px 16px; border-radius:8px; border:2px solid #4cb8b9; background:white; color:#4cb8b9; font-weight:bold;">< Prev</button>
+            <h2 id="month-year" style="margin:0; color:#404040;"></h2>
+            <button onclick="nextMonth()" style="padding:8px 16px; border-radius:8px; border:2px solid #4cb8b9; background:white; color:#4cb8b9; font-weight:bold;">Next ></button>
+        </div>
+
+        <div class="calendar-grid" id="calendar-grid"></div>
+
+        <h3 style="margin-top:30px; color:#404040;">Add New Event</h3>
+        <div style="background:white; padding:20px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+            <input type="date" id="event-date" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:8px;">
+            <input type="text" id="event-title" placeholder="Event Title" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:8px;">
+            <textarea id="event-desc" placeholder="Description (optional)" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:8px; height:80px;"></textarea>
+            <select id="event-ministry" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:8px;">
+                <option value="Whole Church">Whole Church</option>
+                <option value="Nursery">Nursery</option>
+                <option value="Music Ministry">Music Ministry</option>
+                <option value="Media">Media</option>
+            </select>
+            <button onclick="addEvent()" class="menu-btn" style="margin-top:10px;">Add Event</button>
+        </div>
+    </div>
+
+    <!-- Hamburger Drawer -->
+    <div class="nav-overlay" id="overlay" onclick="toggleDrawer()"></div>
+    <div class="nav-drawer" id="drawer">
+        <h3 style="margin-top:0; color:#404040;">Menu</h3>
         <a href="index.html">Home</a>
         <a href="about.html">About Us</a>
         <a href="chat.html">Ministry Chats</a>
         <a href="bible/index.html">Bible</a>
-        <a href="give.html">Give on Tithe.ly</a>
-        <a href="sermons.html">Sermons & Live Streams</a>
+        <a href="sermons.html">Sermons</a>
+        <a href="give.html">Give</a>
         <a href="profile.html">Profile</a>
-        <a href="admin.html" id="drawer-admin" style="display:none;">Admin</a>
-        <a href="#" onclick="signOutUser().then(() => window.location.reload())">Logout</a>
-    </div>
-
-    <div class="container">
-        <h1 style="text-align:center; margin-bottom:20px;">Church Calendar</h1>
-        
-        <div id="filters" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; justify-content:center;">
-        </div>
-        
-        <div id="calendar-grid" class="calendar-grid">
-        </div>
+        <a href="#" onclick="logoutUser(); return false;" style="color:#8845a5; font-weight:bold; margin-top:20px;">Logout</a>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
     <script src="auth.js"></script>
-    <script src="app.js"></script>
     <script>
-        function toggleMenu() {
-            document.getElementById('navDrawer').classList.toggle('open');
-            document.getElementById('navOverlay').classList.toggle('open');
+        // Initialize Sentry (replace DSN with your project key)
+        if (typeof Sentry !== 'undefined') {
+            Sentry.init({
+                dsn: 'YOUR_SENTRY_DSN_HERE', // <-- paste your Sentry DSN here
+                tracesSampleRate: 1.0,
+            });
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof initCalendar === 'function') {
-                initCalendar();
+        let currentDate = new Date();
+        let allEvents = [];
+        let currentFilter = 'Whole Church';
+
+        function toggleDrawer() {
+            const drawer = document.getElementById('drawer');
+            const overlay = document.getElementById('overlay');
+            drawer.classList.toggle('open');
+            overlay.classList.toggle('open');
+        }
+
+        const allMinistries = ['Whole Church', 'Nursery', 'Music Ministry', 'Media'];
+
+        function renderFilterBar(userMinistries, isAdmin) {
+            const container = document.getElementById('filter-bar');
+            container.innerHTML = '';
+
+            // Always show Whole Church
+            const wholeBtn = document.createElement('button');
+            wholeBtn.className = 'filter-btn active';
+            wholeBtn.dataset.filter = 'Whole Church';
+            wholeBtn.textContent = 'Whole Church';
+            container.appendChild(wholeBtn);
+
+            // Only show All if user has multiple ministries or is admin
+            const hasMultiple = isAdmin || userMinistries.length > 1;
+            if (hasMultiple) {
+                const allBtn = document.createElement('button');
+                allBtn.className = 'filter-btn';
+                allBtn.dataset.filter = 'all';
+                allBtn.textContent = 'All';
+                container.appendChild(allBtn);
+            }
+
+            allMinistries.forEach(ministry => {
+                if (ministry !== 'Whole Church' && (isAdmin || userMinistries.includes(ministry))) {
+                    const btn = document.createElement('button');
+                    btn.className = 'filter-btn';
+                    btn.dataset.filter = ministry;
+                    btn.textContent = ministry;
+                    container.appendChild(btn);
+                }
+            });
+
+            // Re-attach click handlers
+            container.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.onclick = () => {
+                    container.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentFilter = btn.dataset.filter;
+                    renderCalendar();
+                };
+            });
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-grid');
+            grid.innerHTML = '';
+
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+
+            document.getElementById('month-year').textContent = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            const headers = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+            headers.forEach(h => {
+                const el = document.createElement('div');
+                el.className = 'day-header';
+                el.textContent = h;
+                grid.appendChild(el);
+            });
+
+            for (let i = 0; i < firstDay; i++) {
+                const empty = document.createElement('div');
+                empty.className = 'day-cell other-month';
+                grid.appendChild(empty);
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const cell = document.createElement('div');
+                cell.className = 'day-cell';
+                const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+
+                const num = document.createElement('div');
+                num.className = 'day-number';
+                num.textContent = day;
+                cell.appendChild(num);
+
+                const dayEvents = allEvents.filter(e => e.date === dateStr && (currentFilter === 'all' || e.ministry === currentFilter));
+                dayEvents.forEach(ev => {
+                    const evEl = document.createElement('div');
+                    evEl.className = 'event';
+                    evEl.textContent = ev.title;
+                    cell.appendChild(evEl);
+                });
+
+                cell.onclick = () => showDayEvents(dateStr, dayEvents);
+                grid.appendChild(cell);
+            }
+        }
+
+        function showDayEvents(dateStr, events) {
+            if (events.length === 0) {
+                alert('No events on ' + dateStr);
+                return;
+            }
+            let msg = 'Events on ' + dateStr + ':\n\n';
+            events.forEach(e => {
+                msg += `• ${e.title} (${e.ministry})\n  ${e.description || ''}\n\n`;
+            });
+            alert(msg);
+        }
+
+        async function loadEvents() {
+            try {
+                const snapshot = await db.collection('events').get();
+                allEvents = [];
+                snapshot.forEach(doc => allEvents.push({ id: doc.id, ...doc.data() }));
+                renderCalendar();
+            } catch (err) {
+                console.error('Error loading events:', err);
+                if (typeof Sentry !== 'undefined') Sentry.captureException(err);
+                renderCalendar();
+            }
+        }
+
+        async function addEvent() {
+            const date = document.getElementById('event-date').value;
+            const title = document.getElementById('event-title').value.trim();
+            const desc = document.getElementById('event-desc').value.trim();
+            const ministry = document.getElementById('event-ministry').value;
+
+            if (!date || !title) {
+                alert('Please enter a date and title');
+                return;
+            }
+
+            try {
+                await db.collection('events').add({
+                    date, title, description: desc, ministry,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                alert('Event added!');
+                document.getElementById('event-date').value = '';
+                document.getElementById('event-title').value = '';
+                document.getElementById('event-desc').value = '';
+                await loadEvents();
+            } catch (err) {
+                alert('Error: ' + err.message);
+                if (typeof Sentry !== 'undefined') Sentry.captureException(err);
+            }
+        }
+
+        function prevMonth() { currentDate.setMonth(currentDate.getMonth() - 1); renderCalendar(); }
+        function nextMonth() { currentDate.setMonth(currentDate.getMonth() + 1); renderCalendar(); }
+
+        // Init
+        requireApprovedUser().then(user => {
+            if (user) {
+                const userData = user.data || {};
+                const userMinistries = userData.ministries || [];
+                const isAdmin = userData.role === 'admin';
+                renderFilterBar(userMinistries, isAdmin);
+                loadEvents();
             }
         });
     </script>

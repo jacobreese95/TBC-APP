@@ -3,36 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ministry Chats</title>
+    <title>Ministry Chats - TBC Church App</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Sentry Error Tracking -->
+    <script src="https://browser.sentry-cdn.com/7.119.0/bundle.min.js" integrity="sha384-..." crossorigin="anonymous"></script>
 </head>
 <body>
-    <button class="hamburger" onclick="toggleMenu()" aria-label="Open menu">
-        <span></span><span></span><span></span>
-    </button>
-    <div class="nav-overlay" id="navOverlay" onclick="toggleMenu()"></div>
-    <div class="nav-drawer" id="navDrawer">
-        <a href="index.html">Home</a>
-        <a href="about.html">About Us</a>
-        <a href="calendar.html">Calendar</a>
-        <a href="bible/index.html">Bible</a>
-        <a href="give.html">Give on Tithe.ly</a>
-        <a href="sermons.html">Sermons & Live Streams</a>
-        <a href="profile.html">Profile</a>
-        <a href="admin.html" id="drawer-admin" style="display:none;">Admin</a>
-        <a href="#" onclick="signOutUser().then(() => window.location.reload())">Logout</a>
-    </div>
+    <header>
+        <h1>Ministry Chats</h1>
+        <button class="hamburger" onclick="toggleDrawer()" aria-label="Open menu">
+            <span></span><span></span><span></span>
+        </button>
+    </header>
 
     <div class="container">
-        <h1 style="text-align:center; margin-bottom:20px;">Ministry Chats</h1>
-        
-        <button class="menu-btn" onclick="window.location.href='chat-room-whole-church.html'">Whole Church</button>
-        <button class="menu-btn" onclick="window.location.href='chat-room-media.html'">Media</button>
-        <button class="menu-btn" onclick="window.location.href='chat-room-music-ministry.html'">Music Ministry</button>
-        <button class="menu-btn" onclick="window.location.href='chat-room-nursery.html'">Nursery</button>
-        <button class="menu-btn" onclick="window.location.href='chat-room-kids-program.html'">Kids Program</button>
-        <button class="menu-btn" onclick="window.location.href='chat-room-youth-program.html'">Youth Program</button>
-        <button class="menu-btn" onclick="window.location.href='chat-room-young-adults.html'">Young Adults</button>
+        <div class="chat-list menu-stack" id="chat-list">
+            <!-- Populated dynamically based on user ministries -->
+        </div>
+    </div>
+
+    <div class="nav-overlay" id="overlay" onclick="toggleDrawer()"></div>
+    <div class="nav-drawer" id="drawer">
+        <h3 style="margin-top:0; color:#404040;">Menu</h3>
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="chat.html">Ministry Chats</a>
+        <a href="bible/index.html">Bible</a>
+        <a href="sermons.html">Sermons</a>
+        <a href="give.html">Give</a>
+        <a href="profile.html">Profile</a>
+        <a href="#" onclick="logoutUser(); return false;" style="color:#8845a5; font-weight:bold; margin-top:20px;">Logout</a>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -40,17 +40,46 @@
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
     <script src="auth.js"></script>
     <script>
-        function toggleMenu() {
-            document.getElementById('navDrawer').classList.toggle('open');
-            document.getElementById('navOverlay').classList.toggle('open');
+        // Initialize Sentry (replace DSN with your project key)
+        if (typeof Sentry !== 'undefined') {
+            Sentry.init({
+                dsn: 'YOUR_SENTRY_DSN_HERE', // <-- paste your Sentry DSN here
+                tracesSampleRate: 1.0,
+            });
         }
 
-        auth.onAuthStateChanged(function(user) {
-            const drawerAdmin = document.getElementById('drawer-admin');
-            if (user && drawerAdmin) {
-                // Will be shown by auth.js if admin
-            }
-        });
+        function toggleDrawer() {
+            const drawer = document.getElementById('drawer');
+            const overlay = document.getElementById('overlay');
+            drawer.classList.toggle('open');
+            overlay.classList.toggle('open');
+        }
+
+        const allMinistries = ['Whole Church', 'Music Ministry', 'Nursery', 'Media'];
+
+        async function renderChatList() {
+            const container = document.getElementById('chat-list');
+            container.innerHTML = '';
+
+            const user = await requireApprovedUser();
+            if (!user) return;
+
+            const userData = user.data || {};
+            const userMinistries = userData.ministries || [];
+            const isAdmin = userData.role === 'admin';
+
+            allMinistries.forEach(ministry => {
+                if (ministry === 'Whole Church' || isAdmin || userMinistries.includes(ministry)) {
+                    const btn = document.createElement('button');
+                    btn.className = 'menu-btn';
+                    btn.textContent = ministry;
+                    btn.onclick = () => window.location.href = `chat-room.html?room=${encodeURIComponent(ministry)}`;
+                    container.appendChild(btn);
+                }
+            });
+        }
+
+        renderChatList();
     </script>
 </body>
 </html>
