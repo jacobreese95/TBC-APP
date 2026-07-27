@@ -7,6 +7,24 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <button class="hamburger" onclick="toggleMenu()" aria-label="Open menu">
+        <span></span><span></span><span></span>
+    </button>
+    <div class="nav-overlay" id="navOverlay" onclick="toggleMenu()"></div>
+    <div class="nav-drawer" id="navDrawer">
+        <a href="about.html">About Us</a>
+        <a href="calendar.html" id="drawer-calendar">Calendar</a>
+        <a href="chat.html" id="drawer-chats">Ministry Chats</a>
+        <a href="bible/index.html">Bible</a>
+        <a href="give.html">Give on Tithe.ly</a>
+        <a href="sermons.html">Sermons & Live Streams</a>
+        <a href="soul-winning.html" id="drawer-soulwinning">Soul Winning</a>
+        <a href="upload-photos.html" id="drawer-upload">Upload Photos</a>
+        <a href="profile.html" id="drawer-profile">Profile</a>
+        <a href="admin.html" id="drawer-admin" style="display:none;">Admin</a>
+        <a href="#" id="drawer-logout" onclick="signOutUser().then(() => window.location.reload())">Logout</a>
+    </div>
+
     <header>
         <h1>Ministry Chats</h1>
     </header>
@@ -24,6 +42,11 @@
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
     <script src="auth.js"></script>
     <script>
+        function toggleMenu() {
+            document.getElementById('navDrawer').classList.toggle('open');
+            document.getElementById('navOverlay').classList.toggle('open');
+        }
+
         requireApprovedUser().then(async function(profile) {
             if (!profile) return;
             
@@ -66,6 +89,31 @@
                 note.style.color = '#666';
                 note.textContent = 'You are only in the Whole Church chat. Ask an admin to add you to other ministry chats.';
                 container.appendChild(note);
+            }
+
+            // Show/hide drawer items based on login
+            const drawerProfile = document.getElementById('drawer-profile');
+            const drawerLogout = document.getElementById('drawer-logout');
+            const drawerCalendar = document.getElementById('drawer-calendar');
+            const drawerChats = document.getElementById('drawer-chats');
+            const drawerSoul = document.getElementById('drawer-soulwinning');
+            const drawerUpload = document.getElementById('drawer-upload');
+            const drawerAdmin = document.getElementById('drawer-admin');
+
+            drawerProfile.style.display = 'block';
+            drawerLogout.style.display = 'block';
+            drawerCalendar.style.display = 'block';
+            drawerChats.style.display = 'block';
+            drawerSoul.style.display = 'block';
+            drawerUpload.style.display = 'block';
+
+            if (profile && profile.role === 'admin') {
+                drawerAdmin.style.display = 'block';
+            } else {
+                drawerAdmin.style.display = 'none';
+            }
+            if (profile && !profile.approved) {
+                drawerProfile.style.display = 'none';
             }
         });
     </script>
