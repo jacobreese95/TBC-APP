@@ -84,8 +84,14 @@
             container.innerHTML = 'Loading...';
 
             try {
-                const snapshot = await db.collection('users').orderBy('createdAt', 'desc').get();
+                // Removed orderBy('createdAt') so it loads every user even if some docs are missing the field
+                const snapshot = await db.collection('users').get();
                 container.innerHTML = '';
+
+                if (snapshot.empty) {
+                    container.innerHTML = 'No users found in the database.';
+                    return;
+                }
 
                 snapshot.forEach(doc => {
                     const user = { uid: doc.id, ...doc.data() };
@@ -112,7 +118,7 @@
                         <input type="checkbox" value="${chat}" ${checked} ${disabled}>
                         ${chat}
                     </label>
-                `;
+                    `;
             });
             ministryHTML += '</div>';
 
