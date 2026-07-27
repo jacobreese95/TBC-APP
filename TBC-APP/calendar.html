@@ -5,22 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calendar - TBC</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+      .cal-nav { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px; }
+      .cal-nav button { width:auto; flex:0 0 auto; padding:12px 14px; margin:0; }
+      .cal-nav h2 { margin:0; flex:1; text-align:center; font-size:1.15rem; }
+      #ministry-filters { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+      #ministry-filters button { width:auto; margin:0; padding:10px 14px; font-size:0.9rem; }
+      #ministry-filters button.active { background: linear-gradient(135deg, #8845a5 0%, #ac8ce6 100%); }
+      #ministry-filters button.inactive { background: #e8eef2; color:#404040; box-shadow:none; }
+      #calendar-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
+      .cal-head { text-align:center; font-weight:700; background:#7bafdd; color:#fff; padding:8px 4px; border-radius:8px; font-size:0.8rem; }
+      .cal-day { border:1px solid rgba(122,143,172,0.4); background:#fff; padding:8px; min-height:64px; border-radius:10px; font-size:0.9rem; }
+      .cal-day.has-event { border-color:#4cb8b9; background:#f0fbfb; }
+    </style>
 </head>
 <body>
     <header><h1>TBC Calendar</h1></header>
     <div class="container">
-        <button onclick="window.location.href='index.html'" style="margin-bottom:15px;">← Back to Home</button>
-        
-        <button onclick="showAddEventForm()" style="width:100%; padding:12px; margin-bottom:15px;">+ Add New Event</button>
-        
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <button class="back-btn" onclick="window.location.href='index.html'">← Back to Home</button>
+        <button class="menu-btn" onclick="showAddEventForm()">+ Add New Event</button>
+
+        <div class="cal-nav">
           <button onclick="prevMonth()">← Prev</button>
           <h2 id="month-title">July 2026</h2>
           <button onclick="nextMonth()">Next →</button>
         </div>
-        
-        <div id="ministry-filters" style="margin-bottom:15px;"></div>
-        <div id="calendar-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;"></div>
+
+        <div id="ministry-filters"></div>
+        <div id="calendar-grid"></div>
     </div>
     <script>
       let events = JSON.parse(localStorage.getItem('events') || '[]');
@@ -38,8 +50,7 @@
         let html = '';
         ministries.forEach(m => {
           const isActive = selectedMinistries.includes(m);
-          const style = isActive ? 'background:#003087;color:white;' : 'background:#e0e0e0;color:#333;';
-          html += `<button onclick="toggleFilter('${m}')" style="${style}; padding:10px; margin:3px; border:none; border-radius:6px;">${m}</button>`;
+          html += `<button class="${isActive ? 'active' : 'inactive'}" onclick="toggleFilter('${m}')">${m}</button>`;
         });
         container.innerHTML = html;
       }
@@ -55,37 +66,32 @@
       }
 
       function showAddEventForm() {
-  let dayOptions = '';
-  for (let i = 1; i <= 31; i++) {
-    dayOptions += `<option value="${i}">Day ${i}</option>`;
-  }
-  const formHTML = `
-    <h2>Add New Event</h2>
-    <input type="text" id="event-title" placeholder="Event Title" style="width:100%; padding:10px; margin:10px 0;" onkeypress="if(event.key==='Enter') saveEvent()"><br>
-    <select id="event-day" style="width:100%; padding:10px; margin:10px 0;">
-      ${dayOptions}
-    </select><br>
-    <input type="text" id="event-time" placeholder="Time (e.g. 9:00 AM)" style="width:100%; padding:10px; margin:10px 0;" value="9:00 AM"><br>
-    <select id="event-ministry" style="width:100%; padding:10px; margin:10px 0;">
-      <option value="Church Wide">Church Wide</option>
-      ${ministries.map(m => `<option value="${m}">${m}</option>`).join('')}
-    </select><br><br>
-    <button onclick="saveEvent()">Save Event</button>
-    <button onclick="window.location.reload()">Cancel</button>
-  `;
-  document.body.innerHTML = formHTML;
-}
+        let dayOptions = '';
+        for (let i = 1; i <= 31; i++) dayOptions += `<option value="${i}">Day ${i}</option>`;
+        document.body.innerHTML = `
+          <header><h1>Add Event</h1></header>
+          <div class="container">
+            <h2>Add New Event</h2>
+            <input type="text" id="event-title" placeholder="Event Title" onkeypress="if(event.key==='Enter') saveEvent()">
+            <select id="event-day">${dayOptions}</select>
+            <input type="text" id="event-time" placeholder="Time (e.g. 9:00 AM)" value="9:00 AM">
+            <select id="event-ministry">
+              <option value="Church Wide">Church Wide</option>
+              ${ministries.map(m => `<option value="${m}">${m}</option>`).join('')}
+            </select>
+            <button class="menu-btn" onclick="saveEvent()">Save Event</button>
+            <button class="back-btn" onclick="window.location.reload()">Cancel</button>
+          </div>`;
+      }
 
       function saveEvent() {
         const title = document.getElementById('event-title').value || "New Event";
         const day = parseInt(document.getElementById('event-day').value);
         const time = document.getElementById('event-time').value;
         const ministry = document.getElementById('event-ministry').value;
-
         let events = JSON.parse(localStorage.getItem('events') || '[]');
         events.push({title, day, time, ministry, month: currentMonth, year: currentYear});
         localStorage.setItem('events', JSON.stringify(events));
-        
         alert("Event Saved!");
         window.location.reload();
       }
@@ -94,19 +100,17 @@
         const grid = document.getElementById('calendar-grid');
         let html = '';
         const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        days.forEach(d => html += `<div style="text-align:center; font-weight:bold; background:#f0f0f0;">${d}</div>`);
+        days.forEach(d => html += `<div class="cal-head">${d}</div>`);
         for (let i = 1; i <= 31; i++) {
           let dayEvents = events.filter(e => e.day === i && e.month === currentMonth && e.year === currentYear);
-          // Always show Church Wide + selected ministries
           dayEvents = dayEvents.filter(e => e.ministry === "Church Wide" || selectedMinistries.includes(e.ministry));
-          const hasEvent = dayEvents.length > 0 ? ' •' : '';
-          html += `<div style="border:1px solid #ddd; padding:8px; min-height:60px;" onclick="alert('Day ${i}')"><strong>${i}</strong>${hasEvent}</div>`;
+          const has = dayEvents.length > 0;
+          html += `<div class="cal-day${has ? ' has-event' : ''}" onclick="alert('Day ${i}')"><strong>${i}</strong>${has ? ' •' : ''}</div>`;
         }
         grid.innerHTML = html;
         document.getElementById('month-title').textContent = `${monthNames[currentMonth-1]} ${currentYear}`;
       }
 
-      // Start
       renderFilters();
       renderCalendar();
     </script>
