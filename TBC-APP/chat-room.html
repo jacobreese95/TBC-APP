@@ -118,17 +118,17 @@
             box-sizing: border-box;
         }
         .composer button {
-            align-self: flex-end;
-            padding: 10px 28px !important;
-            border-radius: 20px !important;
+            width: 100% !important;
+            padding: 14px 20px !important;
+            border-radius: 16px !important;
             background: #4cb8b9 !important;
             color: white !important;
             border: none !important;
             font-weight: bold !important;
-            font-size: 15px !important;
-            width: auto !important;
+            font-size: 16px !important;
             margin: 0 !important;
-            display: inline-block !important;
+            display: block !important;
+            box-sizing: border-box !important;
         }
         .composer .prayer-btn {
             background: #8845a5 !important;
@@ -242,7 +242,6 @@
 
             isSending = true;
             input.value = '';
-            // Keep the keyboard open and ready for the next message
             input.focus();
 
             let displayName = currentUser.displayName || currentUser.name || 'User';
@@ -269,7 +268,6 @@
                 input.value = text;
             } finally {
                 isSending = false;
-                // Refocus again after the network call finishes
                 setTimeout(() => input.focus(), 100);
             }
         }
