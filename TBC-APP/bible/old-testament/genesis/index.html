@@ -7,6 +7,20 @@
 <style>.search-result{background:#f8f8f8;border-left:4px solid #1a3a5c;padding:12px 15px;margin:10px 0;border-radius:6px;cursor:pointer}.search-result:hover{background:#eef3f8}.search-ref{font-weight:bold;color:#1a3a5c;margin-bottom:4px}.search-text{font-size:0.95rem;line-height:1.4;color:#333}.search-count{color:#666;margin:10px 0;font-size:0.9rem}mark{background:#ffe066;padding:0 2px}</style>
 </head>
 <body>
+<button class="hamburger" onclick="toggleMenu()" aria-label="Open menu">
+<span></span><span></span><span></span>
+</button>
+<div class="nav-overlay" id="navOverlay" onclick="toggleMenu()"></div>
+<div class="nav-drawer" id="navDrawer">
+<a href="../../../index.html">Home</a>
+<a href="../../../calendar.html">Calendar</a>
+<a href="../../../chat.html">Ministry Chats</a>
+<a href="../../index.html">Bible</a>
+<a href="../../../give.html">Give on Tithe.ly</a>
+<a href="../../../sermons.html">Sermons & Live Streams</a>
+<a href="#" onclick="window.open('https://www.google.com/maps/place/11801+E+Lincoln+St,+Wichita,+KS+67207', '_blank'); toggleMenu(); return false;">View Location on Google Maps</a>
+<a href="../../../soul-winning.html">Soul Winning</a>
+</div>
 <header><h1>Genesis</h1></header>
 <div class="container">
 <button class="back-btn" onclick="window.location.href='../index.html'">← Back to Old Testament</button>
@@ -15,6 +29,7 @@
 <div class="chapter-list" id="chapter-list"></div>
 </div>
 <script>
+function toggleMenu(){document.getElementById('navDrawer').classList.toggle('open');document.getElementById('navOverlay').classList.toggle('open');}
 const BUILT_THROUGH = 12;
 const genesisVerses = [
 {ref:"Genesis 1:1",text:"In the beginning God created the heaven and the earth.",chapter:1},
