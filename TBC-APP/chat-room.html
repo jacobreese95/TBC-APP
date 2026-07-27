@@ -14,9 +14,9 @@
         .message { margin: 8px 0; padding: 10px 14px; border-radius: 18px; max-width: 80%; }
         .message.sent { background: #4cb8b9; color: white; margin-left: auto; }
         .message.received { background: white; border: 1px solid #ddd; }
-        .composer { display: flex; gap: 10px; }
-        .composer input { flex: 1; padding: 14px; border: 1px solid #ddd; border-radius: 25px; font-size: 16px; }
-        .composer button { padding: 0 24px; border-radius: 25px; background: #4cb8b9; color: white; border: none; font-weight: bold; }
+        .composer { display: flex; gap: 10px; align-items: flex-end; }
+        .composer textarea { flex: 1; padding: 14px; border: 1px solid #ddd; border-radius: 20px; font-size: 16px; resize: vertical; min-height: 80px; max-height: 160px; line-height: 1.4; }
+        .composer button { padding: 12px 20px; border-radius: 25px; background: #4cb8b9; color: white; border: none; font-weight: bold; font-size: 15px; white-space: nowrap; }
     </style>
 </head>
 <body>
@@ -34,7 +34,7 @@
         <div class="chat-messages" id="chat-messages"></div>
 
         <div class="composer">
-            <input type="text" id="message-input" placeholder="Type a message..." onkeypress="if(event.key==='Enter')sendMessage()">
+            <textarea id="message-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); sendMessage();}"></textarea>
             <button onclick="sendMessage()">Send</button>
         </div>
     </div>
@@ -92,7 +92,8 @@
                     const m = doc.data();
                     const div = document.createElement('div');
                     div.className = `message ${m.uid === currentUser.uid ? 'sent' : 'received'}`;
-                    div.innerHTML = `<strong>${m.name || 'User'}</strong><br>${m.text}`;
+                    const displayName = m.name || currentUser.displayName || currentUser.name || 'User';
+                    div.innerHTML = `<strong>${displayName}</strong><br>${m.text}`;
                     container.appendChild(div);
                 });
                 container.scrollTop = container.scrollHeight;
@@ -103,11 +104,12 @@
             const input = document.getElementById('message-input');
             const text = input.value.trim();
             if (!text || !currentUser) return;
+            const displayName = currentUser.displayName || currentUser.name || 'User';
             try {
                 await db.collection('chats').doc(room).collection('messages').add({
                     text,
                     uid: currentUser.uid,
-                    name: currentUser.displayName || 'User',
+                    name: displayName,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 input.value = '';
@@ -120,7 +122,6 @@
             document.getElementById('room-title').textContent = room;
             renderWeekHeader();
             await loadMessages();
-            // realtime listener
             db.collection('chats').doc(room).collection('messages').orderBy('createdAt').onSnapshot(() => loadMessages());
         }
         init();
