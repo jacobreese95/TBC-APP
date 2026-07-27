@@ -1,1 +1,56 @@
-the full chat-room template with Whole Church fixed
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whole Church Chat</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <button class="hamburger" onclick="toggleMenu()" aria-label="Open menu">
+        <span></span><span></span><span></span>
+    </button>
+    <div class="nav-overlay" id="navOverlay" onclick="toggleMenu()"></div>
+    <div class="nav-drawer" id="navDrawer">
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="calendar.html">Calendar</a>
+        <a href="chat.html">Ministry Chats</a>
+        <a href="bible/index.html">Bible</a>
+        <a href="give.html">Give on Tithe.ly</a>
+        <a href="sermons.html">Sermons & Live Streams</a>
+        <a href="profile.html">Profile</a>
+        <a href="admin.html" id="drawer-admin" style="display:none;">Admin</a>
+        <a href="#" onclick="signOutUser().then(() => window.location.reload())">Logout</a>
+    </div>
+
+    <div class="container">
+        <h1 style="text-align:center; margin-bottom:10px;">Whole Church</h1>
+        <div id="week-header" style="margin-bottom:15px;"></div>
+        <div id="chat-messages" style="height:400px; overflow-y:auto; border:1px solid #ccc; padding:10px; margin-bottom:10px; background:white;"></div>
+        <div style="display:flex; gap:8px;">
+            <textarea id="message-input" placeholder="Type a message..." style="flex:1; height:48px; padding:8px; border-radius:8px; border:1px solid #ccc; resize:vertical;"></textarea>
+            <button id="send-btn" class="menu-btn" style="width:120px; height:48px; padding:0 20px;">Send</button>
+        </div>
+        <button id="prayer-btn" class="menu-btn" style="width:100%; height:48px; margin-top:8px; background:linear-gradient(135deg, #4cb8b9 0%, #3a9a9b 100%)">Prayer Request</button>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+    <script src="auth.js"></script>
+    <script src="app.js"></script>
+    <script>
+        function toggleMenu() {
+            document.getElementById('navDrawer').classList.toggle('open');
+            document.getElementById('navOverlay').classList.toggle('open');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof initChatRoom === 'function') {
+                initChatRoom('Whole Church');
+            }
+        });
+    </script>
+</body>
+</html>
