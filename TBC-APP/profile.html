@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - TBC Church App</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .profile-form { max-width: 400px; margin: 20px auto; padding: 20px; }
+        .profile-form input, .profile-form textarea { width: 100%; margin-bottom: 15px; }
+        .profile-pic-placeholder { width: 120px; height: 120px; border-radius: 50%; background: #dedcd0; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: #7a8fac; }
+    </style>
+</head>
+<body>
+    <button class="hamburger" onclick="toggleMenu()" aria-label="Open menu">
+        <span></span><span></span><span></span>
+    </button>
+    <div class="nav-overlay" id="navOverlay" onclick="toggleMenu()"></div>
+    <div class="nav-drawer" id="navDrawer">
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="calendar.html">Calendar</a>
+        <a href="chat.html">Ministry Chats</a>
+        <a href="bible/index.html">Bible</a>
+        <a href="give.html">Give on Tithe.ly</a>
+        <a href="sermons.html">Sermons & Live Streams</a>
+        <a href="#" onclick="window.open('https://www.google.com/maps/place/11801+E+Lincoln+St,+Wichita,+KS+67207', '_blank'); toggleMenu(); return false;">View Location on Google Maps</a>
+        <a href="soul-winning.html">Soul Winning</a>
+        <a href="profile.html">Profile</a>
+        <a href="#" onclick="signOutUser().then(() => window.location.href='index.html')">Logout</a>
+    </div>
+
+    <div class="container">
+        <h2 style="text-align:center; margin-top:60px;">My Profile</h2>
+        <div class="profile-form">
+            <div class="profile-pic-placeholder" id="picPlaceholder">👤</div>
+            <button class="menu-btn" style="background:#7a8fac; margin-bottom:20px;" disabled>Change Profile Picture (coming soon)</button>
+
+            <label>Name</label>
+            <input type="text" id="name" placeholder="Full name">
+
+            <label>Birthday</label>
+            <input type="date" id="birthday">
+
+            <label>Phone Number</label>
+            <input type="tel" id="phone" placeholder="(316) 555-1234">
+
+            <label>Email</label>
+            <input type="email" id="email" disabled>
+
+            <label>Address</label>
+            <textarea id="address" rows="3" placeholder="Street, City, State, ZIP"></textarea>
+
+            <button class="menu-btn" onclick="saveProfile()">Save Changes</button>
+            <p id="saveMsg" style="color:#4cb8b9; text-align:center; display:none;">Saved!</p>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        function toggleMenu() {
+            document.getElementById('navDrawer').classList.toggle('open');
+            document.getElementById('navOverlay').classList.toggle('open');
+        }
+
+        let currentProfile = null;
+
+        auth.onAuthStateChanged(async function(user) {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+            currentProfile = await ensureUserProfile(user);
+            if (currentProfile) {
+                document.getElementById('name').value = currentProfile.name || '';
+                document.getElementById('birthday').value = currentProfile.birthday || '';
+                document.getElementById('phone').value = currentProfile.phone || '';
+                document.getElementById('email').value = currentProfile.email || '';
+                document.getElementById('address').value = currentProfile.address || '';
+            }
+        });
+
+        async function saveProfile() {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            const updates = {
+                name: document.getElementById('name').value.trim(),
+                birthday: document.getElementById('birthday').value,
+                phone: document.getElementById('phone').value.trim(),
+                address: document.getElementById('address').value.trim()
+            };
+
+            await db.collection('users').doc(user.uid).update(updates);
+            const msg = document.getElementById('saveMsg');
+            msg.style.display = 'block';
+            setTimeout(() => msg.style.display = 'none', 2000);
+        }
+    </script>
+</body>
+</html>

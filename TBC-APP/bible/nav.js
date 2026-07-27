@@ -14,6 +14,7 @@
     '<div class="nav-overlay" id="navOverlay" onclick="toggleMenu()"></div>' +
     '<div class="nav-drawer" id="navDrawer">' +
     '<a href="../../../../index.html">Home</a>' +
+    '<a href="../../../../about.html">About Us</a>' +
     '<a href="../../../../calendar.html">Calendar</a>' +
     '<a href="../../../../chat.html">Ministry Chats</a>' +
     '<a href="../../../index.html">Bible</a>' +
@@ -21,6 +22,8 @@
     '<a href="../../../../sermons.html">Sermons & Live Streams</a>' +
     '<a href="#" onclick="window.open(\'https://www.google.com/maps/place/11801+E+Lincoln+St,+Wichita,+KS+67207\', \'_blank\'); toggleMenu(); return false;">View Location on Google Maps</a>' +
     '<a href="../../../../soul-winning.html">Soul Winning</a>' +
+    '<a href="../../../../profile.html">Profile</a>' +
+    '<a href="#" onclick="signOutUser().then(() => window.location.href=\'../../../../index.html\')">Logout</a>' +
     '</div>';
 
   if (document.body) {

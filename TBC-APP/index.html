@@ -5,34 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TBC Church App</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-      .auth-bar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-        padding: 10px 16px;
-        background: #fff;
-        border-bottom: 1px solid rgba(122,143,172,0.25);
-      }
-      .auth-bar .welcome {
-        font-size: 0.95rem;
-        color: #404040;
-        font-weight: 600;
-      }
-      .auth-bar button {
-        width: auto;
-        margin: 0;
-        padding: 10px 16px;
-        font-size: 0.9rem;
-      }
-      .auth-bar .login-btn {
-        background: linear-gradient(135deg, #4cb8b9 0%, #7bafdd 100%);
-      }
-      .auth-bar .logout-btn {
-        background: linear-gradient(135deg, #7a8fac 0%, #404040 100%);
-      }
-    </style>
 </head>
 <body>
     <button class="hamburger" onclick="toggleMenu()" aria-label="Open menu">
@@ -48,12 +20,8 @@
         <a href="sermons.html">Sermons & Live Streams</a>
         <a href="#" onclick="window.open('https://www.google.com/maps/place/11801+E+Lincoln+St,+Wichita,+KS+67207', '_blank'); toggleMenu(); return false;">View Location on Google Maps</a>
         <a href="soul-winning.html">Soul Winning</a>
-        <a href="login.html" id="drawer-login">Login</a>
-    </div>
-
-    <div class="auth-bar" id="authBar">
-      <span class="welcome" id="welcomeText">Checking login...</span>
-      <button type="button" id="authActionBtn" class="login-btn" onclick="handleAuthAction()">Login</button>
+        <a href="profile.html" id="drawer-profile">Profile</a>
+        <a href="#" id="drawer-logout" onclick="signOutUser().then(() => window.location.reload())">Logout</a>
     </div>
 
     <div class="home-logo-wrap">
@@ -71,6 +39,12 @@
         <button class="menu-btn" onclick="window.location.href='soul-winning.html'">Soul Winning</button>
     </div>
 
+    <!-- Login / Create Account buttons at bottom when not logged in -->
+    <div id="bottomAuth" class="container" style="margin-top: 30px; display: none;">
+        <button class="menu-btn login-btn" onclick="window.location.href='login.html'">Login</button>
+        <button class="menu-btn" style="background: linear-gradient(135deg, #7a8fac 0%, #404040 100%); margin-top: 12px;" onclick="window.location.href='signup.html'">Create an Account</button>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
@@ -81,57 +55,28 @@
             document.getElementById('navOverlay').classList.toggle('open');
         }
 
-        let loggedIn = false;
-
-        function handleAuthAction() {
-            if (loggedIn) {
-                signOutUser().then(function () {
-                    window.location.reload();
-                });
-            } else {
-                window.location.href = 'login.html';
-            }
-        }
-
         auth.onAuthStateChanged(async function (user) {
-            const welcome = document.getElementById('welcomeText');
-            const btn = document.getElementById('authActionBtn');
-            const drawerLogin = document.getElementById('drawer-login');
+            const bottom = document.getElementById('bottomAuth');
+            const drawerProfile = document.getElementById('drawer-profile');
+            const drawerLogout = document.getElementById('drawer-logout');
 
             if (!user) {
-                loggedIn = false;
-                welcome.textContent = 'Not logged in';
-                btn.textContent = 'Login';
-                btn.className = 'login-btn';
-                drawerLogin.textContent = 'Login';
-                drawerLogin.href = 'login.html';
+                bottom.style.display = 'block';
+                drawerProfile.style.display = 'none';
+                drawerLogout.style.display = 'none';
                 return;
             }
 
+            bottom.style.display = 'none';
+            drawerProfile.style.display = 'block';
+            drawerLogout.style.display = 'block';
+
             try {
                 const profile = await ensureUserProfile(user);
-                loggedIn = true;
-                const name = (profile && profile.name) ? profile.name : (user.email || 'Member');
                 if (profile && !profile.approved) {
-                    welcome.textContent = name + ' (pending approval)';
-                } else {
-                    welcome.textContent = 'Hi, ' + name;
+                    drawerProfile.style.display = 'none';
                 }
-                btn.textContent = 'Logout';
-                btn.className = 'logout-btn';
-                drawerLogin.textContent = 'Logout';
-                drawerLogin.href = '#';
-                drawerLogin.onclick = function (e) {
-                    e.preventDefault();
-                    toggleMenu();
-                    handleAuthAction();
-                };
-            } catch (e) {
-                welcome.textContent = 'Logged in';
-                loggedIn = true;
-                btn.textContent = 'Logout';
-                btn.className = 'logout-btn';
-            }
+            } catch (e) {}
         });
     </script>
 </body>
