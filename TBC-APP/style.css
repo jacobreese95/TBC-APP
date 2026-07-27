@@ -66,11 +66,14 @@ header img {
   margin: 0 auto;
 }
 
-/* Modern buttons – consistent simple teal-to-sky gradient */
+/* Modern buttons – ALL primary buttons use the exact same teal-to-sky gradient */
 button,
 .menu-btn,
 .chapter-btn,
-.back-btn {
+.back-btn,
+.give-btn,
+.maps-btn,
+.soulwinning-btn {
   display: block;
   width: 100%;
   background: linear-gradient(135deg, var(--teal) 0%, var(--sky) 100%);
@@ -93,7 +96,10 @@ button,
 button:hover,
 .menu-btn:hover,
 .chapter-btn:hover,
-.back-btn:hover {
+.back-btn:hover,
+.give-btn:hover,
+.maps-btn:hover,
+.soulwinning-btn:hover {
   filter: brightness(1.05);
   box-shadow: var(--shadow-hover);
   transform: translateY(-1px);
@@ -102,28 +108,12 @@ button:hover,
 button:active,
 .menu-btn:active,
 .chapter-btn:active,
-.back-btn:active {
+.back-btn:active,
+.give-btn:active,
+.maps-btn:active,
+.soulwinning-btn:active {
   transform: translateY(1px);
   box-shadow: 0 2px 8px rgba(64, 64, 64, 0.15);
-}
-
-/* Secondary / purple accent buttons */
-button.secondary,
-.btn-purple {
-  background: linear-gradient(135deg, var(--purple) 0%, var(--lilac) 100%);
-}
-
-/* Green accent */
-button.accent,
-.btn-lime {
-  background: linear-gradient(135deg, #8bc34a 0%, var(--lime) 100%);
-  color: var(--charcoal);
-}
-
-/* Muted / slate buttons */
-button.muted,
-.btn-slate {
-  background: linear-gradient(135deg, var(--slate) 0%, #9aadc0 100%);
 }
 
 /* Back button – slightly softer */
