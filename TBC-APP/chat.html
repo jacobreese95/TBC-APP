@@ -3,41 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chats - TBC</title>
+    <title>Ministry Chats - TBC Church App</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <button class="hamburger" onclick="toggleMenu()" aria-label="Open menu">
-        <span></span><span></span><span></span>
-    </button>
-    <div class="nav-overlay" id="navOverlay" onclick="toggleMenu()"></div>
-    <div class="nav-drawer" id="navDrawer">
-        <a href="index.html">Home</a>
-        <a href="about.html">About Us</a>
-        <a href="calendar.html">Calendar</a>
-        <a href="bible/index.html">Bible</a>
-        <a href="give.html">Give on Tithe.ly</a>
-        <a href="sermons.html">Sermons & Live Streams</a>
-        <a href="#" onclick="window.open('https://www.google.com/maps/place/11801+E+Lincoln+St,+Wichita,+KS+67207', '_blank'); toggleMenu(); return false;">View Location on Google Maps</a>
-        <a href="soul-winning.html">Soul Winning</a>
-        <a href="profile.html">Profile</a>
-        <a href="#" onclick="signOutUser().then(() => window.location.href='index.html')">Logout</a>
-    </div>
+    <header>
+        <h1>Ministry Chats</h1>
+    </header>
 
-    <header><h1>TBC Chats</h1></header>
-    <div class="container menu-stack" id="chatList" style="display:none;">
+    <div class="container">
         <button class="back-btn" onclick="window.location.href='index.html'">← Back to Home</button>
-        <h2>Ministry Chats</h2>
-        <p id="chatUser" style="color:#7a8fac; margin:0 0 8px;"></p>
-        <button class="menu-btn" onclick="openChat('Whole Church')">Whole Church</button>
-        <button class="menu-btn" onclick="openChat('Nursery')">Nursery</button>
-        <button class="menu-btn" onclick="openChat('Music - Singing')">Music - Singing</button>
-        <button class="menu-btn" onclick="openChat('Music - Piano')">Piano</button>
-        <button class="menu-btn" onclick="openChat('Sentry')">Sentry</button>
-        <button class="menu-btn" onclick="openChat('Media')">Media</button>
-    </div>
-    <div class="container" id="loading">
-        <p>Checking login...</p>
+        
+        <div style="margin: 20px 0;">
+            <a href="chat-room.html?room=Whole Church" class="menu-btn">Whole Church</a>
+            <a href="chat-room.html?room=Nursery" class="menu-btn" style="margin-top:12px; background: linear-gradient(135deg, #b0dc77, #4cb8b9);">Nursery</a>
+            <a href="chat-room.html?room=Music" class="menu-btn" style="margin-top:12px; background: linear-gradient(135deg, #ac8ce6, #8845a5);">Music Ministry</a>
+        </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -45,21 +26,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
     <script src="auth.js"></script>
     <script>
-      function toggleMenu() {
-        document.getElementById('navDrawer').classList.toggle('open');
-        document.getElementById('navOverlay').classList.toggle('open');
-      }
-      function openChat(room) {
-        localStorage.setItem('currentChatRoom', room);
-        window.location.href = 'chat-room.html';
-      }
-
-      requireApprovedUser().then(function (profile) {
-        if (!profile) return;
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('chatList').style.display = 'flex';
-        document.getElementById('chatUser').textContent = 'Signed in as ' + (profile.name || profile.email);
-      });
+        requireApprovedUser();
     </script>
 </body>
 </html>
