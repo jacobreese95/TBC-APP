@@ -7,6 +7,21 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <button class="hamburger" onclick="toggleMenu()" aria-label="Open menu">
+        <span></span><span></span><span></span>
+    </button>
+    <div class="nav-overlay" id="navOverlay" onclick="toggleMenu()"></div>
+    <div class="nav-drawer" id="navDrawer">
+        <a href="../index.html">Home</a>
+        <a href="../calendar.html">Calendar</a>
+        <a href="../chat.html">Ministry Chats</a>
+        <a href="index.html">Bible</a>
+        <a href="../give.html">Give on Tithe.ly</a>
+        <a href="../sermons.html">Sermons & Live Streams</a>
+        <a href="#" onclick="window.open('https://www.google.com/maps/place/11801+E+Lincoln+St,+Wichita,+KS+67207', '_blank'); toggleMenu(); return false;">View Location on Google Maps</a>
+        <a href="../soul-winning.html">Soul Winning</a>
+    </div>
+
     <header>
         <h1>King James Bible</h1>
     </header>
@@ -27,6 +42,11 @@
     </div>
 
     <script>
+        function toggleMenu() {
+            document.getElementById('navDrawer').classList.toggle('open');
+            document.getElementById('navOverlay').classList.toggle('open');
+        }
+
         const bibleVerses = [
             { ref: "Genesis 1:1", text: "In the beginning God created the heaven and the earth.", chapter: 1 },
             { ref: "Genesis 1:2", text: "And the earth was without form, and void; and darkness was upon the face of the deep. And the Spirit of God moved upon the face of the waters.", chapter: 1 },
