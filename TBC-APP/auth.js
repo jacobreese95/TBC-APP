@@ -120,6 +120,14 @@ function requireApprovedUser() {
   });
 }
 
+/** Check if current user is admin */
+async function isCurrentUserAdmin() {
+  const user = auth.currentUser;
+  if (!user) return false;
+  const profile = await getUserProfile(user.uid);
+  return profile && profile.role === 'admin';
+}
+
 /** Friendly Firebase error messages */
 function authErrorMessage(err) {
   const code = err && err.code;
