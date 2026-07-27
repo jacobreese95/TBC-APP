@@ -33,6 +33,8 @@
         <a href="sermons.html">Sermons & Live Streams</a>
         <a href="#" onclick="window.open('https://www.google.com/maps/place/11801+E+Lincoln+St,+Wichita,+KS+67207', '_blank'); toggleMenu(); return false;">View Location on Google Maps</a>
         <a href="soul-winning.html">Soul Winning</a>
+        <a href="profile.html">Profile</a>
+        <a href="#" onclick="signOutUser().then(() => window.location.href='index.html')">Logout</a>
     </div>
 
     <header><h1>TBC Calendar</h1></header>
@@ -60,7 +62,6 @@
         document.getElementById('navOverlay').classList.toggle('open');
       }
 
-      // Calendar requires approved login
       requireApprovedUser();
 
       let events = JSON.parse(localStorage.getItem('events') || '[]');
@@ -128,7 +129,7 @@
         const grid = document.getElementById('calendar-grid');
         let html = '';
         const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        days.forEach(d => html += `<div class="cal-head">${d}</div>`);
+        days.forEach(d => html += `<div class="cal-head">${d}</div>`;
         for (let i = 1; i <= 31; i++) {
           let dayEvents = events.filter(e => e.day === i && e.month === currentMonth && e.year === currentYear);
           dayEvents = dayEvents.filter(e => e.ministry === "Church Wide" || selectedMinistries.includes(e.ministry));

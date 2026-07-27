@@ -20,6 +20,8 @@
         <a href="sermons.html">Sermons & Live Streams</a>
         <a href="#" onclick="window.open('https://www.google.com/maps/place/11801+E+Lincoln+St,+Wichita,+KS+67207', '_blank'); toggleMenu(); return false;">View Location on Google Maps</a>
         <a href="soul-winning.html">Soul Winning</a>
+        <a href="profile.html">Profile</a>
+        <a href="#" onclick="signOutUser().then(() => window.location.href='index.html')">Logout</a>
     </div>
 
     <header><h1>TBC Giving</h1></header>
@@ -29,6 +31,10 @@
         <p>Support the ministry of Temple Baptist Church through Tithe.ly.</p>
         <button class="menu-btn" onclick="window.open('https://tithe.ly','_blank')">Give on Tithe.ly</button>
     </div>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+    <script src="auth.js"></script>
     <script>
       function toggleMenu() {
         document.getElementById('navDrawer').classList.toggle('open');
