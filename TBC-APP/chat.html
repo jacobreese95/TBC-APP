@@ -8,16 +8,15 @@
 </head>
 <body>
     <header><h1>TBC Chats</h1></header>
-    <div class="container">
-        <button onclick="window.location.href='index.html'" style="margin-bottom:15px;">← Back to Home</button>
-        
+    <div class="container menu-stack">
+        <button class="back-btn" onclick="window.location.href='index.html'">← Back to Home</button>
         <h2>Ministry Chats</h2>
-        <button onclick="openChat('Whole Church')" style="width:100%; padding:18px; margin:6px 0;">💬 Whole Church</button>
-        <button onclick="openChat('Nursery')" style="width:100%; padding:18px; margin:6px 0;">💬 Nursery</button>
-        <button onclick="openChat('Music - Singing')" style="width:100%; padding:18px; margin:6px 0;">💬 Music - Singing</button>
-        <button onclick="openChat('Music - Piano')" style="width:100%; padding:18px; margin:6px 0;">💬 Piano</button>
-        <button onclick="openChat('Sentry')" style="width:100%; padding:18px; margin:6px 0;">💬 Sentry</button>
-        <button onclick="openChat('Media')" style="width:100%; padding:18px; margin:6px 0;">💬 Media</button>
+        <button class="menu-btn" onclick="openChat('Whole Church')">Whole Church</button>
+        <button class="menu-btn" onclick="openChat('Nursery')">Nursery</button>
+        <button class="menu-btn" onclick="openChat('Music - Singing')">Music - Singing</button>
+        <button class="menu-btn" onclick="openChat('Music - Piano')">Piano</button>
+        <button class="menu-btn" onclick="openChat('Sentry')">Sentry</button>
+        <button class="menu-btn" onclick="openChat('Media')">Media</button>
     </div>
     <script>
       function openChat(room) {
