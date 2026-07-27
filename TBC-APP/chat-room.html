@@ -17,19 +17,29 @@
             width: 100%;
             top: 0;
             left: 0;
+            right: 0;
         }
         body {
             display: flex;
             flex-direction: column;
+            width: 100%;
+            max-width: 100%;
         }
         header {
             flex-shrink: 0;
+            width: 100%;
+            box-sizing: border-box;
+            padding-left: 16px !important;
+            padding-right: 56px !important;
         }
         .container {
             flex: 1;
             display: flex;
             flex-direction: column;
-            padding: 10px 16px;
+            padding: 10px 16px !important;
+            margin: 0 !important;
+            max-width: 100% !important;
+            width: 100% !important;
             box-sizing: border-box;
             overflow: hidden;
             min-height: 0;
@@ -40,12 +50,13 @@
             margin-bottom: 10px;
             overflow-x: auto;
             flex-shrink: 0;
+            width: 100%;
         }
         .week-day {
             flex: 1;
-            min-width: 60px;
+            min-width: 50px;
             text-align: center;
-            padding: 10px 6px;
+            padding: 10px 4px;
             border: 1px solid #ddd;
             border-radius: 8px;
             background: white;
@@ -63,6 +74,8 @@
             background: #f9f9f9;
             border-radius: 12px;
             margin-bottom: 10px;
+            width: 100%;
+            box-sizing: border-box;
         }
         .message {
             margin: 8px 0;
@@ -89,6 +102,8 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
+            width: 100%;
+            box-sizing: border-box;
         }
         .composer textarea {
             width: 100%;
@@ -111,6 +126,8 @@
             border: none;
             font-weight: bold;
             font-size: 15px;
+            width: auto;
+            margin: 0;
         }
         .composer .prayer-btn {
             background: #8845a5;
