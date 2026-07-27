@@ -10,11 +10,12 @@
             height: 100%;
             margin: 0;
             padding: 0;
+            overflow: hidden;
         }
         body {
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
+            height: 100%;
         }
         header {
             flex-shrink: 0;
@@ -26,6 +27,7 @@
             padding: 10px 16px;
             box-sizing: border-box;
             overflow: hidden;
+            min-height: 0;
         }
         .week-header {
             display: flex;
@@ -46,12 +48,13 @@
         }
         .week-day.today { border-color: #7bafdd; border-width: 2px; }
         .chat-messages {
-            flex: 1;
+            flex: 1 1 auto;
+            height: 0; /* forces proper scrolling inside flex container */
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
             padding: 12px;
             background: #f9f9f9;
             border-radius: 12px;
-            -webkit-overflow-scrolling: touch;
             margin-bottom: 10px;
         }
         .message {
@@ -170,7 +173,10 @@
 
         function scrollToBottom() {
             const container = document.getElementById('chat-messages');
-            container.scrollTop = container.scrollHeight;
+            // small delay so the DOM has finished rendering
+            setTimeout(() => {
+                container.scrollTop = container.scrollHeight;
+            }, 50);
         }
 
         async function loadMessages() {
@@ -207,7 +213,6 @@
             const text = input.value.trim();
             if (!text || !currentUser) return;
 
-            // Clear immediately so it feels responsive
             input.value = '';
 
             let displayName = currentUser.displayName || currentUser.name || 'User';
@@ -229,10 +234,9 @@
                     isPrayer: !!isPrayer,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                // The onSnapshot listener will refresh the list and scroll to bottom
             } catch(e) {
                 alert('Error sending: ' + e.message);
-                input.value = text; // put the text back if it failed
+                input.value = text;
             }
         }
 
@@ -257,7 +261,6 @@
 
             renderWeekHeader();
 
-            // Real-time listener – this is the only place that refreshes messages
             db.collection('chats').doc(room).collection('messages')
               .orderBy('createdAt')
               .onSnapshot(() => {
