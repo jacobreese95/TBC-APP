@@ -66,14 +66,14 @@ header img {
   margin: 0 auto;
 }
 
-/* Modern buttons – primary with left-right + vertical fade to green */
+/* Modern buttons – consistent simple teal-to-sky gradient */
 button,
 .menu-btn,
 .chapter-btn,
 .back-btn {
   display: block;
   width: 100%;
-  background: linear-gradient(135deg, var(--teal) 0%, var(--sky) 55%, var(--lime) 100%);
+  background: linear-gradient(135deg, var(--teal) 0%, var(--sky) 100%);
   color: var(--white);
   border: none;
   padding: 16px 20px;
@@ -110,7 +110,7 @@ button:active,
 /* Secondary / purple accent buttons */
 button.secondary,
 .btn-purple {
-  background: linear-gradient(135deg, var(--purple) 0%, var(--lilac) 55%, var(--lime) 100%);
+  background: linear-gradient(135deg, var(--purple) 0%, var(--lilac) 100%);
 }
 
 /* Green accent */
@@ -123,12 +123,12 @@ button.accent,
 /* Muted / slate buttons */
 button.muted,
 .btn-slate {
-  background: linear-gradient(135deg, var(--slate) 0%, #9aadc0 55%, var(--lime) 100%);
+  background: linear-gradient(135deg, var(--slate) 0%, #9aadc0 100%);
 }
 
 /* Back button – slightly softer */
 .back-btn {
-  background: linear-gradient(135deg, var(--slate) 0%, var(--sky) 55%, var(--lime) 100%);
+  background: linear-gradient(135deg, var(--slate) 0%, var(--sky) 100%);
   font-size: 0.95rem;
   padding: 12px 18px;
   margin-bottom: 16px;
