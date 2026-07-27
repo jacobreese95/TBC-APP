@@ -31,12 +31,14 @@
     <header><h1 id="roomTitle">Chat</h1></header>
     <div class="container" id="chatContainer" style="display:none; flex-direction:column; height:70vh;">
         <div id="messages" style="flex:1; overflow-y:auto; border:1px solid #ccc; padding:10px; margin-bottom:10px; border-radius:8px; background:#fff;"></div>
-        <div style="display:flex; gap:8px; align-items:center;">
-            <input type="text" id="messageInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMessage()">
-            <button class="menu-btn" onclick="sendMessage()">Send</button>
-            <button class="menu-btn" id="prayerBtn" onclick="togglePrayer()" style="background:#7a8fac;">🙏 Prayer</button>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+            <div style="display:flex; gap:8px; align-items:center;">
+                <input type="text" id="messageInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMessage()">
+                <button class="menu-btn" onclick="sendMessage()">Send</button>
+            </div>
+            <button class="menu-btn" id="prayerBtn" onclick="togglePrayer()" style="background:#7a8fac; width:100%;">🙏 Prayer Request</button>
+            <p id="prayerHint" style="color:#8845a5; font-size:0.85rem; margin:0; display:none;">This message will be marked as a prayer request</p>
         </div>
-        <p id="prayerHint" style="color:#8845a5; font-size:0.85rem; margin:4px 0 0; display:none;">This message will be marked as a prayer request</p>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -64,7 +66,7 @@
 
       requireApprovedUser().then(function(profile) {
         if (!profile) return;
-        document.getElementById('chatContainer').style.display = 'flex';
+        document.getElementById('chatContainer').style.display = 'flex;
         loadMessages();
       });
 
