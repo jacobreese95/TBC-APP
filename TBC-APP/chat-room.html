@@ -5,34 +5,90 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat - TBC</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+      #week-schedule {
+        padding: 14px 16px;
+        background: linear-gradient(180deg, rgba(123,175,221,0.25) 0%, #dedcd0 100%);
+        overflow-x: auto;
+      }
+      .week-row { display:flex; gap:8px; overflow-x:auto; }
+      .week-day {
+        border: 1px solid rgba(122,143,172,0.45);
+        background: #fff;
+        padding: 10px;
+        min-width: 88px;
+        text-align: center;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        box-shadow: 0 2px 8px rgba(64,64,64,0.08);
+      }
+      #chat-messages {
+        height: 42vh;
+        overflow-y: auto;
+        padding: 16px;
+        background: #fafbfc;
+      }
+      #chat-messages p {
+        background: #fff;
+        border-left: 4px solid #4cb8b9;
+        padding: 10px 12px;
+        border-radius: 0 10px 10px 0;
+        margin: 8px 0;
+        box-shadow: 0 1px 4px rgba(64,64,64,0.06);
+      }
+      .chat-composer {
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        background: #fff;
+        padding: 12px 14px;
+        border-top: 1px solid rgba(122,143,172,0.35);
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        box-shadow: 0 -4px 16px rgba(64,64,64,0.08);
+      }
+      .chat-composer input {
+        flex: 1;
+        margin: 0;
+        width: auto;
+      }
+      .chat-composer button {
+        width: auto;
+        margin: 0;
+        padding: 14px 18px;
+        flex-shrink: 0;
+      }
+      #chat-header { padding: 8px 12px 0; }
+      #chat-header h2 { margin: 8px 4px 12px; color: #404040; }
+      body { padding-bottom: 80px; }
+    </style>
 </head>
 <body>
     <div id="chat-header"></div>
-    <div id="week-schedule" style="padding:15px; background:#f0f8ff; overflow-x:auto;"></div>
-    <div id="chat-messages" style="height:45vh; overflow-y:scroll; padding:15px; background:#fafafa;"></div>
-    <div style="position:fixed; bottom:0; left:0; right:0; background:white; padding:10px; border-top:1px solid #ddd;">
-      <input type="text" id="chat-input" placeholder="Type message..." style="width:75%; padding:12px;" onkeypress="if(event.key==='Enter') sendMessage()">
+    <div id="week-schedule"></div>
+    <div id="chat-messages"></div>
+    <div class="chat-composer">
+      <input type="text" id="chat-input" placeholder="Type message..." onkeypress="if(event.key==='Enter') sendMessage()">
       <button onclick="sendMessage()">Send</button>
     </div>
     <script>
       const room = localStorage.getItem('currentChatRoom') || 'Nursery';
       document.getElementById('chat-header').innerHTML = `
-        <button onclick="window.location.href='chat.html'" style="margin:10px;">← Back</button>
-        <h2 style="margin:10px;">${room} Chat</h2>
+        <button class="back-btn" onclick="window.location.href='chat.html'">← Back</button>
+        <h2>${room} Chat</h2>
       `;
 
       let events = JSON.parse(localStorage.getItem('events') || '[]');
       const weekEvents = events.filter(e => (e.ministry === room || e.ministry === "Church Wide") && e.day >= 19 && e.day <= 26);
 
-      let weekHTML = '<div style="display:flex; gap:5px; overflow-x:auto;">';
+      let weekHTML = '<div class="week-row">';
       for (let d = 19; d <= 26; d++) {
         const dayEvents = weekEvents.filter(e => e.day === d);
         weekHTML += `
-          <div style="border:1px solid #ccc; padding:8px; min-width:80px; text-align:center;">
+          <div class="week-day">
             <strong>Day ${d}</strong><br>
             ${dayEvents.length ? dayEvents.map(e => `${e.time} - ${e.title}`).join('<br>') : 'No events'}
-          </div>
-        `;
+          </div>`;
       }
       weekHTML += '</div>';
       document.getElementById('week-schedule').innerHTML = weekHTML;
@@ -42,9 +98,7 @@
       function renderChatMessages() {
         const container = document.getElementById('chat-messages');
         let html = '';
-        chatHistory.forEach(msg => {
-          html += `<p><strong>You:</strong> ${msg}</p>`;
-        });
+        chatHistory.forEach(msg => { html += `<p><strong>You:</strong> ${msg}</p>`; });
         container.innerHTML = html || '<p>No messages yet.</p>';
         container.scrollTop = container.scrollHeight;
       }
@@ -59,7 +113,6 @@
         }
       }
 
-      // Initial render
       renderChatMessages();
     </script>
 </body>
