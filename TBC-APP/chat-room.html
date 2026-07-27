@@ -31,6 +31,8 @@
             box-sizing: border-box;
             padding-left: 16px !important;
             padding-right: 56px !important;
+            position: relative;
+            z-index: 10;
         }
         .container {
             flex: 1;
@@ -43,6 +45,8 @@
             box-sizing: border-box;
             overflow: hidden;
             min-height: 0;
+            position: relative;
+            z-index: 1;
         }
         .week-header {
             display: flex;
@@ -76,6 +80,8 @@
             margin-bottom: 10px;
             width: 100%;
             box-sizing: border-box;
+            position: relative;
+            z-index: 1;
         }
         .message {
             margin: 8px 0;
@@ -104,6 +110,9 @@
             gap: 8px;
             width: 100%;
             box-sizing: border-box;
+            position: relative;
+            z-index: 20;
+            pointer-events: auto;
         }
         .composer textarea {
             width: 100%;
@@ -116,6 +125,11 @@
             height: 56px;
             line-height: 1.4;
             box-sizing: border-box;
+            pointer-events: auto !important;
+            -webkit-user-select: text;
+            user-select: text;
+            position: relative;
+            z-index: 21;
         }
         .composer button {
             width: 100% !important;
@@ -129,6 +143,9 @@
             margin: 0 !important;
             display: block !important;
             box-sizing: border-box !important;
+            pointer-events: auto !important;
+            position: relative;
+            z-index: 21;
         }
         .composer .prayer-btn {
             background: #8845a5 !important;
@@ -149,7 +166,7 @@
         <div class="chat-messages" id="chat-messages"></div>
 
         <div class="composer" id="composer">
-            <textarea id="message-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); sendMessage(false);}"></textarea>
+            <textarea id="message-input" placeholder="Type a message..." onclick="this.focus()" ontouchstart="this.focus()" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); sendMessage(false);}"></textarea>
             <button type="button" onclick="sendMessage(false)">Send</button>
             <button type="button" id="prayerBtn" class="prayer-btn" onclick="sendMessage(true)" style="display:none;">🙏 Prayer Request</button>
         </div>
@@ -176,16 +193,10 @@
         let room = new URLSearchParams(window.location.search).get('room') || 'Whole Church';
         let currentUser = null;
         let isSending = false;
-        let scrollFocusTimer = null;
 
         function toggleDrawer() {
             document.getElementById('drawer').classList.toggle('open');
             document.getElementById('overlay').classList.toggle('open');
-        }
-
-        function focusInput() {
-            const input = document.getElementById('message-input');
-            if (input) input.focus();
         }
 
         function renderWeekHeader() {
@@ -248,7 +259,6 @@
 
             isSending = true;
             input.value = '';
-            input.focus();
 
             let displayName = currentUser.displayName || currentUser.name || 'User';
             if (displayName === 'User' && currentUser.uid) {
@@ -274,7 +284,6 @@
                 input.value = text;
             } finally {
                 isSending = false;
-                setTimeout(() => input.focus(), 100);
             }
         }
 
@@ -299,20 +308,16 @@
 
             renderWeekHeader();
 
-            // After scrolling stops, put focus back on the text box
-            const messagesEl = document.getElementById('chat-messages');
-            messagesEl.addEventListener('scroll', function() {
-                clearTimeout(scrollFocusTimer);
-                scrollFocusTimer = setTimeout(function() {
-                    focusInput();
-                }, 150);
-            }, { passive: true });
-
-            messagesEl.addEventListener('touchend', function() {
-                clearTimeout(scrollFocusTimer);
-                scrollFocusTimer = setTimeout(function() {
-                    focusInput();
-                }, 200);
+            // Make sure tapping the composer always focuses the text box
+            const input = document.getElementById('message-input');
+            const composer = document.getElementById('composer');
+            composer.addEventListener('click', function(e) {
+                if (e.target === composer || e.target === input) {
+                    input.focus();
+                }
+            });
+            input.addEventListener('touchend', function(e) {
+                input.focus();
             }, { passive: true });
 
             db.collection('chats').doc(room).collection('messages')
