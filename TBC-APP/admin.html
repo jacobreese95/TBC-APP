@@ -27,12 +27,27 @@
             color: #666;
             font-size: 0.9rem;
         }
-        .role-select, .ministry-select {
+        .role-select {
             width: 100%;
             padding: 8px;
             margin: 6px 0;
             border: 1px solid #ddd;
             border-radius: 8px;
+        }
+        .ministry-checkboxes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 8px 0;
+        }
+        .ministry-checkboxes label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #f8f9fa;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
         }
         .save-btn {
             background: linear-gradient(135deg, #4cb8b9, #7bafdd);
@@ -62,7 +77,7 @@
 
     <script src="auth.js"></script>
     <script>
-        let currentUser = null;
+        const MINISTRY_CHATS = ['Whole Church', 'Nursery', 'Music Ministry'];
 
         async function loadUsers() {
             const container = document.getElementById('users-list');
@@ -86,8 +101,20 @@
             const div = document.createElement('div');
             div.className = `user-card ${user.approved ? 'approved' : 'pending'}`;
             
-            const ministries = user.ministries || [];
-            const ministryStr = ministries.join(', ');
+            const userMinistries = user.ministries || ['Whole Church'];
+
+            let ministryHTML = '<div class="ministry-checkboxes">';
+            MINISTRY_CHATS.forEach(chat => {
+                const checked = userMinistries.includes(chat) ? 'checked' : '';
+                const disabled = chat === 'Whole Church' ? 'disabled' : '';
+                ministryHTML += `
+                    <label>
+                        <input type="checkbox" value="${chat}" ${checked} ${disabled}>
+                        ${chat}
+                    </label>
+                `;
+            });
+            ministryHTML += '</div>';
 
             div.innerHTML = `
                 <div class="user-header">
@@ -97,7 +124,7 @@
                     </div>
                     <div style="text-align: right; font-size: 0.85rem;">
                         <div><strong>Role:</strong> ${user.role || 'member'}</div>
-                        <div><strong>Ministries:</strong> ${ministryStr || 'None'}</div>
+                        <div><strong>Ministries:</strong> ${userMinistries.join(', ')}</div>
                     </div>
                 </div>
                 
@@ -108,8 +135,8 @@
                     <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
                 </select>
 
-                <label>Assign Ministries (comma separated):</label>
-                <input type="text" class="ministry-select" id="min-${user.uid}" value="${ministryStr}" placeholder="Nursery, Music, Whole Church">
+                <label>Assign Ministry Chats:</label>
+                ${ministryHTML}
 
                 <label>Approval Status:</label>
                 <select class="role-select" id="approved-${user.uid}">
@@ -124,8 +151,11 @@
 
         window.saveUser = async function(uid) {
             const role = document.getElementById(`role-${uid}`).value;
-            const minInput = document.getElementById(`min-${uid}`).value;
-            const ministries = minInput.split(',').map(m => m.trim()).filter(m => m);
+            const checkboxes = document.querySelectorAll(`#users-list .user-card input[type="checkbox"]`);
+            const ministries = [];
+            checkboxes.forEach(cb => {
+                if (cb.checked || cb.disabled) ministries.push(cb.value);
+            });
             const approved = document.getElementById(`approved-${uid}`).value === 'true';
 
             try {
@@ -153,7 +183,6 @@
                 window.location.href = 'index.html';
                 return;
             }
-            currentUser = profile;
             loadUsers();
         });
     </script>
