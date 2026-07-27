@@ -22,9 +22,10 @@
     </div>
 
     <header><h1>TBC Chats</h1></header>
-    <div class="container menu-stack">
+    <div class="container menu-stack" id="chatList" style="display:none;">
         <button class="back-btn" onclick="window.location.href='index.html'">← Back to Home</button>
         <h2>Ministry Chats</h2>
+        <p id="chatUser" style="color:#7a8fac; margin:0 0 8px;"></p>
         <button class="menu-btn" onclick="openChat('Whole Church')">Whole Church</button>
         <button class="menu-btn" onclick="openChat('Nursery')">Nursery</button>
         <button class="menu-btn" onclick="openChat('Music - Singing')">Music - Singing</button>
@@ -32,6 +33,14 @@
         <button class="menu-btn" onclick="openChat('Sentry')">Sentry</button>
         <button class="menu-btn" onclick="openChat('Media')">Media</button>
     </div>
+    <div class="container" id="loading">
+        <p>Checking login...</p>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+    <script src="auth.js"></script>
     <script>
       function toggleMenu() {
         document.getElementById('navDrawer').classList.toggle('open');
@@ -41,6 +50,13 @@
         localStorage.setItem('currentChatRoom', room);
         window.location.href = 'chat-room.html';
       }
+
+      requireApprovedUser().then(function (profile) {
+        if (!profile) return;
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('chatList').style.display = 'flex';
+        document.getElementById('chatUser').textContent = 'Signed in as ' + (profile.name || profile.email);
+      });
     </script>
 </body>
 </html>
