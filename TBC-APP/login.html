@@ -61,14 +61,17 @@
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
   <script src="auth.js"></script>
   <script>
-    // If already logged in + approved, skip this page
-    auth.onAuthStateChanged(async (user) => {
+    auth.onAuthStateChanged(async function (user) {
       if (!user) return;
-      const profile = await getUserProfile(user.uid);
-      if (profile && profile.approved) {
-        window.location.href = "index.html";
-      } else if (profile && !profile.approved) {
-        window.location.href = "pending.html";
+      try {
+        const profile = await ensureUserProfile(user);
+        if (profile && profile.approved) {
+          window.location.href = "index.html";
+        } else if (profile && !profile.approved) {
+          window.location.href = "pending.html";
+        }
+      } catch (e) {
+        console.error(e);
       }
     });
 
@@ -89,9 +92,9 @@
       btn.textContent = "Logging in...";
       try {
         const user = await signInUser(email, password);
-        const profile = await getUserProfile(user.uid);
+        const profile = await ensureUserProfile(user);
         if (!profile) {
-          errBox.textContent = "Account found but profile is missing. Contact the church office.";
+          errBox.textContent = "Could not load or create your profile. Check Firestore rules.";
           errBox.classList.add("show");
           return;
         }
@@ -101,6 +104,7 @@
         }
         window.location.href = "index.html";
       } catch (err) {
+        console.error(err);
         errBox.textContent = authErrorMessage(err);
         errBox.classList.add("show");
       } finally {
