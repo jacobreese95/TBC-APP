@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - TBC</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .auth-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 22px 18px;
+      box-shadow: 0 4px 14px rgba(64,64,64,0.12);
+      margin-top: 12px;
+    }
+    .auth-error {
+      background: #fde8e8;
+      color: #9b1c1c;
+      border-left: 4px solid #e02424;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+      display: none;
+      font-size: 0.95rem;
+    }
+    .auth-error.show { display: block; }
+    .auth-links {
+      text-align: center;
+      margin-top: 18px;
+      font-size: 0.95rem;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-top: 8px;
+      color: #404040;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <header><h1>Temple Baptist Church</h1></header>
+  <div class="container">
+    <button class="back-btn" onclick="window.location.href='index.html'">← Back to Home</button>
+    <div class="auth-card">
+      <h2>Login</h2>
+      <div id="error" class="auth-error"></div>
+      <label for="email">Email</label>
+      <input type="email" id="email" autocomplete="email" placeholder="you@example.com">
+      <label for="password">Password</label>
+      <input type="password" id="password" autocomplete="current-password" placeholder="Password">
+      <button id="loginBtn" onclick="doLogin()">Login</button>
+      <div class="auth-links">
+        New here? <a href="signup.html">Create an account</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="auth.js"></script>
+  <script>
+    // If already logged in + approved, skip this page
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) return;
+      const profile = await getUserProfile(user.uid);
+      if (profile && profile.approved) {
+        window.location.href = "index.html";
+      } else if (profile && !profile.approved) {
+        window.location.href = "pending.html";
+      }
+    });
+
+    async function doLogin() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const errBox = document.getElementById("error");
+      const btn = document.getElementById("loginBtn");
+
+      errBox.classList.remove("show");
+      if (!email || !password) {
+        errBox.textContent = "Enter email and password.";
+        errBox.classList.add("show");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = "Logging in...";
+      try {
+        const user = await signInUser(email, password);
+        const profile = await getUserProfile(user.uid);
+        if (!profile) {
+          errBox.textContent = "Account found but profile is missing. Contact the church office.";
+          errBox.classList.add("show");
+          return;
+        }
+        if (!profile.approved) {
+          window.location.href = "pending.html";
+          return;
+        }
+        window.location.href = "index.html";
+      } catch (err) {
+        errBox.textContent = authErrorMessage(err);
+        errBox.classList.add("show");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Login";
+      }
+    }
+
+    document.getElementById("password").addEventListener("keypress", function (e) {
+      if (e.key === "Enter") doLogin();
+    });
+  </script>
+</body>
+</html>
