@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Room - TBC</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        #messageInput { height: 48px; font-size: 1rem; }
+    </style>
 </head>
 <body>
     <button class="hamburger" onclick="toggleMenu()" aria-label="Open menu">
@@ -28,8 +31,8 @@
     <header><h1 id="roomTitle">Chat</h1></header>
     <div class="container" id="chatContainer" style="display:none; flex-direction:column; height:70vh;">
         <div id="messages" style="flex:1; overflow-y:auto; border:1px solid #ccc; padding:10px; margin-bottom:10px; border-radius:8px; background:#fff;"></div>
-        <div style="display:flex; gap:8px;">
-            <input type="text" id="messageInput" placeholder="Type a message..." style="flex:1;" onkeypress="if(event.key==='Enter') sendMessage()">
+        <div style="display:flex; gap:8px; align-items:center;">
+            <input type="text" id="messageInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMessage()">
             <button class="menu-btn" onclick="sendMessage()">Send</button>
             <button class="menu-btn" id="prayerBtn" onclick="togglePrayer()" style="background:#7a8fac;">🙏 Prayer</button>
         </div>
@@ -46,7 +49,14 @@
         document.getElementById('navOverlay').classList.toggle('open');
       }
 
-      let currentRoom = localStorage.getItem('currentChatRoom') || 'Whole Church';
+      function getRoomFromURL() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('room');
+      }
+
+      let currentRoom = getRoomFromURL() || localStorage.getItem('currentChatRoom') || 'Whole Church';
+      localStorage.setItem('currentChatRoom', currentRoom);
+
       let isPrayer = false;
       let unsubscribe = null;
 
