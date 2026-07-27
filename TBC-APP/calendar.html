@@ -15,11 +15,22 @@
         .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; }
         .filter-btn { padding: 8px 16px; border: 2px solid #4cb8b9; background: white; color: #4cb8b9; border-radius: 20px; cursor: pointer; font-weight: bold; }
         .filter-btn.active { background: #4cb8b9; color: white; }
+        .hamburger { position: fixed; top: 15px; right: 15px; width: 44px; height: 44px; background: #4cb8b9; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 1001; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+        .hamburger span { display: block; width: 22px; height: 2px; background: white; margin: 4px 0; transition: 0.3s; }
+        .drawer { position: fixed; top: 0; right: -280px; width: 260px; height: 100%; background: white; box-shadow: -2px 0 12px rgba(0,0,0,0.15); z-index: 1002; transition: right 0.3s ease; padding: 20px; overflow-y: auto; }
+        .drawer.open { right: 0; }
+        .drawer a { display: block; padding: 14px 0; color: #404040; text-decoration: none; font-weight: 500; border-bottom: 1px solid #eee; }
+        .drawer a:last-child { border-bottom: none; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1000; display: none; }
+        .overlay.show { display: block; }
     </style>
 </head>
 <body>
     <header>
         <h1>Church Calendar</h1>
+        <div class="hamburger" onclick="toggleDrawer()">
+            <span></span><span></span><span></span>
+        </div>
     </header>
 
     <div class="container">
@@ -52,6 +63,19 @@
         </div>
     </div>
 
+    <!-- Hamburger Drawer -->
+    <div class="overlay" id="overlay" onclick="toggleDrawer()"></div>
+    <div class="drawer" id="drawer">
+        <h3 style="margin-top:0; color:#404040;">Menu</h3>
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="bible/index.html">Bible</a>
+        <a href="sermons.html">Sermons</a>
+        <a href="give.html">Give</a>
+        <a href="profile.html">Profile</a>
+        <a href="#" onclick="logoutUser(); return false;" style="color:#8845a5; font-weight:bold; margin-top:20px;">Logout</a>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
@@ -60,6 +84,13 @@
         let currentDate = new Date();
         let allEvents = [];
         let currentFilter = 'all';
+
+        function toggleDrawer() {
+            const drawer = document.getElementById('drawer');
+            const overlay = document.getElementById('overlay');
+            drawer.classList.toggle('open');
+            overlay.classList.toggle('show');
+        }
 
         function renderCalendar() {
             const grid = document.getElementById('calendar-grid');
@@ -167,7 +198,7 @@
             btn.onclick = () => {
                 document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                currentFilter = btn.dataset.filter;
+                currentFilter = btn.dataset-filter;
                 renderCalendar();
             };
         });
