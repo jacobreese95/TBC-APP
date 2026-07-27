@@ -64,6 +64,7 @@
     </style>
 </head>
 <body>
+    <!-- dummy change to bust cache - July 27 2026 -->
     <header>
         <h1>Admin Panel</h1>
     </header>
@@ -164,7 +165,7 @@
             checkboxes.forEach(cb => {
                 if (cb.checked || cb.disabled) ministries.push(cb.value);
             });
-            const approved = document.getElementById(`approved-${uid}`).value === 'true';
+            const approved = document.getElementById(`approved-${user.uid}`).value === 'true';
 
             try {
                 await db.collection('users').doc(uid).update({
