@@ -47,5 +47,6 @@ const root=document.getElementById('verses');
 verses.forEach((v,i)=>{const d=document.createElement('div');d.className='verse';let h='';v.words.forEach(x=>{h+=`<div class="word-block"><div class="word-title">${x.word}</div><span class="def-label">Strong's:</span><div>${x.strongs}</div><span class="def-label">Vine's:</span><div>${x.vines}</div><span class="def-label">Webster's 1828:</span><div>${x.webster}</div></div>`});d.innerHTML=`<strong>${v.ref}</strong><div class="verse-text">${v.text}</div><div class="verse-menu" id="menu-${i}">${h}<p style="margin-top:18px;"><strong>My Notes:</strong></p><textarea placeholder="Write your notes here..." onblur="saveNote('${v.ref}',this.value)">${localStorage.getItem('note-'+v.ref)||''}</textarea></div>`;d.onclick=function(e){if(e.target.tagName==='TEXTAREA')return;const m=document.getElementById('menu-'+i);m.style.display=m.style.display==='block'?'none':'block'};root.appendChild(d)});
 function saveNote(r,t){if(t.trim()==='')localStorage.removeItem('note-'+r);else localStorage.setItem('note-'+r,t)}
 </script>
+<script src="../../../nav.js"></script>
 </body>
 </html>
