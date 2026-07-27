@@ -80,11 +80,13 @@
         const MINISTRY_CHATS = ['Whole Church', 'Young Adults', 'Music Ministry', 'Nursery', 'Media'];
 
         async function loadUsers() {
+            console.log('loadUsers started');
             const container = document.getElementById('users-list');
             container.innerHTML = 'Loading...';
 
             try {
                 const snapshot = await db.collection('users').get();
+                console.log('Got snapshot, empty?', snapshot.empty);
                 container.innerHTML = '';
 
                 if (snapshot.empty) {
@@ -98,6 +100,7 @@
                     container.appendChild(card);
                 });
             } catch (err) {
+                console.error('loadUsers error', err);
                 container.innerHTML = 'Error loading users: ' + err.message;
             }
         }
@@ -178,11 +181,13 @@
 
         // Check if current user is admin
         auth.onAuthStateChanged(async function(user) {
+            console.log('onAuthStateChanged fired', user ? user.uid : 'no user');
             if (!user) {
                 window.location.href = 'login.html';
                 return;
             }
             const profile = await getUserProfile(user.uid);
+            console.log('profile role', profile ? profile.role : 'no profile');
             if (!profile || profile.role !== 'admin') {
                 alert('Access denied. Admins only.');
                 window.location.href = 'index.html';
