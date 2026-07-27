@@ -30,13 +30,13 @@
 
     <div class="container menu-stack">
         <button class="menu-btn" onclick="window.location.href='about.html'">About Us</button>
-        <button class="menu-btn" onclick="window.location.href='calendar.html'">Calendar</button>
-        <button class="menu-btn" onclick="window.location.href='chat.html'">Ministry Chats</button>
+        <button class="menu-btn" onclick="goToProtected('calendar.html')">Calendar</button>
+        <button class="menu-btn" onclick="goToProtected('chat.html')">Ministry Chats</button>
         <button class="menu-btn" onclick="window.location.href='bible/index.html'">Bible</button>
         <button class="menu-btn" onclick="window.location.href='give.html'">Give on Tithe.ly</button>
         <button class="menu-btn" onclick="window.location.href='sermons.html'">Sermons & Live Streams</button>
         <button class="menu-btn" onclick="window.open('https://www.google.com/maps/place/11801+E+Lincoln+St,+Wichita,+KS+67207', '_blank')">View Location on Google Maps</button>
-        <button class="menu-btn" onclick="window.location.href='soul-winning.html'">Soul Winning</button>
+        <button class="menu-btn" onclick="goToProtected('soul-winning.html')">Soul Winning</button>
     </div>
 
     <!-- Login / Create Account buttons at bottom when not logged in -->
@@ -53,6 +53,14 @@
         function toggleMenu() {
             document.getElementById('navDrawer').classList.toggle('open');
             document.getElementById('navOverlay').classList.toggle('open');
+        }
+
+        // Protected navigation for gated sections
+        async function goToProtected(page) {
+            const profile = await requireApprovedUser();
+            if (profile) {
+                window.location.href = page;
+            }
         }
 
         auth.onAuthStateChanged(async function (user) {
