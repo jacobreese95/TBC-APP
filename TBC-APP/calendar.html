@@ -15,8 +15,10 @@
       #ministry-filters button.inactive { background: #e8eef2; color:#404040; box-shadow:none; }
       #calendar-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
       .cal-head { text-align:center; font-weight:700; background:#7bafdd; color:#fff; padding:8px 4px; border-radius:8px; font-size:0.8rem; }
-      .cal-day { border:1px solid rgba(122,143,172,0.4); background:#fff; padding:8px; min-height:64px; border-radius:10px; font-size:0.9rem; }
+      .cal-day { border:1px solid rgba(122,143,172,0.4); background:#fff; padding:8px; min-height:80px; border-radius:10px; font-size:0.85rem; cursor:pointer; }
       .cal-day.has-event { border-color:#4cb8b9; background:#f0fbfb; }
+      .cal-day strong { display:block; margin-bottom:4px; }
+      .event-dot { font-size:0.75rem; color:#4cb8b9; }
     </style>
 </head>
 <body>
@@ -31,7 +33,6 @@
         <a href="bible/index.html">Bible</a>
         <a href="give.html">Give on Tithe.ly</a>
         <a href="sermons.html">Sermons & Live Streams</a>
-        <a href="#" onclick="window.open('https://www.google.com/maps/place/11801+E+Lincoln+St,+Wichita,+KS+67207', '_blank'); toggleMenu(); return false;">View Location on Google Maps</a>
         <a href="soul-winning.html">Soul Winning</a>
         <a href="profile.html">Profile</a>
         <a href="#" onclick="signOutUser().then(() => window.location.href='index.html')">Logout</a>
@@ -64,15 +65,31 @@
 
       requireApprovedUser();
 
-      let events = JSON.parse(localStorage.getItem('events') || '[]');
+      let db;
+      let events = [];
       let currentMonth = 7;
       let currentYear = 2026;
       let selectedMinistries = [];
       const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
       const ministries = ["Nursery", "Music - Singing", "Music - Piano", "Sentry", "Media"];
 
-      function prevMonth() { currentMonth--; if (currentMonth < 1) { currentMonth = 12; currentYear--; } renderCalendar(); }
-      function nextMonth() { currentMonth++; if (currentMonth > 12) { currentMonth = 1; currentYear++; } renderCalendar(); }
+      async function loadEvents() {
+        if (!db) {
+          const { getFirestore } = await import('https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js');
+          db = getFirestore();
+        }
+        const { collection, getDocs, query, where } = await import('https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js');
+        const q = query(collection(db, 'events'), where('year', '==', currentYear), where('month', '==', currentMonth));
+        const snapshot = await getDocs(q);
+        events = [];
+        snapshot.forEach(doc => {
+          events.push({ id: doc.id, ...doc.data() });
+        });
+        renderCalendar();
+      }
+
+      function prevMonth() { currentMonth--; if (currentMonth < 1) { currentMonth = 12; currentYear--; } loadEvents(); }
+      function nextMonth() { currentMonth++; if (currentMonth > 12) { currentMonth = 1; currentYear++; } loadEvents(); }
 
       function renderFilters() {
         const container = document.getElementById('ministry-filters');
@@ -101,7 +118,7 @@
           <header><h1>Add Event</h1></header>
           <div class="container">
             <h2>Add New Event</h2>
-            <input type="text" id="event-title" placeholder="Event Title" onkeypress="if(event.key==='Enter') saveEvent()">
+            <input type="text" id="event-title" placeholder="Event Title">
             <select id="event-day">${dayOptions}</select>
             <input type="text" id="event-time" placeholder="Time (e.g. 9:00 AM)" value="9:00 AM">
             <select id="event-ministry">
@@ -113,14 +130,22 @@
           </div>`;
       }
 
-      function saveEvent() {
+      async function saveEvent() {
         const title = document.getElementById('event-title').value || "New Event";
         const day = parseInt(document.getElementById('event-day').value);
         const time = document.getElementById('event-time').value;
         const ministry = document.getElementById('event-ministry').value;
-        let events = JSON.parse(localStorage.getItem('events') || '[]');
-        events.push({title, day, time, ministry, month: currentMonth, year: currentYear});
-        localStorage.setItem('events', JSON.stringify(events));
+
+        if (!db) {
+          const { getFirestore } = await import('https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js');
+          db = getFirestore();
+        }
+        const { collection, addDoc } = await import('https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js');
+        await addDoc(collection(db, 'events'), {
+          title, day, time, ministry,
+          month: currentMonth, year: currentYear,
+          createdAt: new Date()
+        });
         alert("Event Saved!");
         window.location.reload();
       }
@@ -129,19 +154,38 @@
         const grid = document.getElementById('calendar-grid');
         let html = '';
         const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        days.forEach(d => html += `<div class="cal-head">${d}</div>`;
+        days.forEach(d => html += `<div class="cal-head">${d}</div>`);
+
         for (let i = 1; i <= 31; i++) {
-          let dayEvents = events.filter(e => e.day === i && e.month === currentMonth && e.year === currentYear);
+          let dayEvents = events.filter(e => e.day === i);
           dayEvents = dayEvents.filter(e => e.ministry === "Church Wide" || selectedMinistries.includes(e.ministry));
           const has = dayEvents.length > 0;
-          html += `<div class="cal-day${has ? ' has-event' : ''}" onclick="alert('Day ${i}')"><strong>${i}</strong>${has ? ' •' : ''}</div>`;
+          let eventHTML = '';
+          if (has) {
+            eventHTML = dayEvents.map(e => `<div class="event-dot">• ${e.title}</div>`).join('');
+          }
+          html += `<div class="cal-day${has ? ' has-event' : ''}" onclick="showDayEvents(${i})"><strong>${i}</strong>${eventHTML}</div>`;
         }
         grid.innerHTML = html;
         document.getElementById('month-title').textContent = `${monthNames[currentMonth-1]} ${currentYear}`;
       }
 
+      function showDayEvents(day) {
+        let dayEvents = events.filter(e => e.day === day);
+        dayEvents = dayEvents.filter(e => e.ministry === "Church Wide" || selectedMinistries.includes(e.ministry));
+        if (dayEvents.length === 0) {
+          alert(`No events on Day ${day}`);
+          return;
+        }
+        let msg = `Events on Day ${day}:\n\n`;
+        dayEvents.forEach(e => {
+          msg += `${e.time} - ${e.title} (${e.ministry})\n`;
+        });
+        alert(msg);
+      }
+
       renderFilters();
-      renderCalendar();
+      loadEvents();
     </script>
 </body>
 </html>
