@@ -83,17 +83,22 @@
       const ministries = ["Nursery", "Music - Singing", "Music - Piano", "Sentry", "Media"];
 
       async function loadEvents() {
-        if (!db) {
-          const { getFirestore } = await import('https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js');
-          db = getFirestore();
+        try {
+          if (!db) {
+            db = firebase.firestore();
+          }
+          const snapshot = await db.collection('events')
+            .where('year', '==', currentYear)
+            .where('month', '==', currentMonth)
+            .get();
+          events = [];
+          snapshot.forEach(doc => {
+            events.push({ id: doc.id, ...doc.data() });
+          });
+        } catch (e) {
+          console.error('Failed to load events:', e);
+          events = [];
         }
-        const { collection, getDocs, query, where } = await import('https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js');
-        const q = query(collection(db, 'events'), where('year', '==', currentYear), where('month', '==', currentMonth));
-        const snapshot = await getDocs(q);
-        events = [];
-        snapshot.forEach(doc => {
-          events.push({ id: doc.id, ...doc.data() });
-        });
         renderCalendar();
       }
 
@@ -145,18 +150,19 @@
         const time = document.getElementById('event-time').value;
         const ministry = document.getElementById('event-ministry').value;
 
-        if (!db) {
-          const { getFirestore } = await import('https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js');
-          db = getFirestore();
+        try {
+          if (!db) db = firebase.firestore();
+          await db.collection('events').add({
+            title, day, time, ministry,
+            month: currentMonth, year: currentYear,
+            createdAt: new Date()
+          });
+          alert("Event Saved!");
+          window.location.reload();
+        } catch (e) {
+          console.error('Failed to save event:', e);
+          alert('Could not save event. Check console.');
         }
-        const { collection, addDoc } = await import('https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js');
-        await addDoc(collection(db, 'events'), {
-          title, day, time, ministry,
-          month: currentMonth, year: currentYear,
-          createdAt: new Date()
-        });
-        alert("Event Saved!");
-        window.location.reload();
       }
 
       function renderCalendar() {
