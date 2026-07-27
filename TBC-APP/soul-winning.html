@@ -3,42 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Soul Winning - TBC</title>
+    <title>Soul Winning - TBC Church App</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <button class="hamburger" onclick="toggleMenu()" aria-label="Open menu">
-        <span></span><span></span><span></span>
-    </button>
-    <div class="nav-overlay" id="navOverlay" onclick="toggleMenu()"></div>
-    <div class="nav-drawer" id="navDrawer">
-        <a href="index.html">Home</a>
-        <a href="about.html">About Us</a>
-        <a href="calendar.html">Calendar</a>
-        <a href="chat.html">Ministry Chats</a>
-        <a href="bible/index.html">Bible</a>
-        <a href="give.html">Give on Tithe.ly</a>
-        <a href="sermons.html">Sermons & Live Streams</a>
-        <a href="#" onclick="window.open('https://www.google.com/maps/place/11801+E+Lincoln+St,+Wichita,+KS+67207', '_blank'); toggleMenu(); return false;">View Location on Google Maps</a>
-        <a href="profile.html">Profile</a>
-        <a href="#" onclick="signOutUser().then(() => window.location.href='index.html')">Logout</a>
-    </div>
+    <header>
+        <h1>Soul Winning</h1>
+    </header>
 
-    <header><h1>Soul Winning</h1></header>
     <div class="container">
         <button class="back-btn" onclick="window.location.href='index.html'">← Back to Home</button>
-        <p>Leads and follow-up tracking will go here.</p>
+        <p style="margin: 40px 0; text-align: center; color: #666;">Soul Winning leads and tracking coming soon.</p>
     </div>
+
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
     <script src="auth.js"></script>
     <script>
-      function toggleMenu() {
-        document.getElementById('navDrawer').classList.toggle('open');
-        document.getElementById('navOverlay').classList.toggle('open');
-      }
-      requireApprovedUser();
+        requireApprovedUser();
     </script>
 </body>
 </html>
