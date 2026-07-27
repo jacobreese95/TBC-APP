@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "tbc-app2",
+  "compatibility_date": "2026-07-27",
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "TBC-APP"
+  },
+  "compatibility_flags": [
+    "nodejs_compat"
+  ]
+}
