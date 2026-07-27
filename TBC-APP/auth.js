@@ -29,9 +29,9 @@ async function signUpUser({ name, birthday, phone, email, address, password }) {
   await db.collection("users").doc(uid).set({
     name: name.trim(),
     birthday: birthday || "",
-    phone: phone.trim(),
+    phone: (phone || "").trim(),
     email: email.trim().toLowerCase(),
-    address: address.trim(),
+    address: (address || "").trim(),
     approved: false,
     role: "member",
     ministries: ["Whole Church"],
@@ -56,7 +56,32 @@ function signOutUser() {
 async function getUserProfile(uid) {
   const snap = await db.collection("users").doc(uid).get();
   if (!snap.exists) return null;
-  return { uid, ...snap.data() };
+  return { uid: uid, ...snap.data() };
+}
+
+/**
+ * If Auth user exists but Firestore profile is missing, create a basic one.
+ * First-time admin can be approved in console; this stops the "profile missing" dead-end.
+ */
+async function ensureUserProfile(user) {
+  let profile = await getUserProfile(user.uid);
+  if (profile) return profile;
+
+  const basic = {
+    name: user.email || "Member",
+    birthday: "",
+    phone: "",
+    email: (user.email || "").toLowerCase(),
+    address: "",
+    approved: false,
+    role: "member",
+    ministries: ["Whole Church"],
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  await db.collection("users").doc(user.uid).set(basic);
+  profile = await getUserProfile(user.uid);
+  return profile;
 }
 
 /**
@@ -66,15 +91,15 @@ async function getUserProfile(uid) {
  * - Approved → returns the profile object
  */
 function requireApprovedUser() {
-  return new Promise((resolve) => {
-    auth.onAuthStateChanged(async (user) => {
+  return new Promise(function (resolve) {
+    auth.onAuthStateChanged(async function (user) {
       if (!user) {
         window.location.href = "login.html";
         resolve(null);
         return;
       }
       try {
-        const profile = await getUserProfile(user.uid);
+        const profile = await ensureUserProfile(user);
         if (!profile) {
           window.location.href = "login.html";
           resolve(null);
@@ -105,5 +130,8 @@ function authErrorMessage(err) {
     return "Email or password is incorrect.";
   }
   if (code === "auth/too-many-requests") return "Too many attempts. Wait a minute and try again.";
+  if (code === "permission-denied") {
+    return "Database permission error. In Firebase → Firestore → Rules, allow read/write for now (test mode).";
+  }
   return (err && err.message) || "Something went wrong. Please try again.";
 }
