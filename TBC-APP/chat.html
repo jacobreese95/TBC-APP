@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ministry Chats - TBC Church App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Ministry Chats</h1>
+        <button class="hamburger" onclick="toggleDrawer()" aria-label="Open menu">
+            <span></span><span></span><span></span>
+        </button>
+    </header>
+
+    <div class="container">
+        <div class="chat-list">
+            <a href="chat-room.html?room=Whole Church" class="chat-item">
+                <h3>Whole Church</h3>
+                <p>Congregation-wide chat</p>
+            </a>
+            <a href="chat-room.html?room=Music Ministry" class="chat-item">
+                <h3>Music Ministry</h3>
+                <p>Music team chat</p>
+            </a>
+            <a href="chat-room.html?room=Nursery" class="chat-item">
+                <h3>Nursery</h3>
+                <p>Nursery team chat</p>
+            </a>
+            <a href="chat-room.html?room=Media" class="chat-item">
+                <h3>Media</h3>
+                <p>Media team chat</p>
+            </a>
+        </div>
+    </div>
+
+    <div class="nav-overlay" id="overlay" onclick="toggleDrawer()"></div>
+    <div class="nav-drawer" id="drawer">
+        <h3 style="margin-top:0; color:#404040;">Menu</h3>
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="chat.html">Ministry Chats</a>
+        <a href="bible/index.html">Bible</a>
+        <a href="sermons.html">Sermons</a>
+        <a href="give.html">Give</a>
+        <a href="profile.html">Profile</a>
+        <a href="#" onclick="logoutUser(); return false;" style="color:#8845a5; font-weight:bold; margin-top:20px;">Logout</a>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        function toggleDrawer() {
+            const drawer = document.getElementById('drawer');
+            const overlay = document.getElementById('overlay');
+            drawer.classList.toggle('open');
+            overlay.classList.toggle('open');
+        }
+        requireApprovedUser();
+    </script>
+</body>
+</html>
