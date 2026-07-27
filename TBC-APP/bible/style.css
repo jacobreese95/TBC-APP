@@ -54,7 +54,7 @@ button,
 .menu-btn {
   display: block;
   width: 100%;
-  background: linear-gradient(135deg, var(--teal) 0%, var(--sky) 100%);
+  background: linear-gradient(135deg, var(--teal) 0%, var(--sky) 55%, var(--lime) 100%);
   color: var(--white);
   border: none;
   padding: 16px 20px;
@@ -80,7 +80,7 @@ button:hover,
 }
 
 .back-btn {
-  background: linear-gradient(135deg, var(--slate) 0%, var(--sky) 100%);
+  background: linear-gradient(135deg, var(--slate) 0%, var(--sky) 55%, var(--lime) 100%);
   font-size: 0.95rem;
   padding: 12px 18px;
   margin-bottom: 16px;
@@ -92,7 +92,7 @@ button:hover,
 }
 
 .notes-btn {
-  background: linear-gradient(135deg, var(--purple) 0%, var(--lilac) 100%);
+  background: linear-gradient(135deg, var(--purple) 0%, var(--lilac) 55%, var(--lime) 100%);
 }
 
 .book-list,
@@ -183,12 +183,16 @@ textarea:focus {
   border-left: 4px solid var(--sky);
 }
 .search-result:hover { background: #f0f7fb; }
-.search-ref { font-weight: 700; color: var(--purple); margin-bottom: 4px; }
+.search-ref { font-weight: 700;
+  color: var(--purple);
+  margin-bottom: 4px; }
 .search-text { font-size: 0.95rem; color: var(--charcoal); }
 .search-count { color: var(--slate); margin: 10px 0; font-size: 0.9rem; }
 
 mark { background: var(--lime); padding: 0 3px; border-radius: 3px; }
 
 a { color: var(--teal); font-weight: 600; }
+
 a:hover { color: var(--purple); }
+
 h2 { color: var(--charcoal); font-size: 1.2rem; margin: 8px 0 12px; }
