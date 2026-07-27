@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calendar - TBC Church App</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Sentry Error Tracking -->
+    <script src="https://browser.sentry-cdn.com/7.119.0/bundle.min.js" integrity="sha384-..." crossorigin="anonymous"></script>
     <style>
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin: 20px 0; }
         .day-header { font-weight: bold; text-align: center; padding: 8px; background: #7bafdd; color: white; border-radius: 6px; }
@@ -76,6 +78,14 @@
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
     <script src="auth.js"></script>
     <script>
+        // Initialize Sentry (replace DSN with your project key)
+        if (typeof Sentry !== 'undefined') {
+            Sentry.init({
+                dsn: 'YOUR_SENTRY_DSN_HERE', // <-- paste your Sentry DSN here
+                tracesSampleRate: 1.0,
+            });
+        }
+
         let currentDate = new Date();
         let allEvents = [];
         let currentFilter = 'all';
@@ -156,6 +166,7 @@
                 renderCalendar();
             } catch (err) {
                 console.error('Error loading events:', err);
+                if (typeof Sentry !== 'undefined') Sentry.captureException(err);
                 renderCalendar();
             }
         }
@@ -183,6 +194,7 @@
                 await loadEvents();
             } catch (err) {
                 alert('Error: ' + err.message);
+                if (typeof Sentry !== 'undefined') Sentry.captureException(err);
             }
         }
 
