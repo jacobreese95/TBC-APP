@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Genesis 11 - TBC Bible</title>
+<link rel="stylesheet" href="../../../style.css">
+<style>.word-block{background:#f8f8f8;border-left:4px solid #1a3a5c;padding:12px 15px;margin:10px 0;border-radius:6px}.word-title{font-size:1.2rem;font-weight:bold;color:#1a3a5c;margin-bottom:8px}.def-label{font-weight:bold;color:#333;margin-top:8px;display:block}.verse-text{font-size:1.15rem;line-height:1.6;margin-bottom:8px}</style>
+</head>
+<body>
+<header><h1>Genesis Chapter 11</h1></header>
+<div class="container">
+<button class="back-btn" onclick="window.location.href='../index.html'">← Back to Genesis</button>
+<div id="verses"></div>
+</div>
+<script>
+function w(word,strongs,vines,webster){return{word,strongs,vines,webster}}
+function makeWords(text){
+const d={'and':['Conjunction','And.','And.'],'the':['Article','The.','The.'],'of':['Preposition','Of.','Of.'],'a':['Article','A.','A.'],'in':['Preposition','In.','In.'],'to':['Preposition','To.','To.'],'for':['H3588 - kiy','For.','For.'],'with':['Preposition','With.','With.'],'from':['Preposition','From.','From.'],'unto':["H413 - 'el",'To.','Unto.'],'upon':["H5921 - 'al",'Upon.','Upon.'],'into':['Preposition','Into.','Into.'],'he':['Pronoun','He.','He.'],'his':['Possessive','His.','His.'],'him':['Pronoun','Him.','Him.'],'they':['Pronoun','They.','They.'],'them':['Pronoun','Them.','Them.'],'their':['Possessive','Their.','Their.'],'us':['Pronoun','Us.','Us.'],'we':['Pronoun','We.','We.'],'it':['Pronoun','It.','It.'],'was':['Implied','Was.','Was.'],'were':['Implied','Were.','Were.'],'is':['Implied','Is.','Is.'],'be':['H1961 - hayah','Be.','Be.'],'let':['Jussive','Let.','Let.'],'may':['Modal','May.','May.'],'shall':['Modal','Shall.','Shall.'],'all':['H3605 - kol','All.','All.'],'whole':['H3605 - kol','Whole.','Whole.'],'one':["H259 - 'echad",'One.','One.'],'that':['Relative','That.','That.'],'which':["H834 - 'asher",'Which.','Which.'],'not':["H3808 - lo'",'Not.','Not.'],'lest':['H6435 - pen','Lest.','Lest.'],'there':['Adverb','There.','There.'],'therefore':['H3651 - ken','Therefore.','Therefore.'],'because':['H3588 - kiy','Because.','Because.'],'god':["H430 - 'elohiym",'God.','God.'],'lord':['H3068 - Y@hovah','Jehovah.','LORD.'],'earth':["H776 - 'erets",'Earth.','Earth.'],'language':['H8193 - saphah','Language.','Language.'],'speech':['H1697 - dabar','Speech.','Speech.'],'city':["H5892 - `iyr",'City.','City.'],'tower':['H4026 - migdal','Tower.','Tower.'],'heaven':['H8064 - shamayim','Heaven.','Heaven.'],'name':['H8034 - shem','Name.','Name.'],'face':['H6440 - paniym','Face.','Face.'],'scattered':['H6327 - puwts','Scattered.','Scattered.'],'scatter':['H6327 - puwts','Scatter.','Scatter.'],'abroad':['Part of puwts','Abroad.','Abroad.'],'build':['H1129 - banah','Build.','Build.'],'make':["H6213 - 'asah",'Make.','Make.'],'said':["H559 - 'amar",'Said.','Said.'],'called':["H7121 - qara'",'Called.','Called.'],'confound':['H1101 - balal','Confound.','Confound.'],'babel':['H894 - Babel','Babel.','Babel.'],'journeyed':['H5265 - naca`','Journeyed.','Journeyed.'],'east':['H6924 - qedem','East.','East.'],'found':["H4672 - matsa'",'Found.','Found.'],'plain':['H1237 - biq`ah','Plain.','Plain.'],'land':["H776 - 'erets",'Land.','Land.'],'shinar':['H8152 - Shin`ar','Shinar.','Shinar.'],'dwelt':['H3427 - yashab','Dwelt.','Dwelt.'],'brick':['H3843 - l@benah','Brick.','Brick.'],'stone':["H68 - 'eben",'Stone.','Stone.'],'slime':['H2564 - chemar','Slime / asphalt.','Slime.'],'mortar':['H2563 - chomer','Mortar.','Mortar.'],'go':['H3051 - yahab','Come / go.','Go.'],'down':['H3381 - yarad','Down.','Down.'],'see':["H7200 - ra'ah",'See.','See.'],'children':['H1121 - ben','Children.','Children.'],'men':["H120 - 'adam",'Men.','Men.'],'began':['H2490 - chalal','Began.','Began.'],'nothing':['H3605 + H3808','Nothing.','Nothing.'],'imagined':['H2161 - zamam','Imagined.','Imagined.'],'do':["H6213 - 'asah",'Do.','Do.'],'understand':['H8085 - shama`','Understand.','Understand.'],'another':["H7453 - rea`",'Another.','Another.'],'left':['H2308 - chadal','Left.','Left.'],'off':['Part of chadal','Off.','Off.'],'build':['H1129 - banah','Build.','Build.'],'thence':['H8033 - sham','Thence.','Thence.'],'generations':['H8435 - towl@dah','Generations.','Generations.'],'shem':['H8035 - Shem','Shem.','Shem.'],'arpachshad':["H775 - 'Arpakshad",'Arphaxad.','Arphaxad.'],'begat':['H3205 - yalad','Begat.','Begat.'],'lived':['H2421 - chayah','Lived.','Lived.'],'years':['H8141 - shaneh','Years.','Years.'],'sons':['H1121 - ben','Sons.','Sons.'],'daughters':['H1323 - bath','Daughters.','Daughters.'],'died':['H4191 - muwth','Died.','Died.'],'salah':['H7974 - Shelach','Salah.','Salah.'],'eber':["H5677 - `Eber",'Eber.','Eber.'],'peleg':['H6389 - Peleg','Peleg.','Peleg.'],'reu':['H7466 - R@`uw','Reu.','Reu.'],'serug':['H8286 - S@ruwg','Serug.','Serug.'],'nahor':['H5152 - Nachowr','Nahor.','Nahor.'],'terah':['H8646 - Terach','Terah.','Terah.'],'abram':["H87 - 'Abram",'Abram.','Abram.'],'nahor':['H5152 - Nachowr','Nahor.','Nahor.'],'haran':['H2039 - Haran','Haran.','Haran.'],'lot':['H3876 - Lowt','Lot.','Lot.'],'ur':["H218 - 'Uwr",'Ur.','Ur.'],'chaldees':['H3778 - Kasdiy','Chaldees.','Chaldees.'],'canaan':['H3667 - K@na`an','Canaan.','Canaan.'],'sarai':['H8297 - Saray','Sarai.','Sarai.'],'milcah':['H4435 - Milkah','Milcah.','Milcah.'],'iscah':['H3252 - Yickah','Iscah.','Iscah.'],'daughter':['H1323 - bath','Daughter.','Daughter.'],'wife':["H802 - 'ishshah",'Wife.','Wife.'],'barren':["H6135 - `aqar",'Barren.','Barren.'],'child':['H2056 - valad','Child.','Child.'],'took':['H3947 - laqach','Took.','Took.'],'son':['H1121 - ben','Son.','Son.'],'went':["H3318 - yatsa'",'Went.','Went.'],'forth':['Part of yatsa','Forth.','Forth.'],'came':["H935 - bow'",'Came.','Came.'],'hundred':["H3967 - me'ah",'Hundred.','Hundred.'],'thirty':['H7970 - sh@lowshiym','Thirty.','Thirty.'],'five':['H2568 - chamesh','Five.','Five.'],'four':["H702 - 'arba`",'Four.','Four.'],'two':['H8147 - sh@nayim','Two.','Two.'],'nine':['H8672 - tesha`','Nine.','Nine.'],'seven':['H7651 - sheba`','Seven.','Seven.'],'eight':['H8083 - sh@moneh','Eight.','Eight.'],'three':['H7969 - shalowsh','Three.','Three.'],'days':['H3117 - yowm','Days.','Days.']};
+return text.replace(/[.,:;?!]/g,'').split(/\s+/).filter(Boolean).map(wd=>{const k=wd.toLowerCase().replace("'",'');if(d[k])return w(wd,d[k][0],d[k][1],d[k][2]);return w(wd,'—','—',wd+'.');});
+}
+const data=[
+["Genesis 11:1","And the whole earth was of one language, and of one speech."],
+["Genesis 11:2","And it came to pass, as they journeyed from the east, that they found a plain in the land of Shinar; and they dwelt there."],
+["Genesis 11:3","And they said one to another, Go to, let us make brick, and burn them thoroughly. And they had brick for stone, and slime had they for morter."],
+["Genesis 11:4","And they said, Go to, let us build us a city and a tower, whose top may reach unto heaven; and let us make us a name, lest we be scattered abroad upon the face of the whole earth."],
+["Genesis 11:5","And the LORD came down to see the city and the tower, which the children of men builded."],
+["Genesis 11:6","And the LORD said, Behold, the people is one, and they have all one language; and this they begin to do: and now nothing will be restrained from them, which they have imagined to do."],
+["Genesis 11:7","Go to, let us go down, and there confound their language, that they may not understand one another's speech."],
+["Genesis 11:8","So the LORD scattered them abroad from thence upon the face of all the earth: and they left off to build the city."],
+["Genesis 11:9","Therefore is the name of it called Babel; because the LORD did there confound the language of all the earth: and from thence did the LORD scatter them abroad upon the face of all the earth."],
+["Genesis 11:10","These are the generations of Shem: Shem was an hundred years old, and begat Arphaxad two years after the flood:"],
+["Genesis 11:11","And Shem lived after he begat Arphaxad five hundred years, and begat sons and daughters."],
+["Genesis 11:12","And Arphaxad lived five and thirty years, and begat Salah:"],
+["Genesis 11:13","And Arphaxad lived after he begat Salah four hundred and three years, and begat sons and daughters."],
+["Genesis 11:14","And Salah lived thirty years, and begat Eber:"],
+["Genesis 11:15","And Salah lived after he begat Eber four hundred and three years, and begat sons and daughters."],
+["Genesis 11:16","And Eber lived four and thirty years, and begat Peleg:"],
+["Genesis 11:17","And Eber lived after he begat Peleg four hundred and thirty years, and begat sons and daughters."],
+["Genesis 11:18","And Peleg lived thirty years, and begat Reu:"],
+["Genesis 11:19","And Peleg lived after he begat Reu two hundred and nine years, and begat sons and daughters."],
+["Genesis 11:20","And Reu lived two and thirty years, and begat Serug:"],
+["Genesis 11:21","And Reu lived after he begat Serug two hundred and seven years, and begat sons and daughters."],
+["Genesis 11:22","And Serug lived thirty years, and begat Nahor:"],
+["Genesis 11:23","And Serug lived after he begat Nahor two hundred years, and begat sons and daughters."],
+["Genesis 11:24","And Nahor lived nine and twenty years, and begat Terah:"],
+["Genesis 11:25","And Nahor lived after he begat Terah an hundred and nineteen years, and begat sons and daughters."],
+["Genesis 11:26","And Terah lived seventy years, and begat Abram, Nahor, and Haran."],
+["Genesis 11:27","Now these are the generations of Terah: Terah begat Abram, Nahor, and Haran; and Haran begat Lot."],
+["Genesis 11:28","And Haran died before his father Terah in the land of his nativity, in Ur of the Chaldees."],
+["Genesis 11:29","And Abram and Nahor took them wives: the name of Abram's wife was Sarai; and the name of Nahor's wife, Milcah, the daughter of Haran, the father of Milcah, and the father of Iscah."],
+["Genesis 11:30","But Sarai was barren; she had no child."],
+["Genesis 11:31","And Terah took Abram his son, and Lot the son of Haran his son's son, and Sarai his daughter in law, his son Abram's wife; and they went forth with them from Ur of the Chaldees, to go into the land of Canaan; and they came unto Haran, and dwelt there."],
+["Genesis 11:32","And the days of Terah were two hundred and five years: and Terah died in Haran."]
+];
+const verses=data.map(([ref,text])=>({ref,text,words:makeWords(text)}));
+const root=document.getElementById('verses');
+verses.forEach((v,i)=>{const d=document.createElement('div');d.className='verse';let h='';v.words.forEach(x=>{h+=`<div class="word-block"><div class="word-title">${x.word}</div><span class="def-label">Strong's:</span><div>${x.strongs}</div><span class="def-label">Vine's:</span><div>${x.vines}</div><span class="def-label">Webster's 1828:</span><div>${x.webster}</div></div>`});d.innerHTML=`<strong>${v.ref}</strong><div class="verse-text">${v.text}</div><div class="verse-menu" id="menu-${i}">${h}<p style="margin-top:18px;"><strong>My Notes:</strong></p><textarea placeholder="Write your notes here..." onblur="saveNote('${v.ref}',this.value)">${localStorage.getItem('note-'+v.ref)||''}</textarea></div>`;d.onclick=function(e){if(e.target.tagName==='TEXTAREA')return;const m=document.getElementById('menu-'+i);m.style.display=m.style.display==='block'?'none':'block'};root.appendChild(d)});
+function saveNote(r,t){if(t.trim()==='')localStorage.removeItem('note-'+r);else localStorage.setItem('note-'+r,t)}
+</script>
+</body>
+</html>
