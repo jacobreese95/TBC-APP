@@ -31,13 +31,9 @@
     <header><h1 id="roomTitle">Chat</h1></header>
     <div class="container" id="chatContainer" style="display:none; flex-direction:column; height:70vh;">
         <div id="messages" style="flex:1; overflow-y:auto; border:1px solid #ccc; padding:10px; margin-bottom:10px; border-radius:8px; background:#fff;"></div>
-        <div style="display:flex; flex-direction:column; gap:8px;">
-            <div style="display:flex; gap:8px; align-items:center;">
-                <input type="text" id="messageInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMessage()">
-                <button class="menu-btn" onclick="sendMessage()">Send</button>
-            </div>
-            <button class="menu-btn" id="prayerBtn" onclick="togglePrayer()" style="background:#7a8fac; width:100%;">🙏 Prayer Request</button>
-            <p id="prayerHint" style="color:#8845a5; font-size:0.85rem; margin:0; display:none;">This message will be marked as a prayer request</p>
+        <div style="display:flex; gap:8px; align-items:center;">
+            <input type="text" id="messageInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMessage()">
+            <button class="menu-btn" onclick="sendMessage()">Send</button>
         </div>
     </div>
 
@@ -59,7 +55,6 @@
       let currentRoom = getRoomFromURL() || localStorage.getItem('currentChatRoom') || 'Whole Church';
       localStorage.setItem('currentChatRoom', currentRoom);
 
-      let isPrayer = false;
       let unsubscribe = null;
 
       document.getElementById('roomTitle').textContent = currentRoom;
@@ -69,21 +64,6 @@
         document.getElementById('chatContainer').style.display = 'flex;
         loadMessages();
       });
-
-      function togglePrayer() {
-        isPrayer = !isPrayer;
-        const btn = document.getElementById('prayerBtn');
-        const hint = document.getElementById('prayerHint');
-        if (isPrayer) {
-          btn.style.background = '#8845a5';
-          btn.innerHTML = '🙏 Prayer ✓';
-          hint.style.display = 'block';
-        } else {
-          btn.style.background = '#7a8fac';
-          btn.innerHTML = '🙏 Prayer';
-          hint.style.display = 'none';
-        }
-      }
 
       function loadMessages() {
         const container = document.getElementById('messages');
@@ -127,11 +107,10 @@
           uid: user.uid,
           name: profile ? profile.name : (user.email || 'Member'),
           timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-          isPrayer: currentRoom === 'Whole Church' ? isPrayer : false
+          isPrayer: false
         });
 
         input.value = '';
-        if (isPrayer) togglePrayer();
       }
     </script>
 </body>
