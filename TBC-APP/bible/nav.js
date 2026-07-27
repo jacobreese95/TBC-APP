@@ -15,7 +15,7 @@
     '<div class="nav-drawer" id="navDrawer">' +
     '<a href="../../../../index.html">Home</a>' +
     '<a href="../../../../about.html">About Us</a>' +
-    '<a href="../../../../calendar.html">Calendar</a>' +
+    '<a href="../../../../calendar-whole-church.html">Calendar</a>' +
     '<a href="../../../../chat.html">Ministry Chats</a>' +
     '<a href="../../../index.html">Bible</a>' +
     '<a href="../../../../give.html">Give on Tithe.ly</a>' +
