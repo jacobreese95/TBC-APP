@@ -50,6 +50,21 @@
     </style>
 </head>
 <body>
+    <button class="hamburger" onclick="toggleMenu()" aria-label="Open menu">
+        <span></span><span></span><span></span>
+    </button>
+    <div class="nav-overlay" id="navOverlay" onclick="toggleMenu()"></div>
+    <div class="nav-drawer" id="navDrawer">
+        <a href="../index.html">Home</a>
+        <a href="../calendar.html">Calendar</a>
+        <a href="../chat.html">Ministry Chats</a>
+        <a href="index.html">Bible</a>
+        <a href="../give.html">Give on Tithe.ly</a>
+        <a href="../sermons.html">Sermons & Live Streams</a>
+        <a href="#" onclick="window.open('https://www.google.com/maps/place/11801+E+Lincoln+St,+Wichita,+KS+67207', '_blank'); toggleMenu(); return false;">View Location on Google Maps</a>
+        <a href="../soul-winning.html">Soul Winning</a>
+    </div>
+
     <header>
         <h1>My Notes</h1>
     </header>
@@ -67,7 +82,11 @@
     </div>
 
     <script>
-        // Simple lookup of verse text for Genesis 1 (we can expand this later)
+        function toggleMenu() {
+            document.getElementById('navDrawer').classList.toggle('open');
+            document.getElementById('navOverlay').classList.toggle('open');
+        }
+
         const verseTexts = {
             "Genesis 1:1": "In the beginning God created the heaven and the earth.",
             "Genesis 1:2": "And the earth was without form, and void; and darkness was upon the face of the deep. And the Spirit of God moved upon the face of the waters.",
@@ -108,8 +127,6 @@
             } else {
                 localStorage.setItem('note-' + reference, text);
             }
-
-            // Brief "Saved" feedback
             const msg = document.getElementById('save-' + reference.replace(/[: ]/g, '-'));
             if (msg) {
                 msg.style.display = 'block';
@@ -139,7 +156,6 @@
                 return;
             }
 
-            // Sort by reference
             notes.sort((a, b) => a.reference.localeCompare(b.reference, undefined, { numeric: true }));
 
             let html = '';
