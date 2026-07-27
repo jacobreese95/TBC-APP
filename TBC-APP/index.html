@@ -13,13 +13,13 @@
     <div class="nav-overlay" id="navOverlay" onclick="toggleMenu()"></div>
     <div class="nav-drawer" id="navDrawer">
         <a href="about.html">About Us</a>
-        <a href="calendar.html">Calendar</a>
-        <a href="chat.html">Ministry Chats</a>
+        <a href="calendar.html" id="drawer-calendar">Calendar</a>
+        <a href="chat.html" id="drawer-chats">Ministry Chats</a>
         <a href="bible/index.html">Bible</a>
         <a href="give.html">Give on Tithe.ly</a>
         <a href="sermons.html">Sermons & Live Streams</a>
         <a href="#" onclick="window.open('https://www.google.com/maps/place/11801+E+Lincoln+St,+Wichita,+KS+67207', '_blank'); toggleMenu(); return false;">View Location on Google Maps</a>
-        <a href="soul-winning.html">Soul Winning</a>
+        <a href="soul-winning.html" id="drawer-soulwinning">Soul Winning</a>
         <a href="profile.html" id="drawer-profile">Profile</a>
         <a href="#" id="drawer-logout" onclick="signOutUser().then(() => window.location.reload())">Logout</a>
     </div>
@@ -30,13 +30,13 @@
 
     <div class="container menu-stack">
         <button class="menu-btn" onclick="window.location.href='about.html'">About Us</button>
-        <button class="menu-btn" onclick="goToProtected('calendar.html')">Calendar</button>
-        <button class="menu-btn" onclick="goToProtected('chat.html')">Ministry Chats</button>
+        <button class="menu-btn" id="btn-calendar" onclick="goToProtected('calendar.html')">Calendar</button>
+        <button class="menu-btn" id="btn-chats" onclick="goToProtected('chat.html')">Ministry Chats</button>
         <button class="menu-btn" onclick="window.location.href='bible/index.html'">Bible</button>
         <button class="menu-btn" onclick="window.location.href='give.html'">Give on Tithe.ly</button>
         <button class="menu-btn" onclick="window.location.href='sermons.html'">Sermons & Live Streams</button>
         <button class="menu-btn" onclick="window.open('https://www.google.com/maps/place/11801+E+Lincoln+St,+Wichita,+KS+67207', '_blank')">View Location on Google Maps</button>
-        <button class="menu-btn" onclick="goToProtected('soul-winning.html')">Soul Winning</button>
+        <button class="menu-btn" id="btn-soulwinning" onclick="goToProtected('soul-winning.html')">Soul Winning</button>
     </div>
 
     <!-- Login / Create Account buttons at bottom when not logged in -->
@@ -67,17 +67,35 @@
             const bottom = document.getElementById('bottomAuth');
             const drawerProfile = document.getElementById('drawer-profile');
             const drawerLogout = document.getElementById('drawer-logout');
+            const drawerCalendar = document.getElementById('drawer-calendar');
+            const drawerChats = document.getElementById('drawer-chats');
+            const drawerSoul = document.getElementById('drawer-soulwinning');
+            const btnCalendar = document.getElementById('btn-calendar');
+            const btnChats = document.getElementById('btn-chats');
+            const btnSoul = document.getElementById('btn-soulwinning');
 
             if (!user) {
                 bottom.style.display = 'block';
                 drawerProfile.style.display = 'none';
                 drawerLogout.style.display = 'none';
+                drawerCalendar.style.display = 'none';
+                drawerChats.style.display = 'none';
+                drawerSoul.style.display = 'none';
+                btnCalendar.style.display = 'none';
+                btnChats.style.display = 'none';
+                btnSoul.style.display = 'none';
                 return;
             }
 
             bottom.style.display = 'none';
             drawerProfile.style.display = 'block';
             drawerLogout.style.display = 'block';
+            drawerCalendar.style.display = 'block';
+            drawerChats.style.display = 'block';
+            drawerSoul.style.display = 'block';
+            btnCalendar.style.display = 'block';
+            btnChats.style.display = 'block';
+            btnSoul.style.display = 'block';
 
             try {
                 const profile = await ensureUserProfile(user);
