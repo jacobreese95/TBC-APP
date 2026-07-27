@@ -3,63 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendar - TBC</title>
+    <title>Calendar - TBC Church App</title>
     <link rel="stylesheet" href="style.css">
     <style>
-      .cal-nav { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px; }
-      .cal-nav button { width:auto; flex:0 0 auto; padding:12px 14px; margin:0; }
-      .cal-nav h2 { margin:0; flex:1; text-align:center; font-size:1.15rem; }
-      #ministry-filters { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
-      #ministry-filters button { width:auto; margin:0; padding:10px 14px; font-size:0.9rem; }
-      #ministry-filters button.active { background: linear-gradient(135deg, #8845a5 0%, #ac8ce6 100%); }
-      #ministry-filters button.inactive { background: #e8eef2; color:#404040; box-shadow:none; }
-      #calendar-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
-      .cal-head { text-align:center; font-weight:700; background:#7bafdd; color:#fff; padding:8px 4px; border-radius:8px; font-size:0.8rem; }
-      .cal-day { border:1px solid rgba(122,143,172,0.4); background:#fff; padding:8px; min-height:80px; border-radius:10px; font-size:0.85rem; cursor:pointer; }
-      .cal-day.has-event { border-color:#4cb8b9; background:#f0fbfb; }
-      .cal-day strong { display:block; margin-bottom:4px; }
-      .event-dot { font-size:0.75rem; color:#4cb8b9; }
-
-      /* Hamburger + Drawer (added so it works on this page) */
-      .hamburger { position:fixed; top:12px; right:14px; z-index:2000; background:#fff; border:none; width:44px; height:44px; border-radius:50%; box-shadow:0 4px 14px rgba(64,64,64,0.12); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; cursor:pointer; }
-      .hamburger span { display:block; width:20px; height:2.5px; background:#404040; border-radius:2px; }
-      .nav-drawer { position:fixed; top:0; right:-280px; width:280px; height:100vh; background:#fff; box-shadow:-4px 0 20px rgba(0,0,0,0.15); z-index:2001; transition:right .35s cubic-bezier(.4,0,.2,1); padding:70px 0 20px; overflow-y:auto; }
-      .nav-drawer.open { right:0; }
-      .nav-drawer a { display:block; padding:16px 24px; color:#404040; font-size:1.05rem; font-weight:600; text-decoration:none; border-bottom:1px solid rgba(122,143,172,0.2); }
-      .nav-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:2000; opacity:0; visibility:hidden; transition:.3s; }
-      .nav-overlay.open { opacity:1; visibility:visible; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin: 20px 0; }
+        .day-header { font-weight: bold; text-align: center; padding: 8px; background: #7bafdd; color: white; border-radius: 6px; }
+        .day-cell { min-height: 70px; border: 1px solid #ddd; padding: 6px; border-radius: 8px; background: white; cursor: pointer; position: relative; }
+        .day-cell.other-month { background: #f8f8f8; color: #aaa; }
+        .day-number { font-weight: bold; margin-bottom: 4px; }
+        .event { font-size: 0.75rem; background: #4cb8b9; color: white; padding: 2px 6px; border-radius: 4px; margin: 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; }
+        .filter-btn { padding: 8px 16px; border: 2px solid #4cb8b9; background: white; color: #4cb8b9; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        .filter-btn.active { background: #4cb8b9; color: white; }
     </style>
 </head>
 <body>
-    <button class="hamburger" onclick="toggleMenu()" aria-label="Open menu">
-        <span></span><span></span><span></span>
-    </button>
-    <div class="nav-overlay" id="navOverlay" onclick="toggleMenu()"></div>
-    <div class="nav-drawer" id="navDrawer">
-        <a href="index.html">Home</a>
-        <a href="about.html">About Us</a>
-        <a href="chat.html">Ministry Chats</a>
-        <a href="bible/index.html">Bible</a>
-        <a href="give.html">Give on Tithe.ly</a>
-        <a href="sermons.html">Sermons & Live Streams</a>
-        <a href="soul-winning.html">Soul Winning</a>
-        <a href="profile.html">Profile</a>
-        <a href="#" onclick="signOutUser().then(() => window.location.href='index.html')">Logout</a>
-    </div>
+    <header>
+        <h1>Church Calendar</h1>
+    </header>
 
-    <header><h1>TBC Calendar</h1></header>
     <div class="container">
-        <button class="back-btn" onclick="window.location.href='index.html'">← Back to Home</button>
-        <button class="menu-btn" onclick="showAddEventForm()">+ Add New Event</button>
-
-        <div class="cal-nav">
-          <button onclick="prevMonth()">← Prev</button>
-          <h2 id="month-title">July 2026</h2>
-          <button onclick="nextMonth()">Next →</button>
+        <div class="filter-bar">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="Whole Church">Whole Church</button>
+            <button class="filter-btn" data-filter="Nursery">Nursery</button>
+            <button class="filter-btn" data-filter="Music">Music</button>
         </div>
 
-        <div id="ministry-filters"></div>
-        <div id="calendar-grid"></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin:15px 0;">
+            <button onclick="prevMonth()" style="padding:8px 16px; border-radius:8px; border:2px solid #4cb8b9; background:white; color:#4cb8b9; font-weight:bold;">&lt; Prev</button>
+            <h2 id="month-year" style="margin:0; color:#404040;"></h2>
+            <button onclick="nextMonth()" style="padding:8px 16px; border-radius:8px; border:2px solid #4cb8b9; background:white; color:#4cb8b9; font-weight:bold;">Next &gt;</button>
+        </div>
+
+        <div class="calendar-grid" id="calendar-grid"></div>
+
+        <h3 style="margin-top:30px; color:#404040;">Add New Event</h3>
+        <div style="background:white; padding:20px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+            <input type="date" id="event-date" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:8px;">
+            <input type="text" id="event-title" placeholder="Event Title" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:8px;">
+            <textarea id="event-desc" placeholder="Description (optional)" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:8px; height:80px;"></textarea>
+            <select id="event-ministry" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:8px;">
+                <option value="Whole Church">Whole Church</option>
+                <option value="Nursery">Nursery</option>
+                <option value="Music">Music</option>
+            </select>
+            <button onclick="addEvent()" class="menu-btn" style="margin-top:10px;">Add Event</button>
+        </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -67,140 +57,125 @@
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
     <script src="auth.js"></script>
     <script>
-      function toggleMenu() {
-        document.getElementById('navDrawer').classList.toggle('open');
-        document.getElementById('navOverlay').classList.toggle('open');
-      }
+        let currentDate = new Date();
+        let allEvents = [];
+        let currentFilter = 'all';
 
-      requireApprovedUser();
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-grid');
+            grid.innerHTML = '';
 
-      let db;
-      let events = [];
-      let currentMonth = 7;
-      let currentYear = 2026;
-      let selectedMinistries = [];
-      const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-      const ministries = ["Nursery", "Music - Singing", "Music - Piano", "Sentry", "Media"];
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
 
-      async function loadEvents() {
-        try {
-          if (!db) {
-            db = firebase.firestore();
-          }
-          const snapshot = await db.collection('events')
-            .where('year', '==', currentYear)
-            .where('month', '==', currentMonth)
-            .get();
-          events = [];
-          snapshot.forEach(doc => {
-            events.push({ id: doc.id, ...doc.data() });
-          });
-        } catch (e) {
-          console.error('Failed to load events:', e);
-          events = [];
+            document.getElementById('month-year').textContent = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            const headers = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+            headers.forEach(h => {
+                const el = document.createElement('div');
+                el.className = 'day-header';
+                el.textContent = h;
+                grid.appendChild(el);
+            });
+
+            for (let i = 0; i < firstDay; i++) {
+                const empty = document.createElement('div');
+                empty.className = 'day-cell other-month';
+                grid.appendChild(empty);
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const cell = document.createElement('div');
+                cell.className = 'day-cell';
+                const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+
+                const num = document.createElement('div');
+                num.className = 'day-number';
+                num.textContent = day;
+                cell.appendChild(num);
+
+                const dayEvents = allEvents.filter(e => e.date === dateStr && (currentFilter === 'all' || e.ministry === currentFilter));
+                dayEvents.forEach(ev => {
+                    const evEl = document.createElement('div');
+                    evEl.className = 'event';
+                    evEl.textContent = ev.title;
+                    cell.appendChild(evEl);
+                });
+
+                cell.onclick = () => showDayEvents(dateStr, dayEvents);
+                grid.appendChild(cell);
+            }
         }
-        renderCalendar();
-      }
 
-      function prevMonth() { currentMonth--; if (currentMonth < 1) { currentMonth = 12; currentYear--; } loadEvents(); }
-      function nextMonth() { currentMonth++; if (currentMonth > 12) { currentMonth = 1; currentYear++; } loadEvents(); }
+        function showDayEvents(dateStr, events) {
+            if (events.length === 0) {
+                alert('No events on ' + dateStr);
+                return;
+            }
+            let msg = 'Events on ' + dateStr + ':\n\n';
+            events.forEach(e => {
+                msg += `• ${e.title} (${e.ministry})\n  ${e.description || ''}\n\n`;
+            });
+            alert(msg);
+        }
 
-      function renderFilters() {
-        const container = document.getElementById('ministry-filters');
-        let html = '';
-        ministries.forEach(m => {
-          const isActive = selectedMinistries.includes(m);
-          html += `<button class="${isActive ? 'active' : 'inactive'}" onclick="toggleFilter('${m}')">${m}</button>`;
+        async function loadEvents() {
+            try {
+                const snapshot = await db.collection('events').get();
+                allEvents = [];
+                snapshot.forEach(doc => allEvents.push({ id: doc.id, ...doc.data() }));
+                renderCalendar();
+            } catch (err) {
+                console.error('Error loading events:', err);
+                renderCalendar();
+            }
+        }
+
+        async function addEvent() {
+            const date = document.getElementById('event-date').value;
+            const title = document.getElementById('event-title').value.trim();
+            const desc = document.getElementById('event-desc').value.trim();
+            const ministry = document.getElementById('event-ministry').value;
+
+            if (!date || !title) {
+                alert('Please enter a date and title');
+                return;
+            }
+
+            try {
+                await db.collection('events').add({
+                    date, title, description: desc, ministry,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                alert('Event added!');
+                document.getElementById('event-date').value = '';
+                document.getElementById('event-title').value = '';
+                document.getElementById('event-desc').value = '';
+                await loadEvents();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        function prevMonth() { currentDate.setMonth(currentDate.getMonth() - 1); renderCalendar(); }
+        function nextMonth() { currentDate.setMonth(currentDate.getMonth() + 1); renderCalendar(); }
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                renderCalendar();
+            };
         });
-        container.innerHTML = html;
-      }
 
-      function toggleFilter(min) {
-        if (selectedMinistries.includes(min)) {
-          selectedMinistries = selectedMinistries.filter(m => m !== min);
-        } else {
-          selectedMinistries.push(min);
-        }
-        renderFilters();
-        renderCalendar();
-      }
-
-      function showAddEventForm() {
-        let dayOptions = '';
-        for (let i = 1; i <= 31; i++) dayOptions += `<option value="${i}">Day ${i}</option>`;
-        document.body.innerHTML = `
-          <header><h1>Add Event</h1></header>
-          <div class="container">
-            <h2>Add New Event</h2>
-            <input type="text" id="event-title" placeholder="Event Title">
-            <select id="event-day">${dayOptions}</select>
-            <input type="text" id="event-time" placeholder="Time (e.g. 9:00 AM)" value="9:00 AM">
-            <select id="event-ministry">
-              <option value="Church Wide">Church Wide</option>
-              ${ministries.map(m => `<option value="${m}">${m}</option>`).join('')}
-            </select>
-            <button class="menu-btn" onclick="saveEvent()">Save Event</button>
-            <button class="back-btn" onclick="window.location.reload()">Cancel</button>
-          </div>`;
-      }
-
-      async function saveEvent() {
-        const title = document.getElementById('event-title').value || "New Event";
-        const day = parseInt(document.getElementById('event-day').value);
-        const time = document.getElementById('event-time').value;
-        const ministry = document.getElementById('event-ministry').value;
-
-        try {
-          if (!db) db = firebase.firestore();
-          await db.collection('events').add({
-            title, day, time, ministry,
-            month: currentMonth, year: currentYear,
-            createdAt: new Date()
-          });
-          alert("Event Saved!");
-          window.location.reload();
-        } catch (e) {
-          console.error('Failed to save event:', e);
-          alert('Could not save event. Check console.');
-        }
-      }
-
-      function renderCalendar() {
-        const grid = document.getElementById('calendar-grid');
-        let html = '';
-        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        days.forEach(d => html += `<div class="cal-head">${d}</div>`);
-
-        for (let i = 1; i <= 31; i++) {
-          let dayEvents = events.filter(e => e.day === i);
-          dayEvents = dayEvents.filter(e => e.ministry === "Church Wide" || selectedMinistries.includes(e.ministry));
-          const has = dayEvents.length > 0;
-          let eventHTML = '';
-          if (has) {
-            eventHTML = dayEvents.map(e => `<div class="event-dot">• ${e.title}</div>`).join('');
-          }
-          html += `<div class="cal-day${has ? ' has-event' : ''}" onclick="showDayEvents(${i})"><strong>${i}</strong>${eventHTML}</div>`;
-        }
-        grid.innerHTML = html;
-        document.getElementById('month-title').textContent = `${monthNames[currentMonth-1]} ${currentYear}`;
-      }
-
-      function showDayEvents(day) {
-        let dayEvents = events.filter(e => e.day === day);
-        dayEvents = dayEvents.filter(e => e.ministry === "Church Wide" || selectedMinistries.includes(e.ministry));
-        if (dayEvents.length === 0) {
-          alert(`No events on Day ${day}`);
-          return;
-        }
-        let msg = `Events on Day ${day}:\n\n`;
-        dayEvents.forEach(e => {
-          msg += `${e.time} - ${e.title} (${e.ministry})\n`;
+        // Init
+        requireApprovedUser().then(() => {
+            loadEvents();
         });
-        alert(msg);
-      }
-
-      renderFilters();
-      loadEvents();
     </script>
 </body>
 </html>
