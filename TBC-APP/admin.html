@@ -1,1 +1,227 @@
-updated admin.html with all 7 ministries in checkboxes
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - TBC Church App</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .user-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 12px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .user-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .user-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .user-email {
+            color: '#666';
+            font-size: 0.9rem;
+        }
+        .profile-fields {
+            background: #f8f9fa;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 0.9rem;
+        }
+        .profile-fields div {
+            margin: 4px 0;
+        }
+        .role-select {
+            width: 100%;
+            padding: 8px;
+            margin: 6px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .ministry-checkboxes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 8px 0;
+        }
+        .ministry-checkboxes label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #f8f9fa;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        .save-btn {
+            background: linear-gradient(135deg, #4cb8b9, #7bafdd);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+        .pending { background: #fff3cd; }
+        .approved { background: #d4edda; }
+    </style>
+</head>
+<body>
+    <!-- dummy change to bust cache - July 27 2026 -->
+    <header>
+        <h1>Admin Panel</h1>
+    </header>
+
+    <div class="container">
+        <button class="back-btn" onclick="window.location.href='index.html'">← Back to Home</button>
+        
+        <h2>Manage Users</h2>
+        <div id="users-list">Loading users...</div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        const MINISTRY_CHATS = ['Whole Church', 'Young Adults', 'Music Ministry', 'Nursery', 'Media'];
+
+        async function loadUsers() {
+            console.log('loadUsers started');
+            const container = document.getElementById('users-list');
+            container.innerHTML = 'Loading...';
+
+            try {
+                const snapshot = await db.collection('users').get();
+                console.log('Got snapshot, empty?', snapshot.empty);
+                container.innerHTML = '';
+
+                if (snapshot.empty) {
+                    container.innerHTML = 'No users found in the database.';
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const user = { uid: doc.id, ...doc.data() };
+                    const card = createUserCard(user);
+                    container.appendChild(card);
+                });
+            } catch (err) {
+                console.error('loadUsers error', err);
+                container.innerHTML = 'Error loading users: ' + err.message;
+            }
+        }
+
+        function createUserCard(user) {
+            const div = document.createElement('div');
+            div.className = `user-card ${user.approved ? 'approved' : 'pending'}`;
+            
+            const userMinistries = user.ministries || ['Whole Church'];
+
+            let ministryHTML = '<div class="ministry-checkboxes">';
+            MINISTRY_CHATS.forEach(chat => {
+                const checked = userMinistries.includes(chat) ? 'checked' : '';
+                const disabled = chat === 'Whole Church' ? 'disabled' : '';
+                ministryHTML += `
+                    <label>
+                        <input type="checkbox" value="${chat}" ${checked} ${disabled}>
+                        ${chat}
+                    </label>
+                    `;
+            });
+            ministryHTML += '</div>';
+
+            // Show all other profile fields
+            let profileHTML = '<div class="profile-fields">';
+            const exclude = ['uid', 'name', 'email', 'role', 'ministries', 'approved'];
+            Object.keys(user).forEach(key => {
+                if (!exclude.includes(key) && user[key] != null && user[key] !== '') {
+                    profileHTML += `<div><strong>${key}:</strong> ${user[key]}</div>`;
+                }
+            });
+            profileHTML += '</div>';
+
+            div.innerHTML = `
+                <div class="user-header">
+                    <div>
+                        <div class="user-name">${user.name || 'No name'}</div>
+                        <div class="user-email">${user.email || ''}</div>
+                    </div>
+                    <div style="text-align: right; font-size: 0.85rem;">
+                        <div><strong>Role:</strong> ${user.role || 'member'}</div>
+                        <div><strong>Ministries:</strong> ${userMinistries.join(', ')}</div>
+                    </div>
+                </div>
+                
+                ${profileHTML}
+                
+                <label>Change Role:</label>
+                <select class="role-select" id="role-${user.uid}">
+                    <option value="member" ${user.role === 'member' ? 'selected' : ''}>Member (Regular User)</option>
+                    <option value="leader" ${user.role === 'leader' ? 'selected' : ''}>Leader</option>
+                    <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
+                </select>
+
+                <label>Assign Ministry Chats:</label>
+                ${ministryHTML}
+
+                <label>Approval Status:</label>
+                <select class="role-select" id="approved-${user.uid}">
+                    <option value="true" ${user.approved ? 'selected' : ''}>Approved</option>
+                    <option value="false" ${!user.approved ? 'selected' : ''}>Pending Approval</option>
+                </select>
+
+                <button class="save-btn" onclick="saveUser('${user.uid}')">Save Changes</button>
+            `;
+            return div;
+        }
+
+        window.saveUser = async function(uid) {
+            const role = document.getElementById(`role-${uid}`).value;
+            const checkboxes = document.querySelectorAll(`#users-list .user-card input[type="checkbox"]`);
+            const ministries = [];
+            checkboxes.forEach(cb => {
+                if (cb.checked || cb.disabled) ministries.push(cb.value);
+            });
+            const approvedEl = document.getElementById(`approved-${uid}`);
+            const approved = approvedEl ? approvedEl.value === 'true' : false;
+
+            try {
+                await db.collection('users').doc(uid).update({
+                    role: role,
+                    ministries: ministries,
+                    approved: approved
+                });
+                alert('User updated successfully!');
+                loadUsers();
+            } catch (err) {
+                alert('Error saving: ' + err.message);
+            }
+        };
+
+        // Check if current user is admin
+        auth.onAuthStateChanged(async function(user) {
+            console.log('onAuthStateChanged fired', user ? user.uid : 'no user');
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+            const profile = await getUserProfile(user.uid);
+            console.log('profile role', profile ? profile.role : 'no profile');
+            if (!profile || profile.role !== 'admin') {
+                alert('Access denied. Admins only.');
+                window.location.href = 'index.html';
+                return;
+            }
+            loadUsers();
+        });
+    </script>
+</body>
+</html>
