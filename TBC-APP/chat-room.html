@@ -143,7 +143,7 @@
             font-size: 16px !important;
             margin: 0 !important;
             display: block !important;
-            box-sizing: border-box !important;
+            box-sizing: border-box;
             pointer-events: auto !important;
             position: relative;
             z-index: 51;
@@ -368,7 +368,7 @@
 
             document.getElementById('room-title').textContent = room;
 
-            if (room === 'Whole Church') {
+            if (room === 'Whole Church' || room === 'Music Ministry') {
                 document.getElementById('prayerBtn').style.display = 'block';
             }
 
