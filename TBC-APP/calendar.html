@@ -26,6 +26,7 @@
     <div class="nav-overlay" id="navOverlay" onclick="toggleMenu()"></div>
     <div class="nav-drawer" id="navDrawer">
         <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
         <a href="chat.html">Ministry Chats</a>
         <a href="bible/index.html">Bible</a>
         <a href="give.html">Give on Tithe.ly</a>
@@ -48,11 +49,19 @@
         <div id="ministry-filters"></div>
         <div id="calendar-grid"></div>
     </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+    <script src="auth.js"></script>
     <script>
       function toggleMenu() {
         document.getElementById('navDrawer').classList.toggle('open');
         document.getElementById('navOverlay').classList.toggle('open');
       }
+
+      // Calendar requires approved login
+      requireApprovedUser();
 
       let events = JSON.parse(localStorage.getItem('events') || '[]');
       let currentMonth = 7;
