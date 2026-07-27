@@ -47,9 +47,6 @@
             <textarea id="event-desc" placeholder="Description (optional)" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:8px; height:80px;"></textarea>
             <select id="event-ministry" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:8px;">
                 <option value="Whole Church">Whole Church</option>
-                <option value="Nursery">Nursery</option>
-                <option value="Music Ministry">Music Ministry</option>
-                <option value="Media">Media</option>
             </select>
             <button onclick="addEvent()" class="menu-btn" style="margin-top:10px;">Add Event</button>
         </div>
@@ -93,7 +90,7 @@
             overlay.classList.toggle('open');
         }
 
-        const allMinistries = ['Whole Church', 'Nursery', 'Music Ministry', 'Media'];
+        const allMinistries = ['Whole Church'];
 
         function renderFilterBar(userMinistries, isAdmin) {
             const container = document.getElementById('filter-bar');
