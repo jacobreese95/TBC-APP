@@ -5,33 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Soul Winning - TBC</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
     <style>
         #map { height: 400px; }
-        .sidebar { position: absolute; top: 10px; right: 10px; width: 320px; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 1000; padding: 15px; }
+        .sidebar { position: absolute; top: 10px; right: 10px; width: 320px; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 500; padding: 15px; }
+        .hamburger { z-index: 1100; }
+        .nav-drawer { z-index: 1101; }
+        .nav-overlay { z-index: 1100; }
     </style>
 </head>
 <body>
+    <button class="hamburger" onclick="toggleMenu()" aria-label="Open menu">
+        <span></span><span></span><span></span>
+    </button>
+    <div class="nav-overlay" id="navOverlay" onclick="toggleMenu()"></div>
+    <div class="nav-drawer" id="navDrawer">
+        <a href="index.html">Home</a>
+        <a href="calendar.html">Calendar</a>
+        <a href="chat.html">Ministry Chats</a>
+        <a href="bible/index.html">Bible</a>
+        <a href="give.html">Give on Tithe.ly</a>
+        <a href="sermons.html">Sermons & Live Streams</a>
+        <a href="#" onclick="window.open('https://www.google.com/maps/place/11801+E+Lincoln+St,+Wichita,+KS+67207', '_blank'); toggleMenu(); return false;">View Location on Google Maps</a>
+        <a href="soul-winning.html">Soul Winning</a>
+    </div>
+
     <div id="map"></div>
     
     <div class="sidebar">
-        <button onclick="window.location.href='index.html'" style="margin-bottom:15px;">← Back to Home</button>
+        <button class="back-btn" onclick="window.location.href='index.html'">← Back to Home</button>
         
         <h2>Outreach Map</h2>
-        <button onclick="toggleDraw()" style="margin-bottom:10px;">✏️ Draw Area</button>
-        <div id="map"></div>
+        <button class="menu-btn" onclick="toggleDraw()">Draw Area</button>
         
         <h2 style="margin-top:20px;">Add New Lead</h2>
-        <input type="text" id="name" placeholder="Name" style="width:100%; padding:10px; margin:5px 0;">
-        <input type="text" id="address" placeholder="Address" style="width:100%; padding:10px; margin:5px 0;">
-        <select id="status" style="width:100%; padding:10px; margin:5px 0;">
+        <input type="text" id="name" placeholder="Name">
+        <input type="text" id="address" placeholder="Address">
+        <select id="status">
           <option value="">Visit Status</option>
           <option value="Visited - Interested">Visited - Interested</option>
           <option value="Visited - Not Interested">Visited - Not Interested</option>
           <option value="Follow-up Needed">Follow-up Needed</option>
           <option value="Prayer Request">Prayer Request</option>
         </select>
-        <textarea id="notes" placeholder="Custom Notes" style="width:100%; height:80px; padding:10px; margin:5px 0;"></textarea>
-        <button onclick="addPerson()" style="width:100%; padding:12px;">Save Lead & Add Pin</button>
+        <textarea id="notes" placeholder="Custom Notes"></textarea>
+        <button class="menu-btn" onclick="addPerson()">Save Lead & Add Pin</button>
         
         <h2 style="margin-top:20px;">Leads</h2>
         <div id="people-list"></div>
@@ -39,7 +58,14 @@
         <h2 style="margin-top:20px;">Follow-Ups</h2>
         <div id="followups-list"></div>
     </div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
     <script>
+      function toggleMenu() {
+        document.getElementById('navDrawer').classList.toggle('open');
+        document.getElementById('navOverlay').classList.toggle('open');
+      }
+
       const map = L.map('map').setView([37.7, -97.33], 12);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
@@ -92,7 +118,6 @@
         localStorage.setItem('soulwinning_people', JSON.stringify(people));
         renderPeople();
 
-        // Clear form
         document.getElementById('name').value = '';
         document.getElementById('address').value = '';
         document.getElementById('status').value = '';
