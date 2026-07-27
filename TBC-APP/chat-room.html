@@ -2,23 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Chat Room - TBC Church App</title>
     <link rel="stylesheet" href="style.css">
     <style>
         html, body {
             height: 100%;
+            height: 100dvh;
             margin: 0;
             padding: 0;
             overflow: hidden;
+            overscroll-behavior: none;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            -webkit-overflow-scrolling: auto;
         }
         body {
             display: flex;
             flex-direction: column;
-            height: 100%;
+            touch-action: none;
         }
         header {
             flex-shrink: 0;
+            touch-action: manipulation;
         }
         .container {
             flex: 1;
@@ -28,6 +36,7 @@
             box-sizing: border-box;
             overflow: hidden;
             min-height: 0;
+            touch-action: none;
         }
         .week-header {
             display: flex;
@@ -35,6 +44,7 @@
             margin-bottom: 10px;
             overflow-x: auto;
             flex-shrink: 0;
+            touch-action: pan-x;
         }
         .week-day {
             flex: 1;
@@ -49,9 +59,12 @@
         .week-day.today { border-color: #7bafdd; border-width: 2px; }
         .chat-messages {
             flex: 1 1 auto;
-            height: 0; /* forces proper scrolling inside flex container */
+            height: 0;
             overflow-y: auto;
+            overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            touch-action: pan-y;
             padding: 12px;
             background: #f9f9f9;
             border-radius: 12px;
@@ -82,6 +95,7 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
+            touch-action: manipulation;
         }
         .composer textarea {
             width: 100%;
@@ -94,6 +108,7 @@
             height: 56px;
             line-height: 1.4;
             box-sizing: border-box;
+            touch-action: manipulation;
         }
         .composer button {
             align-self: flex-end;
@@ -104,6 +119,7 @@
             border: none;
             font-weight: bold;
             font-size: 15px;
+            touch-action: manipulation;
         }
         .composer .prayer-btn {
             background: #8845a5;
@@ -173,7 +189,6 @@
 
         function scrollToBottom() {
             const container = document.getElementById('chat-messages');
-            // small delay so the DOM has finished rendering
             setTimeout(() => {
                 container.scrollTop = container.scrollHeight;
             }, 50);
@@ -260,6 +275,13 @@
             }
 
             renderWeekHeader();
+
+            // Prevent the whole page from being pulled/dragged
+            document.body.addEventListener('touchmove', function(e) {
+                if (!e.target.closest('.chat-messages') && !e.target.closest('.week-header')) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
 
             db.collection('chats').doc(room).collection('messages')
               .orderBy('createdAt')
