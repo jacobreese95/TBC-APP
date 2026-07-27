@@ -176,10 +176,16 @@
         let room = new URLSearchParams(window.location.search).get('room') || 'Whole Church';
         let currentUser = null;
         let isSending = false;
+        let scrollFocusTimer = null;
 
         function toggleDrawer() {
             document.getElementById('drawer').classList.toggle('open');
             document.getElementById('overlay').classList.toggle('open');
+        }
+
+        function focusInput() {
+            const input = document.getElementById('message-input');
+            if (input) input.focus();
         }
 
         function renderWeekHeader() {
@@ -292,6 +298,22 @@
             }
 
             renderWeekHeader();
+
+            // After scrolling stops, put focus back on the text box
+            const messagesEl = document.getElementById('chat-messages');
+            messagesEl.addEventListener('scroll', function() {
+                clearTimeout(scrollFocusTimer);
+                scrollFocusTimer = setTimeout(function() {
+                    focusInput();
+                }, 150);
+            }, { passive: true });
+
+            messagesEl.addEventListener('touchend', function() {
+                clearTimeout(scrollFocusTimer);
+                scrollFocusTimer = setTimeout(function() {
+                    focusInput();
+                }, 200);
+            }, { passive: true });
 
             db.collection('chats').doc(room).collection('messages')
               .orderBy('createdAt')
