@@ -84,7 +84,8 @@
 
         let currentDate = new Date();
         let allEvents = [];
-        let currentFilter = 'Whole Church';
+        // Multi-select: start with Whole Church on. Click any button to toggle it on/off.
+        let selectedFilters = new Set(['Whole Church']);
 
         function toggleDrawer() {
             const drawer = document.getElementById('drawer');
@@ -100,41 +101,27 @@
             const container = document.getElementById('filter-bar');
             container.innerHTML = '';
 
-            // Always show Whole Church
-            const wholeBtn = document.createElement('button');
-            wholeBtn.className = 'filter-btn active';
-            wholeBtn.dataset.filter = 'Whole Church';
-            wholeBtn.textContent = 'Whole Church';
-            container.appendChild(wholeBtn);
-
-            // Only show All if user has multiple ministries or is admin
-            const hasMultiple = isAdmin || userMinistries.length > 1;
-            if (hasMultiple) {
-                const allBtn = document.createElement('button');
-                allBtn.className = 'filter-btn';
-                allBtn.dataset.filter = 'all';
-                allBtn.textContent = 'All';
-                container.appendChild(allBtn);
-            }
-
             allMinistries.forEach(ministry => {
-                if (ministry !== 'Whole Church' && (isAdmin || userMinistries.includes(ministry))) {
-                    const btn = document.createElement('button');
-                    btn.className = 'filter-btn';
-                    btn.dataset.filter = ministry;
-                    btn.textContent = ministry;
-                    container.appendChild(btn);
+                // Whole Church always visible; others only if admin or assigned
+                if (ministry !== 'Whole Church' && !(isAdmin || userMinistries.includes(ministry))) {
+                    return;
                 }
-            });
 
-            // Re-attach click handlers
-            container.querySelectorAll('.filter-btn').forEach(btn => {
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn' + (selectedFilters.has(ministry) ? ' active' : '');
+                btn.dataset.filter = ministry;
+                btn.textContent = ministry;
                 btn.onclick = () => {
-                    container.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    currentFilter = btn.dataset.filter;
+                    if (selectedFilters.has(ministry)) {
+                        selectedFilters.delete(ministry);
+                        btn.classList.remove('active');
+                    } else {
+                        selectedFilters.add(ministry);
+                        btn.classList.add('active');
+                    }
                     renderCalendar();
                 };
+                container.appendChild(btn);
             });
         }
 
@@ -174,7 +161,10 @@
                 num.textContent = day;
                 cell.appendChild(num);
 
-                const dayEvents = allEvents.filter(e => e.date === dateStr && (currentFilter === 'all' || e.ministry === currentFilter));
+                // Show event if its ministry is currently selected
+                const dayEvents = allEvents.filter(e =>
+                    e.date === dateStr && selectedFilters.has(e.ministry)
+                );
                 dayEvents.forEach(ev => {
                     const evEl = document.createElement('div');
                     evEl.className = 'event';
