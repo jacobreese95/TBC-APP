@@ -15,17 +15,20 @@
     '<div class="nav-drawer" id="navDrawer">' +
     '<a href="../../../../index.html">Home</a>' +
     '<a href="../../../../about.html">About Us</a>' +
-    '<a href="../../../../calendar-whole-church.html">Calendar</a>' +
+    '<a href="../../../../calendar.html">Calendar</a>' +
     '<a href="../../../../chat.html">Ministry Chats</a>' +
     '<a href="../../../index.html">Bible</a>' +
     '<a href="../../../../give.html">Give on Tithe.ly</a>' +
     '<a href="../../../../sermons.html">Sermons & Live Streams</a>' +
-    '<a href="#" onclick="window.open(\'https://www.google.com/maps/place/11801+E+Lincoln+St,+Wichita,+KS+67207\', \'_blank\'); toggleMenu(); return false;">View Location on Google Maps</a>' +
     '<a href="../../../../soul-winning.html">Soul Winning</a>' +
     '<a href="../../../../profile.html">Profile</a>' +
     '<a href="../../../../admin.html" id="drawer-admin" style="display:none;">Admin</a>' +
     '<a href="#" onclick="signOutUser().then(() => window.location.href=\'../../../../index.html\')">Logout</a>' +
-    '</div>';
+    '</div>' +
+    /* Home logo top-left */
+    '<a id="home-logo-btn" class="home-logo-btn" href="../../../../index.html" title="Home" aria-label="Go to home">' +
+    '<img src="../../../../tbclogo.jpeg" alt="TBC Home">' +
+    '</a>';
 
   if (document.body) {
     document.body.insertAdjacentHTML('afterbegin', html);
@@ -37,6 +40,7 @@
 
   // Show Admin link only to admins
   setTimeout(async function() {
+    if (typeof firebase === 'undefined') return;
     const user = firebase.auth().currentUser;
     if (user) {
       const snap = await firebase.firestore().collection('users').doc(user.uid).get();
