@@ -50,23 +50,69 @@
         }
         .week-header {
             display: flex;
-            gap: 4px;
+            gap: 6px;
             margin-bottom: 10px;
             overflow-x: auto;
             flex-shrink: 0;
             width: 100%;
+            padding-bottom: 4px;
         }
         .week-day {
             flex: 1;
-            min-width: 50px;
+            min-width: 72px;
             text-align: center;
-            padding: 10px 4px;
+            padding: 8px 4px;
             border: 1px solid #ddd;
-            border-radius: 8px;
+            border-radius: 10px;
             background: white;
             cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            min-height: 90px;
         }
-        .week-day.today { border-color: #7bafdd; border-width: 2px; }
+        .week-day.today {
+            border-color: #7bafdd;
+            border-width: 2px;
+            background: #f0f7fc;
+        }
+        .week-day-name {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .week-day-num {
+            font-weight: bold;
+            font-size: 1.05rem;
+            margin: 2px 0 6px;
+            color: #404040;
+        }
+        .week-day-events {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            overflow: hidden;
+        }
+        .week-event {
+            font-size: 0.65rem;
+            background: #4cb8b9;
+            color: white;
+            padding: 2px 4px;
+            border-radius: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.2;
+        }
+        .week-event.church {
+            background: #7bafdd;
+        }
+        .week-event-more {
+            font-size: 0.6rem;
+            color: #666;
+            margin-top: 1px;
+        }
         .chat-messages {
             flex: 1 1 auto;
             height: 0;
@@ -174,7 +220,21 @@
             overflow-y: auto;
         }
         .day-modal h3 { margin-top: 0; color: #404040; }
-        .day-event { padding: 12px; border: 1px solid #ddd; border-radius: 12px; margin-bottom: 10px; }
+        .day-event {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+        .day-event .ministry-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            background: #e8f4f4;
+            color: #2a7a7b;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-top: 6px;
+        }
     </style>
 </head>
 <body>
@@ -228,6 +288,7 @@
         let currentUser = null;
         let displayName = 'User';
         let isSending = false;
+        let weekEvents = []; // events for the visible week
 
         function toggleDrawer() {
             document.getElementById('drawer').classList.toggle('open');
@@ -238,51 +299,107 @@
             document.getElementById('day-modal').classList.remove('open');
         }
 
+        function dateKey(d) {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        }
+
+        function getEventsForDate(dateStr) {
+            // This room's events + Whole Church events always show
+            return weekEvents.filter(e =>
+                e.date === dateStr &&
+                (e.ministry === room || e.ministry === 'Whole Church')
+            );
+        }
+
         function showDayPreview(date) {
             const modal = document.getElementById('day-modal');
             const titleEl = document.getElementById('day-modal-title');
             const eventsEl = document.getElementById('day-modal-events');
 
-            const dateStr = date.toISOString().split('T')[0];
+            const dateStr = dateKey(date);
             titleEl.textContent = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-            eventsEl.innerHTML = '<p style="color:#666;">Loading events...</p>';
-            modal.classList.add('open');
+            eventsEl.innerHTML = '';
 
-            db.collection('events')
-              .where('date', '==', dateStr)
-              .where('ministry', '==', room)
-              .get()
-              .then(snapshot => {
-                  eventsEl.innerHTML = '';
-                  if (snapshot.empty) {
-                      eventsEl.innerHTML = '<p style="color:#666;">No events scheduled for this day.</p>';
-                      return;
-                  }
-                  snapshot.forEach(doc => {
-                      const ev = doc.data();
-                      const div = document.createElement('div');
-                      div.className = 'day-event';
-                      div.innerHTML = `<strong>${ev.title || 'Event'}</strong><br>${ev.description || ''}`;
-                      eventsEl.appendChild(div);
-                  });
-              })
-              .catch(e => {
-                  eventsEl.innerHTML = '<p style="color:#c00;">Error loading events.</p>';
-              });
+            const events = getEventsForDate(dateStr);
+            if (events.length === 0) {
+                eventsEl.innerHTML = '<p style="color:#666;">No events scheduled for this day.</p>';
+            } else {
+                events.forEach(ev => {
+                    const div = document.createElement('div');
+                    div.className = 'day-event';
+                    div.innerHTML =
+                        `<strong>${ev.title || 'Event'}</strong>` +
+                        (ev.description ? `<br>${ev.description}` : '') +
+                        `<div class="ministry-tag">${ev.ministry || ''}</div>`;
+                    eventsEl.appendChild(div);
+                });
+            }
+            modal.classList.add('open');
         }
 
         function renderWeekHeader() {
             const header = document.getElementById('week-header');
             header.innerHTML = '';
             const today = new Date();
-            for (let i = -3; i <= 3; i++) {
+            today.setHours(0, 0, 0, 0);
+
+            // Start from today, show 7 days ahead
+            for (let i = 0; i < 7; i++) {
                 const d = new Date(today);
                 d.setDate(today.getDate() + i);
+                const dateStr = dateKey(d);
+                const events = getEventsForDate(dateStr);
+
                 const div = document.createElement('div');
                 div.className = 'week-day' + (i === 0 ? ' today' : '');
-                div.innerHTML = `<div style="font-size:0.75rem;opacity:0.7;">${d.toLocaleDateString('en-US',{weekday:'short'})}</div><div style="font-weight:bold;">${d.getDate()}</div>`;
+
+                let eventsHtml = '';
+                const showCount = 2;
+                events.slice(0, showCount).forEach(ev => {
+                    const cls = ev.ministry === 'Whole Church' ? 'week-event church' : 'week-event';
+                    eventsHtml += `<div class="${cls}" title="${ev.title}">${ev.title}</div>`;
+                });
+                if (events.length > showCount) {
+                    eventsHtml += `<div class="week-event-more">+${events.length - showCount} more</div>`;
+                }
+
+                div.innerHTML =
+                    `<div class="week-day-name">${d.toLocaleDateString('en-US', { weekday: 'short' })}</div>` +
+                    `<div class="week-day-num">${d.getDate()}</div>` +
+                    `<div class="week-day-events">${eventsHtml}</div>`;
+
                 div.onclick = () => showDayPreview(d);
                 header.appendChild(div);
+            }
+        }
+
+        async function loadWeekEvents() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const end = new Date(today);
+            end.setDate(today.getDate() + 6);
+
+            const startStr = dateKey(today);
+            const endStr = dateKey(end);
+
+            try {
+                // Load all events in the week range, then filter client-side
+                // (avoids needing a composite index for ministry + date)
+                const snapshot = await db.collection('events').get();
+                weekEvents = [];
+                snapshot.forEach(doc => {
+                    const e = { id: doc.id, ...doc.data() };
+                    if (e.date && e.date >= startStr && e.date <= endStr) {
+                        weekEvents.push(e);
+                    }
+                });
+                renderWeekHeader();
+            } catch (err) {
+                console.error('Error loading week events:', err);
+                renderWeekHeader();
             }
         }
 
@@ -372,7 +489,7 @@
                 document.getElementById('prayerBtn').style.display = 'block';
             }
 
-            renderWeekHeader();
+            await loadWeekEvents();
 
             const input = document.getElementById('message-input');
 
