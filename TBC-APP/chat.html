@@ -62,12 +62,12 @@
             const container = document.getElementById('chat-list');
             container.innerHTML = '';
 
-            const user = await requireApprovedUser();
-            if (!user) return;
+            const profile = await requireApprovedUser();
+            if (!profile) return;
 
-            const userData = user.data || {};
-            const userMinistries = userData.ministries || [];
-            const isAdmin = userData.role === 'admin';
+            // profile is the Firestore document itself (has .role and .ministries)
+            const userMinistries = profile.ministries || [];
+            const isAdmin = profile.role === 'admin';
 
             allMinistries.forEach(ministry => {
                 if (ministry === 'Whole Church' || isAdmin || userMinistries.includes(ministry)) {
