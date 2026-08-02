@@ -13,10 +13,10 @@
         .day-cell { min-height: 70px; border: 1px solid #ddd; padding: 6px; border-radius: 8px; background: white; cursor: pointer; position: relative; }
         .day-cell.other-month { background: #f8f8f8; color: #aaa; }
         .day-number { font-weight: bold; margin-bottom: 4px; }
-        .event { font-size: 0.75rem; background: #4cb8b9; color: white; padding: 2px 6px; border-radius: 4px; margin: 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .event { font-size: 0.75rem; color: white; padding: 2px 6px; border-radius: 4px; margin: 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; }
-        .filter-btn { padding: 8px 16px; border: 2px solid #4cb8b9; background: white; color: #4cb8b9; border-radius: 20px; cursor: pointer; font-weight: bold; }
-        .filter-btn.active { background: #4cb8b9; color: white; }
+        .filter-btn { padding: 8px 16px; border: 2px solid #ccc; background: white; color: #666; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        .filter-btn.active { color: white; }
     </style>
 </head>
 <body>
@@ -88,6 +88,19 @@
         // Multi-select: start with Whole Church on. Click any button to toggle it on/off.
         let selectedFilters = new Set(['Whole Church']);
 
+        // Unique color per ministry
+        const ministryColors = {
+            'Whole Church': '#7bafdd',
+            'Music Ministry': '#8845a5',
+            'Sentry': '#e67e22',
+            'Nursery': '#27ae60',
+            'Media': '#4cb8b9'
+        };
+
+        function getMinistryColor(ministry) {
+            return ministryColors[ministry] || '#4cb8b9';
+        }
+
         function toggleDrawer() {
             const drawer = document.getElementById('drawer');
             const overlay = document.getElementById('overlay');
@@ -108,17 +121,33 @@
                     return;
                 }
 
+                const color = getMinistryColor(ministry);
+                const isActive = selectedFilters.has(ministry);
+
                 const btn = document.createElement('button');
-                btn.className = 'filter-btn' + (selectedFilters.has(ministry) ? ' active' : '');
+                btn.className = 'filter-btn' + (isActive ? ' active' : '');
                 btn.dataset.filter = ministry;
                 btn.textContent = ministry;
+                btn.style.borderColor = color;
+                if (isActive) {
+                    btn.style.background = color;
+                    btn.style.color = 'white';
+                } else {
+                    btn.style.background = 'white';
+                    btn.style.color = color;
+                }
+
                 btn.onclick = () => {
                     if (selectedFilters.has(ministry)) {
                         selectedFilters.delete(ministry);
                         btn.classList.remove('active');
+                        btn.style.background = 'white';
+                        btn.style.color = color;
                     } else {
                         selectedFilters.add(ministry);
                         btn.classList.add('active');
+                        btn.style.background = color;
+                        btn.style.color = 'white';
                     }
                     renderCalendar();
                 };
@@ -170,6 +199,7 @@
                     const evEl = document.createElement('div');
                     evEl.className = 'event';
                     evEl.textContent = ev.title;
+                    evEl.style.background = getMinistryColor(ev.ministry);
                     cell.appendChild(evEl);
                 });
 
