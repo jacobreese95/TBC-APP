@@ -41,15 +41,14 @@
         <div class="calendar-grid" id="calendar-grid"></div>
 
         <h3 style="margin-top:30px; color:#404040;">Add New Event</h3>
-        <div style="background:white; padding:20px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.1);;">
+        <div style="background:white; padding:20px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
             <input type="date" id="event-date" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:8px;">
             <input type="text" id="event-title" placeholder="Event Title" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:8px;">
             <textarea id="event-desc" placeholder="Description (optional)" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:8px; height:80px;"></textarea>
             <select id="event-ministry" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:8px;">
                 <option value="Whole Church">Whole Church</option>
-                <option value="Nursery">Nursery</option>
                 <option value="Music Ministry">Music Ministry</option>
-                <option value="Media">Media</option>
+                <option value="Sentry">Sentry</option>
             </select>
             <button onclick="addEvent()" class="menu-btn" style="margin-top:10px;">Add Event</button>
         </div>
@@ -93,7 +92,8 @@
             overlay.classList.toggle('open');
         }
 
-        const allMinistries = ['Whole Church', 'Nursery', 'Music Ministry', 'Media'];
+        // Keep in sync with chat.html ministries
+        const allMinistries = ['Whole Church', 'Music Ministry', 'Sentry'];
 
         function renderFilterBar(userMinistries, isAdmin) {
             const container = document.getElementById('filter-bar');
@@ -241,12 +241,11 @@
         function prevMonth() { currentDate.setMonth(currentDate.getMonth() - 1); renderCalendar(); }
         function nextMonth() { currentDate.setMonth(currentDate.getMonth() + 1); renderCalendar(); }
 
-        // Init
-        requireApprovedUser().then(user => {
-            if (user) {
-                const userData = user.data || {};
-                const userMinistries = userData.ministries || [];
-                const isAdmin = userData.role === 'admin';
+        // Init - profile is returned directly (has .role and .ministries)
+        requireApprovedUser().then(profile => {
+            if (profile) {
+                const userMinistries = profile.ministries || [];
+                const isAdmin = profile.role === 'admin';
                 renderFilterBar(userMinistries, isAdmin);
                 loadEvents();
             }
