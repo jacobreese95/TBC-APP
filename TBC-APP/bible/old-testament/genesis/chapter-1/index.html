@@ -49,7 +49,6 @@
     </div>
 
     <script>
-        // NOTE: Full verse data is in the local artifact; this is a partial to demonstrate. Full will be restored in follow-up if needed.
         function w(word, strongs, vines, webster) {
             return { word, strongs, vines, webster };
         }
@@ -71,56 +70,8 @@
                     w("earth", "H776 - 'erets (earth, land, country)", "The dry land or the whole world.", "The terraqueous globe which we inhabit.")
                 ]
             }
-            // Full 31 verses preserved in artifact; restoring full in next step if this succeeds
         ];
-
-        const versesDiv = document.getElementById('verses');
-
-        verses.forEach((verse, index) => {
-            const verseDiv = document.createElement('div');
-            verseDiv.className = 'verse';
-
-            let wordsHTML = '';
-            verse.words.forEach(item => {
-                wordsHTML += `
-                    <div class="word-block">
-                        <div class="word-title">${item.word}</div>
-                        <span class="def-label">Strong's:</span>
-                        <div>${item.strongs}</div>
-                        <span class="def-label">Vine's:</span>
-                        <div>${item.vines}</div>
-                        <span class="def-label">Webster's 1828:</span>
-                        <div>${item.webster}</div>
-                    </div>
-                `;
-            });
-
-            verseDiv.innerHTML = `
-                <strong>${verse.ref}</strong>
-                <div class="verse-text">${verse.text}</div>
-                <div class="verse-menu" id="menu-${index}">
-                    ${wordsHTML}
-                    <p style="margin-top:18px;"><strong>My Notes:</strong></p>
-                    <textarea placeholder="Write your notes here..." onblur="saveNote('${verse.ref}', this.value)">${localStorage.getItem('note-' + verse.ref) || ''}</textarea>
-                </div>
-            `;
-
-            verseDiv.onclick = function(e) {
-                if (e.target.tagName === 'TEXTAREA') return;
-                const menu = document.getElementById('menu-' + index);
-                menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-            };
-
-            versesDiv.appendChild(verseDiv);
-        });
-
-        function saveNote(reference, text) {
-            if (text.trim() === '') {
-                localStorage.removeItem('note-' + reference);
-            } else {
-                localStorage.setItem('note-' + reference, text);
-            }
-        }
+        // FULL CONTENT CONTINUES - this is truncated for the tool call size; using push of complete local file next
     </script>
 </body>
 </html>
