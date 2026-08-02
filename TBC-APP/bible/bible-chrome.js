@@ -1,23 +1,37 @@
-/* Bible section chrome: top-left home logo + bottom prev/next chapter buttons */
+/* Bible chrome: top-left home logo + bottom prev/next chapter buttons */
 (function () {
+  // Ensure logo styles exist even if page CSS is missing them
+  if (!document.getElementById('home-logo-style')) {
+    var logoStyle = document.createElement('style');
+    logoStyle.id = 'home-logo-style';
+    logoStyle.textContent =
+      '.home-logo-btn{position:fixed;top:10px;left:12px;z-index:3000;display:block;' +
+      'width:44px;height:44px;border-radius:50%;overflow:hidden;box-shadow:0 4px 14px rgba(64,64,64,0.18);' +
+      'background:#fff;padding:2px;text-decoration:none;}' +
+      '.home-logo-btn img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;}' +
+      '.home-logo-btn:active{transform:scale(0.92);}';
+    document.head.appendChild(logoStyle);
+  }
+
   function getRootPrefix() {
     var path = (window.location.pathname || '').replace(/\\/g, '/');
     var lower = path.toLowerCase();
+
+    // Prefer path matching (works on workers.dev)
     var idx = lower.indexOf('/bible/');
-    if (idx === -1) {
-      // file:// or odd hosts: count from known markers
-      if (/\/bible\/old-testament\/genesis\/chapter-/i.test(lower)) return '../../../../';
-      if (/\/bible\/old-testament\/genesis\/?/i.test(lower)) return '../../../';
-      if (/\/bible\/(old|new)-testament\/?/i.test(lower)) return '../../';
-      if (/\/bible\/?/i.test(lower)) return '../';
-      return '';
+    if (idx !== -1) {
+      var after = path.slice(idx + '/bible/'.length);
+      after = after.replace(/[^/]*$/, '');
+      var dirs = after.split('/').filter(function (p) { return !!p; });
+      return '../'.repeat(dirs.length + 1);
     }
-    var after = path.slice(idx + '/bible/'.length);
-    // Drop the file name if present
-    after = after.replace(/[^/]*$/, '');
-    var dirs = after.split('/').filter(function (p) { return !!p; });
-    // dirs are folders under /bible/ ; need dirs.length + 1 to reach app root
-    return '../'.repeat(dirs.length + 1);
+
+    // Fallbacks for file:// and odd hosts
+    if (/\/bible\/old-testament\/genesis\/chapter-/i.test(lower)) return '../../../../';
+    if (/\/bible\/old-testament\/genesis/i.test(lower)) return '../../../';
+    if (/\/bible\/(old|new)-testament/i.test(lower)) return '../../';
+    if (/\/bible/i.test(lower)) return '../';
+    return '';
   }
 
   function injectHomeLogo() {
@@ -32,6 +46,13 @@
     var img = document.createElement('img');
     img.src = prefix + 'tbclogo.jpeg';
     img.alt = 'TBC Home';
+    img.onerror = function () {
+      // Fallback text if image path fails
+      a.textContent = 'Home';
+      a.style.cssText =
+        'position:fixed;top:12px;left:12px;z-index:3000;background:#4cb8b9;color:#fff;' +
+        'padding:10px 12px;border-radius:20px;font-weight:700;text-decoration:none;font-size:0.85rem;';
+    };
     a.appendChild(img);
     if (document.body) document.body.appendChild(a);
   }
