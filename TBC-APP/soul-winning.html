@@ -5,6 +5,186 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Soul Winning - TBC Church App</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <style>
+        .tabs {
+            display: flex;
+            gap: 6px;
+            margin: 12px 0 18px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 12px 8px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            background: #e8eef2;
+            color: #404040;
+            box-shadow: none;
+            margin: 0;
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, #4cb8b9 0%, #7bafdd 100%);
+            color: #fff;
+        }
+        .panel { display: none; }
+        .panel.active { display: block; }
+
+        .form-card, .lead-card {
+            background: #fff;
+            border: 1px solid rgba(122,143,172,0.35);
+            border-radius: 14px;
+            padding: 16px;
+            margin: 12px 0;
+            box-shadow: 0 2px 8px rgba(64,64,64,0.06);
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #404040;
+            margin: 10px 0 4px;
+        }
+        select {
+            width: 100%;
+            height: 48px;
+            padding: 12px 14px;
+            margin: 0 0 10px;
+            border: 2px solid #7a8fac;
+            border-radius: 14px;
+            font-size: 1rem;
+            background: #fff;
+            color: #404040;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .status-new { background: #e3f2fd; color: #1565c0; }
+        .status-contacted { background: #fff3e0; color: #e65100; }
+        .status-follow-up { background: #fce4ec; color: #c2185b; }
+        .status-saved { background: #e8f5e9; color: #2e7d32; }
+        .status-not-interested { background: #eceff1; color: #546e7a; }
+        .status-dnc { background: #ffebee; color: #c62828; }
+
+        .lead-card h3 {
+            margin: 0 0 6px;
+            font-size: 1.1rem;
+            color: #404040;
+        }
+        .lead-meta {
+            font-size: 0.88rem;
+            color: #7a8fac;
+            margin: 4px 0;
+        }
+        .lead-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .lead-actions button {
+            flex: 1;
+            margin: 0;
+            padding: 10px;
+            font-size: 0.9rem;
+        }
+        .btn-secondary {
+            background: linear-gradient(135deg, #7a8fac 0%, #7bafdd 100%) !important;
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #c62828 0%, #e57373 100%) !important;
+        }
+        .filter-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+        .filter-row select {
+            margin: 0;
+            height: 42px;
+        }
+        #map {
+            height: 420px;
+            width: 100%;
+            border-radius: 14px;
+            border: 2px solid rgba(122,143,172,0.4);
+            margin-top: 8px;
+            z-index: 1;
+        }
+        .map-hint {
+            font-size: 0.85rem;
+            color: #7a8fac;
+            margin: 8px 0 0;
+            text-align: center;
+        }
+        .empty-state {
+            text-align: center;
+            color: #7a8fac;
+            padding: 32px 16px;
+        }
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #404040;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 24px;
+            font-weight: 600;
+            z-index: 3000;
+            display: none;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+        }
+        .count-pill {
+            background: rgba(255,255,255,0.25);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-left: 4px;
+        }
+        .geo-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .geo-row button {
+            width: auto;
+            margin: 0;
+            padding: 12px 14px;
+            white-space: nowrap;
+            font-size: 0.9rem;
+        }
+        .geo-row input { margin: 0; flex: 1; }
+        #editModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 2500;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        #editModal.open { display: flex; }
+        .modal-sheet {
+            background: #fff;
+            width: 100%;
+            max-width: 640px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border-radius: 20px 20px 0 0;
+            padding: 20px 16px 28px;
+        }
+        .modal-sheet h2 { margin-top: 0; }
+    </style>
 </head>
 <body>
     <header>
@@ -13,15 +193,423 @@
 
     <div class="container">
         <button class="back-btn" onclick="window.location.href='index.html'">← Back to Home</button>
-        <p style="margin: 40px 0; text-align: center; color: #666;">Soul Winning leads and tracking coming soon.</p>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="add" onclick="switchTab('add')">Add Lead</button>
+            <button class="tab-btn" data-tab="list" onclick="switchTab('list')">Leads <span class="count-pill" id="leadCount">0</span></button>
+            <button class="tab-btn" data-tab="map" onclick="switchTab('map')">Map</button>
+        </div>
+
+        <!-- ADD LEAD -->
+        <div id="panel-add" class="panel active">
+            <div class="form-card">
+                <label for="leadName">Name *</label>
+                <input type="text" id="leadName" placeholder="Full name" autocomplete="name">
+
+                <label for="leadPhone">Phone</label>
+                <input type="tel" id="leadPhone" placeholder="(316) 555-1234" autocomplete="tel">
+
+                <label for="leadAddress">Address / Location</label>
+                <div class="geo-row">
+                    <input type="text" id="leadAddress" placeholder="Street, City, KS">
+                    <button type="button" class="btn-secondary" onclick="useMyLocation()" title="Use my current location">📍</button>
+                </div>
+                <p class="map-hint" id="geoStatus" style="text-align:left; margin-top:4px;"></p>
+
+                <label for="leadStatus">Status</label>
+                <select id="leadStatus">
+                    <option value="new">New</option>
+                    <option value="contacted">Contacted</option>
+                    <option value="follow-up">Follow-up Needed</option>
+                    <option value="saved">Profession of Faith / Saved</option>
+                    <option value="not-interested">Not Interested</option>
+                    <option value="dnc">Do Not Contact</option>
+                </select>
+
+                <label for="leadNotes">Notes</label>
+                <textarea id="leadNotes" rows="3" placeholder="Conversation notes, follow-up details, prayer requests..."></textarea>
+
+                <button class="menu-btn" id="saveLeadBtn" onclick="saveLead()">Save Lead</button>
+            </div>
+        </div>
+
+        <!-- LIST -->
+        <div id="panel-list" class="panel">
+            <div class="filter-row">
+                <select id="statusFilter" onchange="renderLeads()">
+                    <option value="all">All statuses</option>
+                    <option value="new">New</option>
+                    <option value="contacted">Contacted</option>
+                    <option value="follow-up">Follow-up Needed</option>
+                    <option value="saved">Saved / Profession</option>
+                    <option value="not-interested">Not Interested</option>
+                    <option value="dnc">Do Not Contact</option>
+                </select>
+            </div>
+            <div id="leadsList">
+                <div class="empty-state">Loading leads...</div>
+            </div>
+        </div>
+
+        <!-- MAP -->
+        <div id="panel-map" class="panel">
+            <p class="map-hint">Pins show leads with a saved location. Tap a pin for details.</p>
+            <div id="map"></div>
+            <p class="map-hint">Centered on Temple Baptist Church area (Wichita).</p>
+        </div>
     </div>
 
+    <!-- Edit modal -->
+    <div id="editModal">
+        <div class="modal-sheet">
+            <h2>Edit Lead</h2>
+            <input type="hidden" id="editId">
+            <label>Name *</label>
+            <input type="text" id="editName">
+            <label>Phone</label>
+            <input type="tel" id="editPhone">
+            <label>Address</label>
+            <input type="text" id="editAddress">
+            <label>Status</label>
+            <select id="editStatus">
+                <option value="new">New</option>
+                <option value="contacted">Contacted</option>
+                <option value="follow-up">Follow-up Needed</option>
+                <option value="saved">Profession of Faith / Saved</option>
+                <option value="not-interested">Not Interested</option>
+                <option value="dnc">Do Not Contact</option>
+            </select>
+            <label>Notes</label>
+            <textarea id="editNotes" rows="3"></textarea>
+            <button class="menu-btn" onclick="updateLead()">Save Changes</button>
+            <button class="menu-btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+            <button class="menu-btn btn-danger" onclick="deleteLead()">Delete Lead</button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
     <script src="auth.js"></script>
     <script>
-        requireApprovedUser();
+        // TBC approx location (11801 E Lincoln St, Wichita)
+        const TBC_LAT = 37.6755;
+        const TBC_LNG = -97.2450;
+
+        let currentProfile = null;
+        let leads = [];
+        let map = null;
+        let markersLayer = null;
+        let pendingLat = null;
+        let pendingLng = null;
+
+        const STATUS_LABELS = {
+            'new': 'New',
+            'contacted': 'Contacted',
+            'follow-up': 'Follow-up',
+            'saved': 'Saved',
+            'not-interested': 'Not Interested',
+            'dnc': 'Do Not Contact'
+        };
+
+        function statusClass(s) {
+            const map = {
+                'new': 'status-new',
+                'contacted': 'status-contacted',
+                'follow-up': 'status-follow-up',
+                'saved': 'status-saved',
+                'not-interested': 'status-not-interested',
+                'dnc': 'status-dnc'
+            };
+            return map[s] || 'status-new';
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.display = 'block';
+            setTimeout(() => { t.style.display = 'none'; }, 2200);
+        }
+
+        function switchTab(name) {
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.toggle('active', b.dataset.tab === name);
+            });
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('panel-' + name).classList.add('active');
+            if (name === 'map') {
+                setTimeout(initMap, 50);
+            }
+        }
+
+        // ---------- Auth + load ----------
+        requireApprovedUser().then(function (profile) {
+            if (!profile) return;
+            currentProfile = profile;
+            loadLeads();
+        });
+
+        function loadLeads() {
+            db.collection('soulWinningLeads')
+                .orderBy('createdAt', 'desc')
+                .onSnapshot(function (snap) {
+                    leads = [];
+                    snap.forEach(function (doc) {
+                        leads.push({ id: doc.id, ...doc.data() });
+                    });
+                    document.getElementById('leadCount').textContent = leads.length;
+                    renderLeads();
+                    if (map) refreshMapMarkers();
+                }, function (err) {
+                    console.error(err);
+                    document.getElementById('leadsList').innerHTML =
+                        '<div class="empty-state">Error loading leads. Check Firestore rules for collection <code>soulWinningLeads</code>.</div>';
+                });
+        }
+
+        // ---------- Add lead ----------
+        async function saveLead() {
+            const name = document.getElementById('leadName').value.trim();
+            if (!name) {
+                showToast('Name is required');
+                return;
+            }
+            const btn = document.getElementById('saveLeadBtn');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+
+            const data = {
+                name: name,
+                phone: document.getElementById('leadPhone').value.trim(),
+                address: document.getElementById('leadAddress').value.trim(),
+                status: document.getElementById('leadStatus').value,
+                notes: document.getElementById('leadNotes').value.trim(),
+                contactedBy: currentProfile.name || currentProfile.email || 'Unknown',
+                contactedByUid: currentProfile.uid || (auth.currentUser && auth.currentUser.uid) || '',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            if (pendingLat != null && pendingLng != null) {
+                data.lat = pendingLat;
+                data.lng = pendingLng;
+            } else if (data.address) {
+                // Try free Nominatim geocode (best effort)
+                try {
+                    const coords = await geocodeAddress(data.address);
+                    if (coords) {
+                        data.lat = coords.lat;
+                        data.lng = coords.lng;
+                    }
+                } catch (e) { /* ignore */ }
+            }
+
+            try {
+                await db.collection('soulWinningLeads').add(data);
+                document.getElementById('leadName').value = '';
+                document.getElementById('leadPhone').value = '';
+                document.getElementById('leadAddress').value = '';
+                document.getElementById('leadNotes').value = '';
+                document.getElementById('leadStatus').value = 'new';
+                pendingLat = pendingLng = null;
+                document.getElementById('geoStatus').textContent = '';
+                showToast('Lead saved!');
+                switchTab('list');
+            } catch (err) {
+                console.error(err);
+                showToast('Error: ' + (err.message || 'Could not save'));
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Save Lead';
+            }
+        }
+
+        async function geocodeAddress(address) {
+            const q = encodeURIComponent(address + ', Wichita, KS');
+            const url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + q;
+            const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+            const arr = await res.json();
+            if (arr && arr[0]) {
+                return { lat: parseFloat(arr[0].lat), lng: parseFloat(arr[0].lon) };
+            }
+            return null;
+        }
+
+        function useMyLocation() {
+            const status = document.getElementById('geoStatus');
+            if (!navigator.geolocation) {
+                status.textContent = 'Location not supported on this device.';
+                return;
+            }
+            status.textContent = 'Getting location...';
+            navigator.geolocation.getCurrentPosition(
+                function (pos) {
+                    pendingLat = pos.coords.latitude;
+                    pendingLng = pos.coords.longitude;
+                    status.textContent = 'Location pinned ✓ (' + pendingLat.toFixed(5) + ', ' + pendingLng.toFixed(5) + ')';
+                    // Reverse geocode for address fill if empty
+                    if (!document.getElementById('leadAddress').value.trim()) {
+                        fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + pendingLat + '&lon=' + pendingLng)
+                            .then(r => r.json())
+                            .then(data => {
+                                if (data && data.display_name) {
+                                    document.getElementById('leadAddress').value = data.display_name.split(',').slice(0, 3).join(',').trim();
+                                }
+                            })
+                            .catch(() => {});
+                    }
+                },
+                function () {
+                    status.textContent = 'Could not get location. Allow location access or type the address.';
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        }
+
+        // ---------- List ----------
+        function renderLeads() {
+            const filter = document.getElementById('statusFilter').value;
+            const list = document.getElementById('leadsList');
+            const filtered = filter === 'all' ? leads : leads.filter(l => l.status === filter);
+
+            if (!filtered.length) {
+                list.innerHTML = '<div class="empty-state">No leads yet. Add your first one!</div>';
+                return;
+            }
+
+            list.innerHTML = filtered.map(function (lead) {
+                const dateStr = lead.createdAt && lead.createdAt.toDate
+                    ? lead.createdAt.toDate().toLocaleDateString()
+                    : '';
+                return `
+                    <div class="lead-card">
+                        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+                            <h3>${escapeHtml(lead.name || 'Unnamed')}</h3>
+                            <span class="status-badge ${statusClass(lead.status)}">${STATUS_LABELS[lead.status] || lead.status}</span>
+                        </div>
+                        ${lead.phone ? `<div class="lead-meta">📞 ${escapeHtml(lead.phone)}</div>` : ''}
+                        ${lead.address ? `<div class="lead-meta">📍 ${escapeHtml(lead.address)}</div>` : ''}
+                        ${lead.notes ? `<div class="lead-meta" style="color:#404040;margin-top:6px;">${escapeHtml(lead.notes)}</div>` : ''}
+                        <div class="lead-meta" style="margin-top:8px;">Added by ${escapeHtml(lead.contactedBy || '—')} ${dateStr ? '· ' + dateStr : ''}</div>
+                        <div class="lead-actions">
+                            <button onclick="openEdit('${lead.id}')">Edit</button>
+                            ${lead.phone ? `<button class="btn-secondary" onclick="window.location.href='tel:${escapeHtml(lead.phone)}'">Call</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function escapeHtml(str) {
+            return String(str || '')
+                .replace(/&/g, '&')
+                .replace(/</g, '<')
+                .replace(/>/g, '>')
+                .replace(/"/g, '"');
+        }
+
+        // ---------- Edit / Delete ----------
+        function openEdit(id) {
+            const lead = leads.find(l => l.id === id);
+            if (!lead) return;
+            document.getElementById('editId').value = id;
+            document.getElementById('editName').value = lead.name || '';
+            document.getElementById('editPhone').value = lead.phone || '';
+            document.getElementById('editAddress').value = lead.address || '';
+            document.getElementById('editStatus').value = lead.status || 'new';
+            document.getElementById('editNotes').value = lead.notes || '';
+            document.getElementById('editModal').classList.add('open');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('open');
+        }
+
+        async function updateLead() {
+            const id = document.getElementById('editId').value;
+            const name = document.getElementById('editName').value.trim();
+            if (!name) {
+                showToast('Name is required');
+                return;
+            }
+            try {
+                await db.collection('soulWinningLeads').doc(id).update({
+                    name: name,
+                    phone: document.getElementById('editPhone').value.trim(),
+                    address: document.getElementById('editAddress').value.trim(),
+                    status: document.getElementById('editStatus').value,
+                    notes: document.getElementById('editNotes').value.trim(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                closeEditModal();
+                showToast('Lead updated');
+            } catch (err) {
+                showToast('Error: ' + err.message);
+            }
+        }
+
+        async function deleteLead() {
+            if (!confirm('Delete this lead permanently?')) return;
+            const id = document.getElementById('editId').value;
+            try {
+                await db.collection('soulWinningLeads').doc(id).delete();
+                closeEditModal();
+                showToast('Lead deleted');
+            } catch (err) {
+                showToast('Error: ' + err.message);
+            }
+        }
+
+        // ---------- Map ----------
+        function initMap() {
+            if (map) {
+                map.invalidateSize();
+                refreshMapMarkers();
+                return;
+            }
+            map = L.map('map').setView([TBC_LAT, TBC_LNG], 12);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(map);
+
+            // Church marker
+            L.marker([TBC_LAT, TBC_LNG], {
+                icon: L.divIcon({
+                    className: '',
+                    html: '<div style="background:#4cb8b9;color:#fff;padding:4px 8px;border-radius:8px;font-weight:700;font-size:12px;box-shadow:0 2px 6px rgba(0,0,0,0.3);white-space:nowrap;">TBC</div>',
+                    iconSize: [40, 24],
+                    iconAnchor: [20, 12]
+                })
+            }).addTo(map).bindPopup('<strong>Temple Baptist Church</strong><br>11801 E Lincoln St');
+
+            markersLayer = L.layerGroup().addTo(map);
+            refreshMapMarkers();
+        }
+
+        function refreshMapMarkers() {
+            if (!markersLayer) return;
+            markersLayer.clearLayers();
+            const withCoords = leads.filter(l => typeof l.lat === 'number' && typeof l.lng === 'number');
+            withCoords.forEach(function (lead) {
+                const marker = L.marker([lead.lat, lead.lng]);
+                marker.bindPopup(
+                    '<strong>' + escapeHtml(lead.name) + '</strong><br>' +
+                    (STATUS_LABELS[lead.status] || lead.status) + '<br>' +
+                    (lead.address ? escapeHtml(lead.address) + '<br>' : '') +
+                    '<button onclick="openEdit(\'' + lead.id + '\')" style="margin-top:6px;padding:6px 10px;">Edit</button>'
+                );
+                markersLayer.addLayer(marker);
+            });
+        }
+
+        // Close modal on backdrop click
+        document.getElementById('editModal').addEventListener('click', function (e) {
+            if (e.target === this) closeEditModal();
+        });
     </script>
 </body>
 </html>
