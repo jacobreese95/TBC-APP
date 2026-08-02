@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="style.css">
     <!-- Sentry Error Tracking -->
     <script src="https://browser.sentry-cdn.com/7.119.0/bundle.min.js" integrity="sha384-..." crossorigin="anonymous"></script>
-    <!-- forced fresh deploy to trigger update -->
 </head>
 <body>
     <header>
@@ -56,6 +55,7 @@
             overlay.classList.toggle('open');
         }
 
+        // Whole Church is always visible. Music Ministry shows for admins or assigned users.
         const allMinistries = ['Whole Church', 'Music Ministry'];
 
         async function renderChatList() {
