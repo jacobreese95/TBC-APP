@@ -55,8 +55,8 @@
             overlay.classList.toggle('open');
         }
 
-        // Whole Church is always visible. Music Ministry shows for admins or assigned users.
-        const allMinistries = ['Whole Church', 'Music Ministry'];
+        // Whole Church is always visible. Others show for admins or assigned users.
+        const allMinistries = ['Whole Church', 'Music Ministry', 'Sentry'];
 
         async function renderChatList() {
             const container = document.getElementById('chat-list');
