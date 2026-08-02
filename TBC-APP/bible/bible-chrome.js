@@ -1,0 +1,107 @@
+/* Bible section chrome: top-left home logo + bottom prev/next chapter buttons */
+(function () {
+  function getRootPrefix() {
+    var path = (window.location.pathname || '').replace(/\\/g, '/');
+    var lower = path.toLowerCase();
+    var idx = lower.indexOf('/bible/');
+    if (idx === -1) {
+      // file:// or odd hosts: count from known markers
+      if (/\/bible\/old-testament\/genesis\/chapter-/i.test(lower)) return '../../../../';
+      if (/\/bible\/old-testament\/genesis\/?/i.test(lower)) return '../../../';
+      if (/\/bible\/(old|new)-testament\/?/i.test(lower)) return '../../';
+      if (/\/bible\/?/i.test(lower)) return '../';
+      return '';
+    }
+    var after = path.slice(idx + '/bible/'.length);
+    // Drop the file name if present
+    after = after.replace(/[^/]*$/, '');
+    var dirs = after.split('/').filter(function (p) { return !!p; });
+    // dirs are folders under /bible/ ; need dirs.length + 1 to reach app root
+    return '../'.repeat(dirs.length + 1);
+  }
+
+  function injectHomeLogo() {
+    if (document.getElementById('home-logo-btn')) return;
+    var prefix = getRootPrefix();
+    var a = document.createElement('a');
+    a.id = 'home-logo-btn';
+    a.className = 'home-logo-btn';
+    a.href = prefix + 'index.html';
+    a.title = 'Home';
+    a.setAttribute('aria-label', 'Go to home');
+    var img = document.createElement('img');
+    img.src = prefix + 'tbclogo.jpeg';
+    img.alt = 'TBC Home';
+    a.appendChild(img);
+    if (document.body) document.body.appendChild(a);
+  }
+
+  function injectChapterNav() {
+    var match = (window.location.pathname || '').match(/chapter-(\d+)/i);
+    if (!match) return;
+    if (document.querySelector('.chapter-bottom-nav')) return;
+
+    var BUILT_THROUGH = 13;
+    var current = parseInt(match[1], 10);
+    if (isNaN(current) || current < 1) return;
+
+    var prev = current > 1 ? current - 1 : null;
+    var next = current < BUILT_THROUGH ? current + 1 : null;
+
+    var style = document.createElement('style');
+    style.textContent =
+      '.chapter-bottom-nav{display:flex;gap:12px;margin:28px 0 20px;width:100%;}' +
+      '.chapter-nav-btn{flex:1;padding:14px 12px;border:none;border-radius:14px;' +
+      'font-size:1rem;font-weight:600;cursor:pointer;color:#fff;' +
+      'background:linear-gradient(135deg,#4cb8b9 0%,#7bafdd 100%);' +
+      'box-shadow:0 4px 14px rgba(64,64,64,0.12);}' +
+      '.chapter-nav-btn:disabled{opacity:0.4;cursor:not-allowed;filter:grayscale(0.3);}' +
+      '.chapter-nav-btn:not(:disabled):active{transform:translateY(1px);}';
+    document.head.appendChild(style);
+
+    var nav = document.createElement('div');
+    nav.className = 'chapter-bottom-nav';
+
+    var prevBtn = document.createElement('button');
+    prevBtn.type = 'button';
+    prevBtn.className = 'chapter-nav-btn';
+    prevBtn.textContent = '← Previous';
+    if (prev) {
+      prevBtn.onclick = function () {
+        window.location.href = '../chapter-' + prev + '/index.html';
+      };
+    } else {
+      prevBtn.disabled = true;
+    }
+
+    var nextBtn = document.createElement('button');
+    nextBtn.type = 'button';
+    nextBtn.className = 'chapter-nav-btn';
+    nextBtn.textContent = 'Next →';
+    if (next) {
+      nextBtn.onclick = function () {
+        window.location.href = '../chapter-' + next + '/index.html';
+      };
+    } else {
+      nextBtn.disabled = true;
+    }
+
+    nav.appendChild(prevBtn);
+    nav.appendChild(nextBtn);
+
+    var container = document.querySelector('.container');
+    if (container) container.appendChild(nav);
+    else if (document.body) document.body.appendChild(nav);
+  }
+
+  function run() {
+    injectHomeLogo();
+    injectChapterNav();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', run);
+  } else {
+    run();
+  }
+})();
