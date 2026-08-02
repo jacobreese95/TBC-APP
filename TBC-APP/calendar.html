@@ -18,6 +18,44 @@
         .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; }
         .filter-btn { padding: 8px 16px; border: 2px solid #ccc; background: white; color: #666; border-radius: 20px; cursor: pointer; font-weight: bold; }
         .filter-btn.active { color: white; }
+
+        .day-modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 16px;
+            box-sizing: border-box;
+        }
+        .day-modal.open { display: flex; }
+        .day-modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            width: 100%;
+            max-width: 420px;
+            max-height: 80vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .day-modal h3 { margin-top: 0; color: #404040; }
+        .day-event {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+        .day-event .ministry-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-top: 6px;
+        }
     </style>
 </head>
 <body>
@@ -71,6 +109,15 @@
         <a href="#" onclick="logoutUser(); return false;" style="color:#8845a5; font-weight:bold; margin-top:20px;">Logout</a>
     </div>
 
+    <!-- Day events modal - shows ALL events, scrollable, no limit -->
+    <div class="day-modal" id="day-modal" onclick="if (event.target.id === 'day-modal') closeDayModal()">
+        <div class="day-modal-content">
+            <h3 id="day-modal-title"></h3>
+            <div id="day-modal-events"></div>
+            <button onclick="closeDayModal()" style="width:100%; margin-top:10px; background:#7a8fac; color:white; border:none; padding:12px; border-radius:12px; font-weight:bold;">Close</button>
+        </div>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
@@ -107,6 +154,10 @@
             const overlay = document.getElementById('overlay');
             drawer.classList.toggle('open');
             overlay.classList.toggle('open');
+        }
+
+        function closeDayModal() {
+            document.getElementById('day-modal').classList.remove('open');
         }
 
         // Keep in sync with chat.html ministries
@@ -197,7 +248,7 @@
                     e.date === dateStr && selectedFilters.has(e.ministry)
                 );
 
-                // Show only first 4, then +N more (click day for full list)
+                // Show only first 4 on the grid, then +N more
                 const maxShow = 4;
                 dayEvents.slice(0, maxShow).forEach(ev => {
                     const evEl = document.createElement('div');
@@ -219,15 +270,32 @@
         }
 
         function showDayEvents(dateStr, events) {
-            if (events.length === 0) {
-                alert('No events on ' + dateStr);
-                return;
+            const modal = document.getElementById('day-modal');
+            const titleEl = document.getElementById('day-modal-title');
+            const eventsEl = document.getElementById('day-modal-events');
+
+            // Format title from date string
+            const parts = dateStr.split('-');
+            const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+            titleEl.textContent = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+
+            eventsEl.innerHTML = '';
+            if (!events || events.length === 0) {
+                eventsEl.innerHTML = '<p style="color:#666;">No events on this day.</p>';
+            } else {
+                // Show ALL events — no limit
+                events.forEach(ev => {
+                    const div = document.createElement('div');
+                    div.className = 'day-event';
+                    const color = getMinistryColor(ev.ministry);
+                    div.innerHTML =
+                        `<strong>${ev.title || 'Event'}</strong>` +
+                        (ev.description ? `<br>${ev.description}` : '') +
+                        `<div class="ministry-tag" style="background:${color};">${ev.ministry || ''}</div>`;
+                    eventsEl.appendChild(div);
+                });
             }
-            let msg = 'Events on ' + dateStr + ':\n\n';
-            events.forEach(e => {
-                msg += `• ${e.title} (${e.ministry})\n  ${e.description || ''}\n\n`;
-            });
-            alert(msg);
+            modal.classList.add('open');
         }
 
         async function loadEvents() {
