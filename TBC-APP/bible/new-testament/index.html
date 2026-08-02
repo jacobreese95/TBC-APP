@@ -11,6 +11,9 @@
     </style>
 </head>
 <body>
+    <a id="home-logo-btn" class="home-logo-btn" href="../../index.html" title="Home" aria-label="Go to home">
+        <img src="../../tbclogo.jpeg" alt="TBC Home">
+    </a>
     <button class="hamburger" onclick="toggleMenu()" aria-label="Open menu">
         <span></span><span></span><span></span>
     </button>
@@ -22,7 +25,6 @@
         <a href="../index.html">Bible</a>
         <a href="../../give.html">Give on Tithe.ly</a>
         <a href="../../sermons.html">Sermons & Live Streams</a>
-        <a href="#" onclick="window.open('https://www.google.com/maps/place/11801+E+Lincoln+St,+Wichita,+KS+67207', '_blank'); toggleMenu(); return false;">View Location on Google Maps</a>
         <a href="../../soul-winning.html">Soul Winning</a>
     </div>
 
@@ -40,6 +42,7 @@
         <div class="book-list" id="book-list"></div>
     </div>
 
+    <script src="../bible-chrome.js"></script>
     <script>
         function toggleMenu() {
             document.getElementById('navDrawer').classList.toggle('open');
