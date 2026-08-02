@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calendar - TBC Church App</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Sentry Error Tracking -->
-    <script src="https://browser.sentry-cdn.com/7.119.0/bundle.min.js" integrity="sha384-..." crossorigin="anonymous"></script>
+    <script src="https://browser.sentry-cdn.com/7.119.0/bundle.min.js" crossorigin="anonymous"></script>
     <style>
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin: 20px 0; }
         .day-header { font-weight: bold; text-align: center; padding: 8px; background: #7bafdd; color: white; border-radius: 6px; }
@@ -67,9 +66,7 @@
     </header>
 
     <div class="container">
-        <div class="filter-bar" id="filter-bar">
-            <!-- Populated dynamically based on user ministries -->
-        </div>
+        <div class="filter-bar" id="filter-bar"></div>
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin:15px 0;">
             <button onclick="prevMonth()" style="padding:8px 16px; border-radius:8px; border:2px solid #4cb8b9; background:white; color:#4cb8b9; font-weight:bold;">< Prev</button>
@@ -79,40 +76,38 @@
 
         <div class="calendar-grid" id="calendar-grid"></div>
 
-        <h3 style="margin-top:30px; color:#404040;">Add New Event</h3>
-        <div style="background:white; padding:20px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
-            <input type="date" id="event-date" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:8px;">
-            <input type="text" id="event-title" placeholder="Event Title" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:8px;">
-            <textarea id="event-desc" placeholder="Description (optional)" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:8px; height:80px;"></textarea>
-            <select id="event-ministry" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:8px;">
-                <option value="Whole Church">Whole Church</option>
-                <option value="Music Ministry">Music Ministry</option>
-                <option value="Sentry">Sentry</option>
-                <option value="Nursery">Nursery</option>
-                <option value="Media">Media</option>
-            </select>
-            <button onclick="addEvent()" class="menu-btn" style="margin-top:10px;">Add Event</button>
+        <div id="add-event-section" style="display:none;">
+            <h3 style="margin-top:30px; color:#404040;">Add New Event</h3>
+            <p id="add-event-hint" style="font-size:0.85rem;color:#7a8fac;margin:0 0 8px;"></p>
+            <div style="background:white; padding:20px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+                <input type="date" id="event-date" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:8px;">
+                <input type="text" id="event-title" placeholder="Event Title" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:8px;">
+                <textarea id="event-desc" placeholder="Description (optional)" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:8px; height:80px;"></textarea>
+                <select id="event-ministry" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:8px;"></select>
+                <button onclick="addEvent()" class="menu-btn" style="margin-top:10px;">Add Event</button>
+            </div>
         </div>
     </div>
 
-    <!-- Hamburger Drawer -->
     <div class="nav-overlay" id="overlay" onclick="toggleDrawer()"></div>
     <div class="nav-drawer" id="drawer">
         <h3 style="margin-top:0; color:#404040;">Menu</h3>
         <a href="index.html">Home</a>
         <a href="about.html">About Us</a>
+        <a href="calendar.html">Calendar</a>
         <a href="chat.html">Ministry Chats</a>
         <a href="bible/index.html">Bible</a>
-        <a href="sermons.html">Sermons</a>
-        <a href="give.html">Give</a>
+        <a href="give.html">Give on Tithe.ly</a>
+        <a href="sermons.html">Sermons & Live Streams</a>
+        <a href="soul-winning.html">Soul Winning</a>
+        <a href="upload-photos.html">Upload Photos</a>
         <a href="profile.html">Profile</a>
-        <a href="#" onclick="logoutUser(); return false;" style="color:#8845a5; font-weight:bold; margin-top:20px;">Logout</a>
+        <a href="#" onclick="signOutUser().then(() => window.location.href='index.html')">Logout</a>
     </div>
 
-    <!-- Day events modal - shows ALL events, scrollable, no limit -->
-    <div class="day-modal" id="day-modal" onclick="if (event.target.id === 'day-modal') closeDayModal()">
+    <div class="day-modal" id="day-modal" onclick="if(event.target===this)closeDayModal()">
         <div class="day-modal-content">
-            <h3 id="day-modal-title"></h3>
+            <h3 id="day-modal-title">Events</h3>
             <div id="day-modal-events"></div>
             <button onclick="closeDayModal()" style="width:100%; margin-top:10px; background:#7a8fac; color:white; border:none; padding:12px; border-radius:12px; font-weight:bold;">Close</button>
         </div>
@@ -122,22 +117,12 @@
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
     <script src="auth.js"></script>
-    <script src="home-logo.js"></script>
     <script>
-        // Initialize Sentry (replace DSN with your project key)
-        if (typeof Sentry !== 'undefined') {
-            Sentry.init({
-                dsn: 'YOUR_SENTRY_DSN_HERE', // <-- paste your Sentry DSN here
-                tracesSampleRate: 1.0,
-            });
-        }
-
         let currentDate = new Date();
         let allEvents = [];
-        // Multi-select: start with Whole Church on. Click any button to toggle it on/off.
         let selectedFilters = new Set(['Whole Church']);
+        let currentProfile = null;
 
-        // Unique color per ministry
         const ministryColors = {
             'Whole Church': '#7bafdd',
             'Music Ministry': '#8845a5',
@@ -145,63 +130,39 @@
             'Nursery': '#27ae60',
             'Media': '#4cb8b9'
         };
+        const allMinistries = ['Whole Church', 'Music Ministry', 'Sentry', 'Nursery', 'Media'];
 
         function getMinistryColor(ministry) {
             return ministryColors[ministry] || '#4cb8b9';
         }
 
         function toggleDrawer() {
-            const drawer = document.getElementById('drawer');
-            const overlay = document.getElementById('overlay');
-            drawer.classList.toggle('open');
-            overlay.classList.toggle('open');
+            document.getElementById('drawer').classList.toggle('open');
+            document.getElementById('overlay').classList.toggle('open');
         }
 
         function closeDayModal() {
             document.getElementById('day-modal').classList.remove('open');
         }
 
-        // Keep in sync with chat.html ministries
-        const allMinistries = ['Whole Church', 'Music Ministry', 'Sentry', 'Nursery', 'Media'];
-
         function renderFilterBar(userMinistries, isAdmin) {
             const container = document.getElementById('filter-bar');
             container.innerHTML = '';
-
             allMinistries.forEach(ministry => {
-                // Whole Church always visible; others only if admin or assigned
-                if (ministry !== 'Whole Church' && !(isAdmin || userMinistries.includes(ministry))) {
-                    return;
-                }
-
-                const color = getMinistryColor(ministry);
-                const isActive = selectedFilters.has(ministry);
-
+                if (ministry !== 'Whole Church' && !(isAdmin || userMinistries.includes(ministry))) return;
                 const btn = document.createElement('button');
                 btn.className = 'filter-btn' + (selectedFilters.has(ministry) ? ' active' : '');
-                btn.dataset.filter = ministry;
                 btn.textContent = ministry;
-                btn.style.borderColor = color;
-                if (isActive) {
-                    btn.style.background = color;
+                btn.style.borderColor = getMinistryColor(ministry);
+                if (selectedFilters.has(ministry)) {
+                    btn.style.background = getMinistryColor(ministry);
                     btn.style.color = 'white';
-                } else {
-                    btn.style.background = 'white';
-                    btn.style.color = color;
                 }
-
                 btn.onclick = () => {
-                    if (selectedFilters.has(ministry)) {
-                        selectedFilters.delete(ministry);
-                        btn.classList.remove('active');
-                        btn.style.background = 'white';
-                        btn.style.color = color;
-                    } else {
-                        selectedFilters.add(ministry);
-                        btn.classList.add('active');
-                        btn.style.background = color;
-                        btn.style.color = 'white';
-                    }
+                    if (selectedFilters.has(ministry)) selectedFilters.delete(ministry);
+                    else selectedFilters.add(ministry);
+                    if (selectedFilters.size === 0) selectedFilters.add('Whole Church');
+                    renderFilterBar(userMinistries, isAdmin);
                     renderCalendar();
                 };
                 container.appendChild(btn);
@@ -210,47 +171,43 @@
 
         function renderCalendar() {
             const grid = document.getElementById('calendar-grid');
-            grid.innerHTML = '';
-
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
+            document.getElementById('month-year').textContent =
+                currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
 
-            document.getElementById('month-year').textContent = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+            grid.innerHTML = '';
+            ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => {
+                const h = document.createElement('div');
+                h.className = 'day-header';
+                h.textContent = d;
+                grid.appendChild(h);
+            });
 
             const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-            const headers = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-            headers.forEach(h => {
-                const el = document.createElement('div');
-                el.className = 'day-header';
-                el.textContent = h;
-                grid.appendChild(el);
-            });
+            const prevDays = new Date(year, month, 0).getDate();
 
             for (let i = 0; i < firstDay; i++) {
-                const empty = document.createElement('div');
-                empty.className = 'day-cell other-month';
-                grid.appendChild(empty);
+                const cell = document.createElement('div');
+                cell.className = 'day-cell other-month';
+                cell.innerHTML = '<div class="day-number">' + (prevDays - firstDay + 1 + i) + '</div>';
+                grid.appendChild(cell);
             }
 
             for (let day = 1; day <= daysInMonth; day++) {
                 const cell = document.createElement('div');
                 cell.className = 'day-cell';
-                const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+                const dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+                cell.innerHTML = '<div class="day-number">' + day + '</div>';
 
-                const num = document.createElement('div');
-                num.className = 'day-number';
-                num.textContent = day;
-                cell.appendChild(num);
+                const dayEvents = allEvents.filter(ev => {
+                    if (ev.date !== dateStr) return false;
+                    if (selectedFilters.size === 0) return true;
+                    return selectedFilters.has(ev.ministry) || selectedFilters.has('Whole Church') && ev.ministry === 'Whole Church';
+                }).filter(ev => selectedFilters.has(ev.ministry));
 
-                // Show event if its ministry is currently selected
-                const dayEvents = allEvents.filter(e =>
-                    e.date === dateStr && selectedFilters.has(e.ministry)
-                );
-
-                // Show only first 4 on the grid, then +N more
-                const maxShow = 4;
+                const maxShow = 2;
                 dayEvents.slice(0, maxShow).forEach(ev => {
                     const evEl = document.createElement('div');
                     evEl.className = 'event';
@@ -274,25 +231,20 @@
             const modal = document.getElementById('day-modal');
             const titleEl = document.getElementById('day-modal-title');
             const eventsEl = document.getElementById('day-modal-events');
-
-            // Format title from date string
             const parts = dateStr.split('-');
             const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-            titleEl.textContent = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
-
+            titleEl.textContent = d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
             eventsEl.innerHTML = '';
             if (!events || events.length === 0) {
                 eventsEl.innerHTML = '<p style="color:#666;">No events on this day.</p>';
             } else {
-                // Show ALL events — no limit
                 events.forEach(ev => {
                     const div = document.createElement('div');
                     div.className = 'day-event';
                     const color = getMinistryColor(ev.ministry);
-                    div.innerHTML =
-                        `<strong>${ev.title || 'Event'}</strong>` +
-                        (ev.description ? `<br>${ev.description}` : '') +
-                        `<div class="ministry-tag" style="background:${color};">${ev.ministry || ''}</div>`;
+                    div.innerHTML = '<strong>' + (ev.title || '') + '</strong>' +
+                        (ev.description ? '<div style="margin-top:6px;color:#555;">' + ev.description + '</div>' : '') +
+                        '<div class="ministry-tag" style="background:' + color + ';">' + (ev.ministry || '') + '</div>';
                     eventsEl.appendChild(div);
                 });
             }
@@ -307,12 +259,44 @@
                 renderCalendar();
             } catch (err) {
                 console.error('Error loading events:', err);
-                if (typeof Sentry !== 'undefined') Sentry.captureException(err);
                 renderCalendar();
             }
         }
 
+        function setupAddEventForm(profile) {
+            const section = document.getElementById('add-event-section');
+            const select = document.getElementById('event-ministry');
+            const hint = document.getElementById('add-event-hint');
+            const isAdmin = profile.role === 'admin';
+            const isLeader = profile.role === 'leader';
+            const leaderOf = Array.isArray(profile.leaderOf) ? profile.leaderOf.slice() : [];
+
+            let allowed = [];
+            if (isAdmin) {
+                allowed = allMinistries.slice();
+                hint.textContent = 'As an admin you can create events for any ministry.';
+            } else if (isLeader && leaderOf.length) {
+                allowed = leaderOf.filter(m => allMinistries.includes(m));
+                if (!allowed.length) allowed = leaderOf.slice();
+                hint.textContent = 'You can create events for: ' + allowed.join(', ');
+            } else {
+                section.style.display = 'none';
+                return;
+            }
+
+            if (!allowed.length) {
+                section.style.display = 'none';
+                return;
+            }
+
+            select.innerHTML = allowed.map(m =>
+                '<option value="' + m.replace(/"/g, '&quot;') + '">' + m + '</option>'
+            ).join('');
+            section.style.display = 'block';
+        }
+
         async function addEvent() {
+            if (!currentProfile) return;
             const date = document.getElementById('event-date').value;
             const title = document.getElementById('event-title').value.trim();
             const desc = document.getElementById('event-desc').value.trim();
@@ -323,9 +307,21 @@
                 return;
             }
 
+            const isAdmin = currentProfile.role === 'admin';
+            const leaderOf = currentProfile.leaderOf || [];
+            if (!isAdmin && !leaderOf.includes(ministry)) {
+                alert('You can only create events for ministries you lead.');
+                return;
+            }
+
             try {
                 await db.collection('events').add({
-                    date, title, description: desc, ministry,
+                    date: date,
+                    title: title,
+                    description: desc,
+                    ministry: ministry,
+                    createdByUid: auth.currentUser.uid,
+                    createdByName: currentProfile.name || currentProfile.email || 'Leader',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 alert('Event added!');
@@ -335,19 +331,19 @@
                 await loadEvents();
             } catch (err) {
                 alert('Error: ' + err.message);
-                if (typeof Sentry !== 'undefined') Sentry.captureException(err);
             }
         }
 
         function prevMonth() { currentDate.setMonth(currentDate.getMonth() - 1); renderCalendar(); }
         function nextMonth() { currentDate.setMonth(currentDate.getMonth() + 1); renderCalendar(); }
 
-        // Init - profile is returned directly (has .role and .ministries)
         requireApprovedUser().then(profile => {
             if (profile) {
+                currentProfile = profile;
                 const userMinistries = profile.ministries || [];
                 const isAdmin = profile.role === 'admin';
                 renderFilterBar(userMinistries, isAdmin);
+                setupAddEventForm(profile);
                 loadEvents();
             }
         });
