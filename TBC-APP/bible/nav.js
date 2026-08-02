@@ -1,4 +1,4 @@
-/* Shared hamburger menu + home logo + chapter prev/next for Bible chapter pages */
+/* Shared hamburger menu for Bible chapter pages + load bible-chrome */
 (function () {
   function toggleMenu() {
     var drawer = document.getElementById('navDrawer');
@@ -8,6 +8,7 @@
   }
   window.toggleMenu = toggleMenu;
 
+  // Hard-coded paths for chapter depth: bible/old-testament/genesis/chapter-N/
   var html =
     '<button class="hamburger" onclick="toggleMenu()" aria-label="Open menu">' +
     '<span></span><span></span><span></span></button>' +
@@ -32,70 +33,26 @@
   function injectNavChrome() {
     if (!document.getElementById('navDrawer')) {
       document.body.insertAdjacentHTML('afterbegin', html);
+    } else if (!document.getElementById('home-logo-btn')) {
+      // Drawer exists but logo missing — still inject logo
+      var logo =
+        '<a id="home-logo-btn" class="home-logo-btn" href="../../../../index.html" title="Home" aria-label="Go to home">' +
+        '<img src="../../../../tbclogo.jpeg" alt="TBC Home"></a>';
+      document.body.insertAdjacentHTML('afterbegin', logo);
     }
   }
 
-  function injectChapterButtons() {
-    var match = (window.location.pathname || '').match(/chapter-(\d+)/i);
-    if (!match) return;
-
-    var BUILT_THROUGH = 13;
-    var current = parseInt(match[1], 10);
-    if (isNaN(current) || current < 1) return;
-    if (document.querySelector('.chapter-bottom-nav')) return;
-
-    var prev = current > 1 ? current - 1 : null;
-    var next = current < BUILT_THROUGH ? current + 1 : null;
-
-    var style = document.createElement('style');
-    style.textContent =
-      '.chapter-bottom-nav{display:flex;gap:12px;margin:28px 0 20px;width:100%;}' +
-      '.chapter-nav-btn{flex:1;padding:14px 12px;border:none;border-radius:14px;' +
-      'font-size:1rem;font-weight:600;cursor:pointer;color:#fff;' +
-      'background:linear-gradient(135deg,#4cb8b9 0%,#7bafdd 100%);' +
-      'box-shadow:0 4px 14px rgba(64,64,64,0.12);}' +
-      '.chapter-nav-btn:disabled{opacity:0.4;cursor:not-allowed;filter:grayscale(0.3);}' +
-      '.chapter-nav-btn:not(:disabled):active{transform:translateY(1px);}';
-    document.head.appendChild(style);
-
-    var nav = document.createElement('div');
-    nav.className = 'chapter-bottom-nav';
-
-    var prevBtn = document.createElement('button');
-    prevBtn.type = 'button';
-    prevBtn.className = 'chapter-nav-btn';
-    prevBtn.textContent = '← Previous';
-    if (prev) {
-      prevBtn.onclick = function () {
-        window.location.href = '../chapter-' + prev + '/index.html';
-      };
-    } else {
-      prevBtn.disabled = true;
-    }
-
-    var nextBtn = document.createElement('button');
-    nextBtn.type = 'button';
-    nextBtn.className = 'chapter-nav-btn';
-    nextBtn.textContent = 'Next →';
-    if (next) {
-      nextBtn.onclick = function () {
-        window.location.href = '../chapter-' + next + '/index.html';
-      };
-    } else {
-      nextBtn.disabled = true;
-    }
-
-    nav.appendChild(prevBtn);
-    nav.appendChild(nextBtn);
-
-    var container = document.querySelector('.container');
-    if (container) container.appendChild(nav);
-    else document.body.appendChild(nav);
+  function loadChrome() {
+    // bible-chrome.js sits in /bible/ — from chapter page use ../../../bible-chrome.js
+    if (document.querySelector('script[src*="bible-chrome.js"]')) return;
+    var s = document.createElement('script');
+    s.src = '../../../bible-chrome.js';
+    document.body.appendChild(s);
   }
 
   function run() {
     injectNavChrome();
-    injectChapterButtons();
+    loadChrome();
   }
 
   if (document.body) {
@@ -104,7 +61,6 @@
     document.addEventListener('DOMContentLoaded', run);
   }
 
-  // Show Admin link only to admins
   setTimeout(async function () {
     if (typeof firebase === 'undefined') return;
     try {
