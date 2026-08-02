@@ -1,4 +1,4 @@
-/* Shared hamburger menu for Bible chapter pages + load bible-chrome */
+/* Shared hamburger + home logo for Bible chapter pages */
 (function () {
   function toggleMenu() {
     var drawer = document.getElementById('navDrawer');
@@ -8,7 +8,17 @@
   }
   window.toggleMenu = toggleMenu;
 
-  // Hard-coded paths for chapter depth: bible/old-testament/genesis/chapter-N/
+  if (!document.getElementById('home-logo-style')) {
+    var logoStyle = document.createElement('style');
+    logoStyle.id = 'home-logo-style';
+    logoStyle.textContent =
+      '.home-logo-btn{position:fixed;top:10px;left:12px;z-index:3000;display:block;' +
+      'width:44px;height:44px;border-radius:50%;overflow:hidden;box-shadow:0 4px 14px rgba(64,64,64,0.18);' +
+      'background:#fff;padding:2px;text-decoration:none;}' +
+      '.home-logo-btn img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;}';
+    (document.head || document.documentElement).appendChild(logoStyle);
+  }
+
   var html =
     '<button class="hamburger" onclick="toggleMenu()" aria-label="Open menu">' +
     '<span></span><span></span><span></span></button>' +
@@ -34,7 +44,6 @@
     if (!document.getElementById('navDrawer')) {
       document.body.insertAdjacentHTML('afterbegin', html);
     } else if (!document.getElementById('home-logo-btn')) {
-      // Drawer exists but logo missing — still inject logo
       var logo =
         '<a id="home-logo-btn" class="home-logo-btn" href="../../../../index.html" title="Home" aria-label="Go to home">' +
         '<img src="../../../../tbclogo.jpeg" alt="TBC Home"></a>';
@@ -43,7 +52,6 @@
   }
 
   function loadChrome() {
-    // bible-chrome.js sits in /bible/ — from chapter page use ../../../bible-chrome.js
     if (document.querySelector('script[src*="bible-chrome.js"]')) return;
     var s = document.createElement('script');
     s.src = '../../../bible-chrome.js';
