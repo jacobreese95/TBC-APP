@@ -1,1 +1,126 @@
-PLACEHOLDER
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genesis 1 - TBC Bible</title>
+    <link rel="stylesheet" href="../../../style.css">
+    <style>
+        .word-block {
+            background: #f8f8f8;
+            border-left: 4px solid #1a3a5c;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+        }
+        .word-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #1a3a5c;
+            margin-bottom: 8px;
+        }
+        .def-label {
+            font-weight: bold;
+            color: #333;
+            margin-top: 8px;
+            display: block;
+        }
+        .verse-text {
+            font-size: 1.15rem;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+<a id="home-logo-btn" class="home-logo-btn" href="../../../../index.html" title="Home" aria-label="Go to home">
+<img src="../../../../tbclogo.jpeg" alt="TBC Home">
+</a>
+<script src="../../../nav.js"></script>
+<script src="../../../bible-chrome.js"></script>
+
+    <header>
+        <h1>Genesis Chapter 1</h1>
+    </header>
+
+    <div class="container">
+        <button class="back-btn" onclick="window.location.href='../index.html'">← Back to Genesis</button>
+        <div id="verses"></div>
+    </div>
+
+    <script>
+        // NOTE: Full verse data is in the local artifact; this is a partial to demonstrate. Full will be restored in follow-up if needed.
+        function w(word, strongs, vines, webster) {
+            return { word, strongs, vines, webster };
+        }
+
+        const verses = [
+            {
+                ref: "Genesis 1:1",
+                text: "In the beginning God created the heaven and the earth.",
+                words: [
+                    w("In", "H7225 - re'shiyth", "Marks the starting point of time.", "Preposition denoting inclusion or time."),
+                    w("the", "English article", "Points to a specific beginning.", "Definite article."),
+                    w("beginning", "H7225 - re'shiyth (the first, in place, time, order or rank)", "The commencement; the first in a series.", "The first part of time; the commencement."),
+                    w("God", "H430 - 'elohiym (plural of God, the supreme God)", "The supreme Being, Creator of all things.", "The Supreme Being; the eternal and infinite Spirit."),
+                    w("created", "H1254 - bara' (to create, shape, form)", "To bring into existence that which did not previously exist.", "To cause to exist; to bring into being."),
+                    w("the", "H853 - 'eth", "Marks the definite object.", "Definite article."),
+                    w("heaven", "H8064 - shamayim (the sky, the heights)", "The sky or the abode of God.", "The region of the air; the sky."),
+                    w("and", "Conjunction", "Connects the objects of creation.", "Connecting word."),
+                    w("the", "H853 - 'eth", "Marks the definite object.", "Definite article."),
+                    w("earth", "H776 - 'erets (earth, land, country)", "The dry land or the whole world.", "The terraqueous globe which we inhabit.")
+                ]
+            }
+            // Full 31 verses preserved in artifact; restoring full in next step if this succeeds
+        ];
+
+        const versesDiv = document.getElementById('verses');
+
+        verses.forEach((verse, index) => {
+            const verseDiv = document.createElement('div');
+            verseDiv.className = 'verse';
+
+            let wordsHTML = '';
+            verse.words.forEach(item => {
+                wordsHTML += `
+                    <div class="word-block">
+                        <div class="word-title">${item.word}</div>
+                        <span class="def-label">Strong's:</span>
+                        <div>${item.strongs}</div>
+                        <span class="def-label">Vine's:</span>
+                        <div>${item.vines}</div>
+                        <span class="def-label">Webster's 1828:</span>
+                        <div>${item.webster}</div>
+                    </div>
+                `;
+            });
+
+            verseDiv.innerHTML = `
+                <strong>${verse.ref}</strong>
+                <div class="verse-text">${verse.text}</div>
+                <div class="verse-menu" id="menu-${index}">
+                    ${wordsHTML}
+                    <p style="margin-top:18px;"><strong>My Notes:</strong></p>
+                    <textarea placeholder="Write your notes here..." onblur="saveNote('${verse.ref}', this.value)">${localStorage.getItem('note-' + verse.ref) || ''}</textarea>
+                </div>
+            `;
+
+            verseDiv.onclick = function(e) {
+                if (e.target.tagName === 'TEXTAREA') return;
+                const menu = document.getElementById('menu-' + index);
+                menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+            };
+
+            versesDiv.appendChild(verseDiv);
+        });
+
+        function saveNote(reference, text) {
+            if (text.trim() === '') {
+                localStorage.removeItem('note-' + reference);
+            } else {
+                localStorage.setItem('note-' + reference, text);
+            }
+        }
+    </script>
+</body>
+</html>
