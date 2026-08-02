@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <a id="home-logo-btn" class="home-logo-btn" href="../index.html" title="Home" aria-label="Go to home">
+        <img src="../tbclogo.jpeg" alt="TBC Home">
+    </a>
     <button class="hamburger" onclick="toggleMenu()" aria-label="Open menu">
         <span></span><span></span><span></span>
     </button>
@@ -39,7 +42,7 @@
         <button class="notes-btn" onclick="window.location.href='my-notes.html'">My Notes</button>
     </div>
 
-    <script src="../home-logo.js"></script>
+    <script src="bible-chrome.js"></script>
     <script>
         function toggleMenu() {
             document.getElementById('navDrawer').classList.toggle('open');
