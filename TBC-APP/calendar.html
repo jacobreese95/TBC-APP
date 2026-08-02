@@ -50,6 +50,7 @@
                 <option value="Music Ministry">Music Ministry</option>
                 <option value="Sentry">Sentry</option>
                 <option value="Nursery">Nursery</option>
+                <option value="Media">Media</option>
             </select>
             <button onclick="addEvent()" class="menu-btn" style="margin-top:10px;">Add Event</button>
         </div>
@@ -95,7 +96,7 @@
         }
 
         // Keep in sync with chat.html ministries
-        const allMinistries = ['Whole Church', 'Music Ministry', 'Sentry', 'Nursery'];
+        const allMinistries = ['Whole Church', 'Music Ministry', 'Sentry', 'Nursery', 'Media'];
 
         function renderFilterBar(userMinistries, isAdmin) {
             const container = document.getElementById('filter-bar');
