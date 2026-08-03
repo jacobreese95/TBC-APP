@@ -1,7 +1,9 @@
 {
   "name": "tbc-app",
-  "compatibility_date": "2026-07-26",
+  "compatibility_date": "2024-11-01",
   "assets": {
-    "directory": "."
-  }
+    "directory": "./",
+    "binding": "ASSETS"
+  },
+  "workers_dev": true
 }
