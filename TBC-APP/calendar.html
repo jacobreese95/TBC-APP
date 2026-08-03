@@ -97,9 +97,9 @@ input.form-input,textarea.form-input,select.form-input{width:100%;padding:12px;m
 <div class="song-chips" id="knownSongs"></div>
 </div>
 <div id="songFieldWrap" style="display:none">
-<label class="form-label" for="event-song">Song *</label>
-<input type="text" id="event-song" class="form-input" placeholder="Song they will sing (or assign one)">
-<p style="font-size:.8rem;color:#7a8fac;margin:0 0 8px">Required for Music Ministry. Saved to their profile for future scheduling.</p>
+<label class="form-label" for="event-song">Song (optional)</label>
+<input type="text" id="event-song" class="form-input" placeholder="Optional — assign a song, or leave blank for them to choose">
+<p style="font-size:.8rem;color:#7a8fac;margin:0 0 8px">Optional for leaders. The assigned person must enter a song when they accept.</p>
 </div>
 </div>
 <button onclick="addEvent()" class="menu-btn" style="margin-top:10px">Add Event</button>
@@ -308,7 +308,6 @@ const isAdmin=currentProfile.role==='admin';
 const leaderOf=currentProfile.leaderOf||[];
 if(!isAdmin&&!leaderOf.includes(ministry)){alert('You can only create events for ministries you lead.');return}
 if(isSchedule&&!selectedPerson){alert('Please assign a person for this schedule.');return}
-if(ministry==='Music Ministry'&&!song){alert('Please enter a song for Music Ministry.');return}
 try{
 const eventData={date,title,description:desc,ministry,createdByUid:auth.currentUser.uid,createdByName:currentProfile.name||currentProfile.email||'Leader',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
 if(isSchedule&&selectedPerson){eventData.assignedToUid=selectedPerson.uid;eventData.assignedToName=selectedPerson.name;eventData.assignmentStatus='pending'}
@@ -339,13 +338,46 @@ if(snap.empty){section.style.display='none';list.innerHTML='';return}
 section.style.display='block';
 const items=[];snap.forEach(doc=>items.push({id:doc.id,...doc.data()}));
 items.sort((a,b)=>(a.date||'').localeCompare(b.date||''));
-list.innerHTML=items.map(r=>'<div class="req-card"><h4>'+escapeHtml(r.title||'Schedule')+'</h4><div class="req-meta">'+escapeHtml(r.ministry||'')+' · '+escapeHtml(r.date||'')+(r.song?' · Song: '+escapeHtml(r.song):'')+'<br>From: '+escapeHtml(r.createdByName||'Leader')+'</div><p style="margin:0;color:#404040">Are you available for this?</p><div class="req-actions"><button type="button" class="btn-available" onclick="respondRequest(\''+r.id+'\',\'available\',\''+(r.eventId||'')+'\')">Available</button><button type="button" class="btn-unavailable" onclick="respondRequest(\''+r.id+'\',\'unavailable\',\''+(r.eventId||'')+'\')">Not available</button></div></div>').join('');
+list.innerHTML=items.map(function(r){
+var isMusic=r.ministry==='Music Ministry';
+var songBlock='';
+if(isMusic){
+songBlock='<label class="form-label" for="req-song-'+r.id+'">Song you will sing *</label>'+
+'<input type="text" id="req-song-'+r.id+'" class="form-input" placeholder="Enter the song" value="'+escapeHtml(r.song||'')+'">'+ 
+'<p style="font-size:.8rem;color:#7a8fac;margin:0 0 8px">Required when you accept. '+(r.song?'Leader suggested this song — you can change it.':'')+'</p>';
+}
+return '<div class="req-card"><h4>'+escapeHtml(r.title||'Schedule')+'</h4>'+
+'<div class="req-meta">'+escapeHtml(r.ministry||'')+' · '+escapeHtml(r.date||'')+
+(r.song&&!isMusic?' · Song: '+escapeHtml(r.song):'')+
+'<br>From: '+escapeHtml(r.createdByName||'Leader')+'</div>'+
+songBlock+
+'<p style="margin:0;color:#404040">Are you available for this?</p>'+
+'<div class="req-actions">'+
+'<button type="button" class="btn-available" onclick="respondRequest(\''+r.id+'\',\'available\',\''+(r.eventId||'')+'\',\''+escapeHtml(r.ministry||'')+'\')">Available</button>'+
+'<button type="button" class="btn-unavailable" onclick="respondRequest(\''+r.id+'\',\'unavailable\',\''+(r.eventId||'')+'\',\''+escapeHtml(r.ministry||'')+'\')">Not available</button>'+
+'</div></div>';
+}).join('');
 },function(err){console.error(err)});
 }
-async function respondRequest(requestId,status,eventId){
+async function respondRequest(requestId,status,eventId,ministry){
 try{
-await db.collection('scheduleRequests').doc(requestId).update({status:status,respondedAt:firebase.firestore.FieldValue.serverTimestamp()});
-if(eventId){try{await db.collection('events').doc(eventId).update({assignmentStatus:status})}catch(e){console.warn(e)}}
+var song='';
+if(ministry==='Music Ministry'&&status==='available'){
+var songInput=document.getElementById('req-song-'+requestId);
+song=(songInput&&songInput.value||'').trim();
+if(!song){alert('Please enter the song you will sing before accepting.');return}
+}
+var updates={status:status,respondedAt:firebase.firestore.FieldValue.serverTimestamp()};
+if(song)updates.song=song;
+await db.collection('scheduleRequests').doc(requestId).update(updates);
+if(eventId){
+var eventUpdates={assignmentStatus:status};
+if(song)eventUpdates.song=song;
+try{await db.collection('events').doc(eventId).update(eventUpdates)}catch(e){console.warn(e)}
+}
+if(song&&auth.currentUser){
+try{await db.collection('users').doc(auth.currentUser.uid).update({songs:firebase.firestore.FieldValue.arrayUnion(song)})}catch(e){console.warn(e)}
+}
 alert(status==='available'?'Marked available. Thank you!':'Marked not available.');
 }catch(err){alert('Error: '+err.message)}
 }
