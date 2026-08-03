@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Music Groups - TBC</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.group-card{background:#fff;border:1px solid rgba(122,143,172,.35);border-radius:14px;padding:16px;margin:12px 0;box-shadow:0 2px 8px rgba(64,64,64,.06)}
+.group-card h3{margin:0 0 8px;color:#404040}
+.meta{font-size:.85rem;color:#7a8fac;margin:4px 0}
+.chip-row{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{background:#eef8f8;border:1px solid #4cb8b9;border-radius:999px;padding:4px 10px;font-size:.85rem;color:#404040}
+.chip.lead{background:#f3e8ff;border-color:#8845a5}
+.chip.song{background:#f7fafb;border-color:#7a8fac}
+.form-box{background:#fff;padding:16px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.08);margin:12px 0 20px}
+label.fl{display:block;font-weight:600;margin:10px 0 4px;color:#404040}
+input.fi,select.fi{width:100%;padding:12px;margin:4px 0 8px;border:1px solid #ddd;border-radius:8px;box-sizing:border-box}
+.person-wrap{position:relative}
+.person-results{position:absolute;left:0;right:0;top:100%;background:#fff;border:2px solid #7a8fac;border-top:none;border-radius:0 0 12px 12px;max-height:180px;overflow-y:auto;z-index:40;display:none}
+.person-results.open{display:block}
+.person-results div{padding:10px 12px;cursor:pointer;border-bottom:1px solid #eee}
+.person-results div:hover{background:#eef8f8}
+.member-list{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
+.member-list span{display:inline-flex;align-items:center;gap:6px;background:#eef8f8;border:1px solid #4cb8b9;border-radius:999px;padding:4px 10px;font-size:.85rem}
+.member-list button{border:none;background:transparent;color:#c62828;font-weight:700;cursor:pointer}
+.btn-row{display:flex;gap:8px;margin-top:10px}
+.btn-row button{flex:1}
+.hint{font-size:.8rem;color:#7a8fac;margin:0 0 8px}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<header>
+<h1>Music Groups</h1>
+<button class="hamburger" onclick="toggleDrawer()" aria-label="Open menu"><span></span><span></span><span></span></button>
+</header>
+
+<div class="container">
+<p class="hint">Create singing groups, add members, and pick who enters the song for the group (song lead — not an app role). Group membership and songs are saved on profiles.</p>
+
+<div id="manage-section" class="hidden">
+<div class="form-box">
+<h3 style="margin-top:0;color:#404040" id="form-heading">New Group</h3>
+<label class="fl" for="groupName">Group name *</label>
+<input class="fi" id="groupName" placeholder="e.g. Sunday Trio">
+
+<label class="fl">Members *</label>
+<div class="person-wrap">
+<input class="fi" id="memberSearch" placeholder="Type a name to add…" autocomplete="off" style="margin:0">
+<div class="person-results" id="memberResults"></div>
+</div>
+<div class="member-list" id="memberChips"></div>
+
+<label class="fl">Song lead (picks the song)</label>
+<select class="fi" id="songLeadSelect"><option value="">— Select after adding members —</option></select>
+<p class="hint">This is only for who will put the song for this group — not a calendar/app leader role.</p>
+
+<label class="fl">Group songs (optional)</label>
+<input class="fi" id="groupSongInput" placeholder="Add a song this group sings">
+<button type="button" class="menu-btn" style="margin:0 0 8px" onclick="addSongToForm()">Add song</button>
+<div class="chip-row" id="formSongs"></div>
+
+<div class="btn-row">
+<button type="button" class="menu-btn" onclick="saveGroup()">Save Group</button>
+<button type="button" class="menu-btn" style="background:#7a8fac" onclick="resetForm()">Clear</button>
+</div>
+<input type="hidden" id="editingId" value="">
+</div>
+</div>
+
+<div id="view-only-note" class="hidden">
+<p class="hint">You can see groups you belong to below. Only Music leaders/admins can create or edit groups.</p>
+</div>
+
+<h3 style="color:#404040">Groups</h3>
+<div id="groupsList"><p class="hint">Loading…</p></div>
+</div>
+
+<div class="nav-overlay" id="overlay" onclick="toggleDrawer()"></div>
+<div class="nav-drawer" id="drawer">
+<h3 style="margin-top:0;color:#404040">Menu</h3>
+<a href="index.html">Home</a>
+<a href="calendar.html">Calendar</a>
+<a href="music-groups.html">Music Groups</a>
+<a href="profile.html">Profile</a>
+<a href="#" onclick="signOutUser().then(()=>window.location.href='index.html')">Logout</a>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="auth.js"></script>
+<script src="home-logo.js"></script>
+<script>
+let currentProfile=null;
+let canManage=false;
+let directory=[];
+let selectedMembers=[]; // {uid,name}
+let formSongs=[];
+
+function toggleDrawer(){
+document.getElementById('drawer').classList.toggle('open');
+document.getElementById('overlay').classList.toggle('open');
+}
+function escapeHtml(s){return String(s||'').replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"')}
+
+async function loadDirectory(){
+try{
+const snap=await db.collection('users').where('approved','==',true).get();
+directory=[];
+snap.forEach(doc=>{const d=doc.data();directory.push({uid:doc.id,name:d.name||d.email||'Member',email:d.email||''})});
+directory.sort((a,b)=>a.name.localeCompare(b.name));
+}catch(e){
+try{
+const snap=await db.collection('users').get();
+directory=[];
+snap.forEach(doc=>{const d=doc.data();if(d.approved===false)return;directory.push({uid:doc.id,name:d.name||d.email||'Member',email:d.email||''})});
+directory.sort((a,b)=>a.name.localeCompare(b.name));
+}catch(e2){console.error(e2)}
+}
+}
+
+function bindMemberSearch(){
+const input=document.getElementById('memberSearch');
+const results=document.getElementById('memberResults');
+input.addEventListener('input',function(){
+const q=input.value.trim().toLowerCase();
+if(!q){results.classList.remove('open');results.innerHTML='';return}
+const matches=directory.filter(p=>p.name.toLowerCase().includes(q)||(p.email&&p.email.toLowerCase().includes(q))).filter(p=>!selectedMembers.some(m=>m.uid===p.uid)).slice(0,12);
+results.innerHTML=matches.length?matches.map(p=>'<div onclick="addMember(\''+p.uid+'\')">'+escapeHtml(p.name)+'</div>').join(''):'<div style="color:#7a8fac">No matches</div>';
+results.classList.add('open');
+});
+document.addEventListener('click',e=>{if(!e.target.closest('.person-wrap'))results.classList.remove('open')});
+}
+
+function addMember(uid){
+const p=directory.find(x=>x.uid===uid);
+if(!p||selectedMembers.some(m=>m.uid===uid))return;
+selectedMembers.push({uid:p.uid,name:p.name});
+document.getElementById('memberSearch').value='';
+document.getElementById('memberResults').classList.remove('open');
+renderMemberChips();
+refreshSongLeadSelect();
+}
+function removeMember(uid){
+selectedMembers=selectedMembers.filter(m=>m.uid!==uid);
+renderMemberChips();
+refreshSongLeadSelect();
+}
+function renderMemberChips(){
+document.getElementById('memberChips').innerHTML=selectedMembers.map(m=>
+'<span>'+escapeHtml(m.name)+' <button type="button" onclick="removeMember(\''+m.uid+'\')">&times;</button></span>'
+).join('');
+}
+function refreshSongLeadSelect(){
+const sel=document.getElementById('songLeadSelect');
+const cur=sel.value;
+sel.innerHTML='<option value="">— Select after adding members —</option>'+
+selectedMembers.map(m=>'<option value="'+m.uid+'">'+escapeHtml(m.name)+'</option>').join('');
+if(selectedMembers.some(m=>m.uid===cur))sel.value=cur;
+}
+function addSongToForm(){
+const v=document.getElementById('groupSongInput').value.trim();
+if(!v)return;
+if(!formSongs.includes(v))formSongs.push(v);
+document.getElementById('groupSongInput').value='';
+renderFormSongs();
+}
+function removeFormSong(i){
+formSongs.splice(i,1);
+renderFormSongs();
+}
+function renderFormSongs(){
+document.getElementById('formSongs').innerHTML=formSongs.map((s,i)=>
+'<span class="chip song">'+escapeHtml(s)+' <button type="button" style="border:none;background:transparent;cursor:pointer;color:#c62828" onclick="removeFormSong('+i+')">&times;</button></span>'
+).join('');
+}
+function resetForm(){
+document.getElementById('editingId').value='';
+document.getElementById('form-heading').textContent='New Group';
+document.getElementById('groupName').value='';
+selectedMembers=[];
+formSongs=[];
+renderMemberChips();
+renderFormSongs();
+refreshSongLeadSelect();
+}
+
+async function saveGroup(){
+if(!canManage){alert('Only Music leaders or admins can manage groups.');return}
+const name=document.getElementById('groupName').value.trim();
+if(!name){alert('Please enter a group name.');return}
+if(!selectedMembers.length){alert('Add at least one member.');return}
+const leadUid=document.getElementById('songLeadSelect').value||'';
+const lead=selectedMembers.find(m=>m.uid===leadUid);
+const data={
+name,
+memberUids:selectedMembers.map(m=>m.uid),
+members:selectedMembers.map(m=>({uid:m.uid,name:m.name})),
+songLeadUid:lead?lead.uid:null,
+songLeadName:lead?lead.name:null,
+songs:formSongs.slice(),
+updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+};
+try{
+const editId=document.getElementById('editingId').value;
+let groupId=editId;
+if(editId){
+await db.collection('musicGroups').doc(editId).update(data);
+}else{
+data.createdByUid=auth.currentUser.uid;
+data.createdAt=firebase.firestore.FieldValue.serverTimestamp();
+const ref=await db.collection('musicGroups').add(data);
+groupId=ref.id;
+}
+// Update member profiles with group membership
+const batch=db.batch();
+for(const m of selectedMembers){
+const uref=db.collection('users').doc(m.uid);
+batch.set(uref,{
+musicGroupIds:firebase.firestore.FieldValue.arrayUnion(groupId),
+musicGroupNames:firebase.firestore.FieldValue.arrayUnion(name)
+},{merge:true});
+}
+await batch.commit();
+alert('Group saved.');
+resetForm();
+loadGroups();
+}catch(err){alert('Error: '+err.message)}
+}
+
+async function editGroup(id){
+if(!canManage)return;
+const doc=await db.collection('musicGroups').doc(id).get();
+if(!doc.exists)return;
+const g=doc.data();
+document.getElementById('editingId').value=id;
+document.getElementById('form-heading').textContent='Edit Group';
+document.getElementById('groupName').value=g.name||'';
+selectedMembers=(g.members||[]).map(m=>({uid:m.uid,name:m.name}));
+if(!selectedMembers.length&&g.memberUids){
+selectedMembers=g.memberUids.map(uid=>{const p=directory.find(d=>d.uid===uid);return {uid,name:p?p.name:uid}});
+}
+formSongs=Array.isArray(g.songs)?g.songs.slice():[];
+renderMemberChips();
+renderFormSongs();
+refreshSongLeadSelect();
+if(g.songLeadUid)document.getElementById('songLeadSelect').value=g.songLeadUid;
+window.scrollTo({top:0,behavior:'smooth'});
+}
+
+async function deleteGroup(id,name){
+if(!canManage)return;
+if(!confirm('Delete group "'+name+'"?'))return;
+try{
+const doc=await db.collection('musicGroups').doc(id).get();
+const g=doc.data()||{};
+await db.collection('musicGroups').doc(id).delete();
+const uids=g.memberUids||[];
+for(const uid of uids){
+try{
+await db.collection('users').doc(uid).update({
+musicGroupIds:firebase.firestore.FieldValue.arrayRemove(id),
+musicGroupNames:firebase.firestore.FieldValue.arrayRemove(g.name||name)
+});
+}catch(e){console.warn(e)}
+}
+loadGroups();
+}catch(err){alert('Error: '+err.message)}
+}
+
+async function loadGroups(){
+const list=document.getElementById('groupsList');
+try{
+const snap=await db.collection('musicGroups').get();
+if(snap.empty){list.innerHTML='<p class="hint">No music groups yet.</p>';return}
+const groups=[];
+snap.forEach(doc=>groups.push({id:doc.id,...doc.data()}));
+groups.sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+const uid=auth.currentUser&&auth.currentUser.uid;
+list.innerHTML=groups.map(g=>{
+const members=(g.members||[]).map(m=>m.name).join(', ')||'—';
+const songs=(g.songs||[]).map(s=>'<span class="chip song">'+escapeHtml(s)+'</span>').join('')||'<span class="meta">No songs yet</span>';
+const lead=g.songLeadName?'<span class="chip lead">Song lead: '+escapeHtml(g.songLeadName)+'</span>':'';
+const mine=uid&&(g.memberUids||[]).includes(uid);
+const actions=canManage?'<div class="btn-row" style="margin-top:12px"><button type="button" class="menu-btn" onclick="editGroup(\''+g.id+'\')">Edit</button><button type="button" class="menu-btn" style="background:#7a8fac" onclick="deleteGroup(\''+g.id+'\',\''+escapeHtml(g.name||'')+'\')">Delete</button></div>':'';
+return '<div class="group-card">'+
+'<h3>'+escapeHtml(g.name||'Group')+(mine?' <span class="meta">(you)</span>':'')+'</h3>'+
+'<div class="meta">Members: '+escapeHtml(members)+'</div>'+
+'<div class="chip-row">'+lead+'</div>'+
+'<div class="meta">Songs</div><div class="chip-row">'+songs+'</div>'+
+actions+'</div>';
+}).join('');
+}catch(err){
+list.innerHTML='<p class="hint">Could not load groups. Check Firestore rules for musicGroups.</p>';
+console.error(err);
+}
+}
+
+requireApprovedUser().then(async profile=>{
+if(!profile)return;
+currentProfile=profile;
+const isAdmin=profile.role==='admin';
+const leaderOf=profile.leaderOf||[];
+const mins=profile.ministries||[];
+canManage=isAdmin||profile.role==='leader'&&(leaderOf.includes('Music Ministry')||mins.includes('Music Ministry'));
+if(canManage){
+document.getElementById('manage-section').classList.remove('hidden');
+}else{
+document.getElementById('view-only-note').classList.remove('hidden');
+}
+await loadDirectory();
+bindMemberSearch();
+loadGroups();
+});
+</script>
+</body>
+</html>
