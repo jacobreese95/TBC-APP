@@ -28,6 +28,7 @@
         <a href="index.html">Home</a>
         <a href="about.html">About Us</a>
         <a href="calendar.html">Calendar</a>
+        <a href="music-groups.html">Music Groups</a>
         <a href="chat.html">Ministry Chats</a>
         <a href="bible/index.html">Bible</a>
         <a href="give.html">Give on Tithe.ly</a>
@@ -59,6 +60,12 @@
             <label>Address</label>
             <textarea id="address" rows="3" placeholder="Street, City, State, ZIP"></textarea>
 
+            <label>Music Groups</label>
+            <div id="musicGroupsBox" style="background:#f7fafb;border:1px solid #ddd;border-radius:8px;padding:12px;margin:8px 0 15px;min-height:40px;color:#404040;font-size:0.95rem;">Loading…</div>
+
+            <label>Songs (from groups & solos)</label>
+            <div id="songsBox" style="background:#f7fafb;border:1px solid #ddd;border-radius:8px;padding:12px;margin:8px 0 15px;min-height:40px;color:#404040;font-size:0.95rem;">Loading…</div>
+
             <button class="menu-btn" onclick="saveProfile()">Save Changes</button>
             <p id="saveMsg" style="color:#4cb8b9; text-align:center; display:none;">Saved!</p>
         </div>
@@ -88,8 +95,29 @@
                 document.getElementById('phone').value = currentProfile.phone || '';
                 document.getElementById('email').value = currentProfile.email || '';
                 document.getElementById('address').value = currentProfile.address || '';
+                loadMusicInfo(currentProfile, user.uid);
             }
         });
+
+        async function loadMusicInfo(profile, uid) {
+            const gBox = document.getElementById('musicGroupsBox');
+            const sBox = document.getElementById('songsBox');
+            if (!gBox) return;
+            const names = profile.musicGroupNames || [];
+            gBox.textContent = names.length ? names.join(', ') : 'None yet';
+            let songs = Array.isArray(profile.songs) ? profile.songs.slice() : [];
+            try {
+                const snap = await db.collection('musicGroups').where('memberUids', 'array-contains', uid).get();
+                const gNames = [];
+                snap.forEach(doc => {
+                    const g = doc.data();
+                    if (g.name) gNames.push(g.name);
+                    (g.songs || []).forEach(s => { if (s && !songs.includes(s)) songs.push(s); });
+                });
+                if (gNames.length) gBox.textContent = gNames.join(', ');
+            } catch (e) { console.warn(e); }
+            sBox.textContent = songs.length ? songs.join(', ') : 'None yet';
+        }
 
         async function saveProfile() {
             const user = auth.currentUser;
