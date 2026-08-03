@@ -7,16 +7,74 @@
     <link rel="stylesheet" href="style.css">
     <style>
         .profile-form { max-width: 400px; margin: 20px auto; padding: 20px; }
-        .profile-form input, .profile-form textarea { 
-            width: 100%; 
-            height: 48px; 
-            padding: 12px 14px; 
-            margin-bottom: 15px; 
+        .profile-form input, .profile-form textarea {
+            width: 100%;
+            height: 48px;
+            padding: 12px 14px;
+            margin-bottom: 15px;
             box-sizing: border-box;
             font-size: 16px;
         }
         .profile-form textarea { height: auto; min-height: 96px; }
-        .profile-pic-placeholder { width: 120px; height: 120px; border-radius: 50%; background: #dedcd0; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: #7a8fac; }
+        .profile-pic-wrap {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 12px;
+            position: relative;
+            overflow: hidden;
+            background: #dedcd0;
+            border: 3px solid #4cb8b9;
+            box-shadow: 0 2px 10px rgba(0,0,0,.12);
+        }
+        .profile-pic-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .profile-pic-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #7a8fac;
+        }
+        .pic-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+        .pic-actions button {
+            width: auto;
+            margin: 0;
+            padding: 10px 14px;
+            font-size: 0.9rem;
+        }
+        .pic-progress {
+            display: none;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #7a8fac;
+            margin: -8px 0 14px;
+        }
+        .pic-progress .bar-bg {
+            height: 8px;
+            background: #e8eef2;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 6px 0;
+        }
+        .pic-progress .bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(135deg, #4cb8b9, #7bafdd);
+            transition: width 0.15s;
+        }
     </style>
 </head>
 <body>
@@ -42,8 +100,21 @@
     <div class="container">
         <h2 style="text-align:center; margin-top:60px;">My Profile</h2>
         <div class="profile-form">
-            <div class="profile-pic-placeholder" id="picPlaceholder">👤</div>
-            <button class="menu-btn" style="background:#7a8fac; margin-bottom:20px;" disabled>Change Profile Picture (coming soon)</button>
+            <div class="profile-pic-wrap" id="picWrap">
+                <div class="profile-pic-placeholder" id="picPlaceholder">👤</div>
+                <img id="picImg" alt="Profile" style="display:none">
+            </div>
+            <div class="pic-actions">
+                <button type="button" class="menu-btn" style="background:#7a8fac" onclick="document.getElementById('picLibrary').click()">📱 From Photos</button>
+                <button type="button" class="menu-btn" style="background:#4cb8b9" onclick="document.getElementById('picCamera').click()">📸 Take Photo</button>
+            </div>
+            <input type="file" id="picLibrary" accept="image/*" style="display:none">
+            <input type="file" id="picCamera" accept="image/*" capture="user" style="display:none">
+            <div class="pic-progress" id="picProgress">
+                <div class="bar-bg"><div class="bar" id="picBar"></div></div>
+                <span id="picProgressText">Uploading…</span>
+            </div>
+            <p id="picMsg" style="text-align:center;color:#4cb8b9;display:none;margin:0 0 12px;font-size:0.9rem;"></p>
 
             <label>Name</label>
             <input type="text" id="name" placeholder="Full name">
@@ -74,6 +145,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
     <script src="auth.js"></script>
     <script>
         function toggleMenu() {
@@ -81,7 +153,31 @@
             document.getElementById('navOverlay').classList.toggle('open');
         }
 
+        const storage = firebase.storage();
         let currentProfile = null;
+        const MAX_PIC_MB = 6;
+
+        function showPic(url) {
+            const img = document.getElementById('picImg');
+            const ph = document.getElementById('picPlaceholder');
+            if (url) {
+                img.src = url;
+                img.style.display = 'block';
+                ph.style.display = 'none';
+            } else {
+                img.style.display = 'none';
+                img.removeAttribute('src');
+                ph.style.display = 'flex';
+            }
+        }
+
+        function showPicMsg(text, isError) {
+            const el = document.getElementById('picMsg');
+            el.textContent = text;
+            el.style.color = isError ? '#c62828' : '#4cb8b9';
+            el.style.display = 'block';
+            setTimeout(function () { el.style.display = 'none'; }, 3500);
+        }
 
         auth.onAuthStateChanged(async function(user) {
             if (!user) {
@@ -95,9 +191,81 @@
                 document.getElementById('phone').value = currentProfile.phone || '';
                 document.getElementById('email').value = currentProfile.email || '';
                 document.getElementById('address').value = currentProfile.address || '';
+                showPic(currentProfile.photoURL || '');
                 loadMusicInfo(currentProfile, user.uid);
             }
         });
+
+        document.getElementById('picLibrary').addEventListener('change', function () {
+            if (this.files && this.files[0]) uploadProfilePic(this.files[0]);
+            this.value = '';
+        });
+        document.getElementById('picCamera').addEventListener('change', function () {
+            if (this.files && this.files[0]) uploadProfilePic(this.files[0]);
+            this.value = '';
+        });
+
+        async function uploadProfilePic(file) {
+            const user = auth.currentUser;
+            if (!user || !file) return;
+            if (!file.type || !file.type.startsWith('image/')) {
+                showPicMsg('Please choose an image file.', true);
+                return;
+            }
+            if (file.size > MAX_PIC_MB * 1024 * 1024) {
+                showPicMsg('Image must be under ' + MAX_PIC_MB + 'MB.', true);
+                return;
+            }
+
+            const progress = document.getElementById('picProgress');
+            const bar = document.getElementById('picBar');
+            const text = document.getElementById('picProgressText');
+            progress.style.display = 'block';
+            bar.style.width = '0%';
+            text.textContent = 'Uploading…';
+
+            try {
+                const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+                const path = 'profile-pics/' + user.uid + '/avatar.' + ext;
+                const ref = storage.ref(path);
+                const task = ref.put(file, {
+                    contentType: file.type || 'image/jpeg',
+                    customMetadata: { uploadedBy: user.uid }
+                });
+
+                await new Promise(function (resolve, reject) {
+                    task.on('state_changed',
+                        function (snap) {
+                            if (snap.totalBytes) {
+                                bar.style.width = Math.round((snap.bytesTransferred / snap.totalBytes) * 100) + '%';
+                            }
+                        },
+                        function (err) { reject(err); },
+                        function () { resolve(); }
+                    );
+                });
+
+                const url = await task.snapshot.ref.getDownloadURL();
+                await db.collection('users').doc(user.uid).set({
+                    photoURL: url,
+                    photoPath: path,
+                    photoUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+
+                if (currentProfile) {
+                    currentProfile.photoURL = url;
+                    currentProfile.photoPath = path;
+                }
+                showPic(url);
+                showPicMsg('Profile picture updated!');
+            } catch (err) {
+                console.error(err);
+                showPicMsg((err && err.message) || 'Upload failed. Check Storage rules for profile-pics.', true);
+            } finally {
+                progress.style.display = 'none';
+                bar.style.width = '0%';
+            }
+        }
 
         async function loadMusicInfo(profile, uid) {
             const gBox = document.getElementById('musicGroupsBox');
