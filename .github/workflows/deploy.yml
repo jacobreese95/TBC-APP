@@ -10,21 +10,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Verify Cloudflare token secret exists
-        env:
-          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        run: |
-          if [ -z "$TOKEN" ]; then
-            echo "ERROR: CLOUDFLARE_API_TOKEN is missing or empty."
-            echo "Add it at: Repo Settings → Secrets and variables → Actions"
-            echo "Create a token at: https://dash.cloudflare.com/profile/api-tokens"
-            echo "Use template: Edit Cloudflare Workers"
-            exit 1
-          fi
-          echo "CLOUDFLARE_API_TOKEN is set."
+      - uses: actions/checkout@v4
 
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
@@ -32,3 +18,4 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           workingDirectory: TBC-APP
           command: deploy
+          packageManager: npm
