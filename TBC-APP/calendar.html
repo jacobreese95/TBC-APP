@@ -180,7 +180,7 @@ const dateStr=year+'-'+String(month+1).padStart(2,'0')+'-'+String(day).padStart(
 cell.innerHTML='<div class="day-number">'+day+'</div>';
 const dayEvents=allEvents.filter(ev=>ev.date===dateStr&&selectedFilters.has(ev.ministry));
 const maxShow=2;
-dayEvents.slice(0,maxShow).forEach(ev=>{const evEl=document.createElement('div');evEl.className='event';evEl.textContent=ev.song?(ev.title+' — '+ev.song):ev.title;evEl.style.background=getMinistryColor(ev.ministry);cell.appendChild(evEl)});
+dayEvents.slice(0,maxShow).forEach(ev=>{const evEl=document.createElement('div');evEl.className='event';var label=ev.title||'';if(ev.ministry==='Music Ministry'){label=(ev.assignedToName||ev.title||'');if(ev.song)label+=' — '+ev.song}else if(ev.song){label=(ev.title||'')+' — '+ev.song}evEl.textContent=label;evEl.style.background=getMinistryColor(ev.ministry);cell.appendChild(evEl)});
 if(dayEvents.length>maxShow){const more=document.createElement('div');more.className='event-more';more.textContent='+'+(dayEvents.length-maxShow)+' more';cell.appendChild(more)}
 cell.onclick=()=>showDayEvents(dateStr,dayEvents);
 grid.appendChild(cell);
@@ -200,9 +200,17 @@ const div=document.createElement('div');
 div.className='day-event';
 const color=getMinistryColor(ev.ministry);
 let extra='';
+var heading=ev.title||'';
+if(ev.ministry==='Music Ministry'){
+heading=escapeHtml(ev.assignedToName||ev.title||'');
+if(ev.song)heading+=' — '+escapeHtml(ev.song);
+if(ev.assignmentStatus)extra+='<div style="margin-top:6px;font-size:.85rem">Status: '+escapeHtml(ev.assignmentStatus)+'</div>';
+div.innerHTML='<strong>'+heading+'</strong>'+extra+'<div class="ministry-tag" style="background:'+color+'">'+(ev.ministry||'')+'</div>';
+}else{
 if(ev.assignedToName){extra+='<div style="margin-top:6px;font-size:.85rem">Assigned: '+escapeHtml(ev.assignedToName)+(ev.assignmentStatus?' ('+escapeHtml(ev.assignmentStatus)+')':'')+'</div>'}
 if(ev.song)extra+='<div style="margin-top:4px;font-size:.85rem">Song: '+escapeHtml(ev.song)+'</div>';
 div.innerHTML='<strong>'+escapeHtml(ev.title||'')+'</strong>'+(ev.description?'<div style="margin-top:6px;color:#555">'+escapeHtml(ev.description)+'</div>':'')+extra+'<div class="ministry-tag" style="background:'+color+'">'+(ev.ministry||'')+'</div>';
+}
 eventsEl.appendChild(div);
 })}
 modal.classList.add('open');
@@ -248,14 +256,21 @@ function onMinistryChange(){
 const ministry=document.getElementById('event-ministry').value;
 const extra=document.getElementById('schedule-extra');
 const songWrap=document.getElementById('songFieldWrap');
-if(SCHEDULE_MINISTRIES.includes(ministry)){
+const titleEl=document.getElementById('event-title');
+const descEl=document.getElementById('event-desc');
+const isMusic=ministry==='Music Ministry';
+const isSchedule=SCHEDULE_MINISTRIES.includes(ministry);
+if(isSchedule){
 extra.classList.add('visible');
-songWrap.style.display=ministry==='Music Ministry'?'block':'none';
+songWrap.style.display=isMusic?'block':'none';
 }else{
 extra.classList.remove('visible');
 clearSelectedPerson();
 document.getElementById('event-song').value='';
 }
+if(titleEl) titleEl.style.display=isMusic?'none':'block';
+if(descEl) descEl.style.display=isMusic?'none':'block';
+if(isMusic){titleEl.value='';descEl.value='';titleEl.placeholder=''}else{titleEl.placeholder='Event Title'}
 }
 function clearSelectedPerson(){
 selectedPerson=null;
@@ -298,24 +313,29 @@ document.addEventListener('click',function(e){if(!e.target.closest('.person-wrap
 async function addEvent(){
 if(!currentProfile)return;
 const date=document.getElementById('event-date').value;
-const title=document.getElementById('event-title').value.trim();
+let title=document.getElementById('event-title').value.trim();
 const desc=document.getElementById('event-desc').value.trim();
 const ministry=document.getElementById('event-ministry').value;
 const isSchedule=SCHEDULE_MINISTRIES.includes(ministry);
+const isMusic=ministry==='Music Ministry';
 const song=(document.getElementById('event-song')&&document.getElementById('event-song').value||'').trim();
-if(!date||!title){alert('Please enter a date and title');return}
+if(!date){alert('Please enter a date');return}
+if(isMusic){
+if(!selectedPerson){alert('Please assign the person who will sing.');return}
+title=selectedPerson.name+(song?' — '+song:'');
+}else if(!title){alert('Please enter a date and title');return}
 const isAdmin=currentProfile.role==='admin';
 const leaderOf=currentProfile.leaderOf||[];
 if(!isAdmin&&!leaderOf.includes(ministry)){alert('You can only create events for ministries you lead.');return}
 if(isSchedule&&!selectedPerson){alert('Please assign a person for this schedule.');return}
 try{
-const eventData={date,title,description:desc,ministry,createdByUid:auth.currentUser.uid,createdByName:currentProfile.name||currentProfile.email||'Leader',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+const eventData={date,title,description:isMusic?'':desc,ministry,createdByUid:auth.currentUser.uid,createdByName:currentProfile.name||currentProfile.email||'Leader',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
 if(isSchedule&&selectedPerson){eventData.assignedToUid=selectedPerson.uid;eventData.assignedToName=selectedPerson.name;eventData.assignmentStatus='pending'}
-if(ministry==='Music Ministry'&&song)eventData.song=song;
+if(isMusic&&song)eventData.song=song;
 const eventRef=await db.collection('events').add(eventData);
 if(isSchedule&&selectedPerson){
 await db.collection('scheduleRequests').add({eventId:eventRef.id,date,title,ministry,song:song||null,assignedToUid:selectedPerson.uid,assignedToName:selectedPerson.name,createdByUid:auth.currentUser.uid,createdByName:currentProfile.name||currentProfile.email||'Leader',status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-if(ministry==='Music Ministry'&&song){
+if(isMusic&&song){
 try{await db.collection('users').doc(selectedPerson.uid).update({songs:firebase.firestore.FieldValue.arrayUnion(song)})}catch(songErr){console.warn(songErr)}
 }
 }
@@ -373,6 +393,7 @@ await db.collection('scheduleRequests').doc(requestId).update(updates);
 if(eventId){
 var eventUpdates={assignmentStatus:status};
 if(song)eventUpdates.song=song;
+if(song)eventUpdates.title=(await db.collection('events').doc(eventId).get()).data().assignedToName+' — '+song;
 try{await db.collection('events').doc(eventId).update(eventUpdates)}catch(e){console.warn(e)}
 }
 if(song&&auth.currentUser){
