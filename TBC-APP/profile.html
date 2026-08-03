@@ -155,7 +155,7 @@
 
         const storage = firebase.storage();
         let currentProfile = null;
-        const MAX_PIC_MB = 6;
+        const MAX_PIC_MB = 15;
 
         function showPic(url) {
             const img = document.getElementById('picImg');
@@ -176,7 +176,51 @@
             el.textContent = text;
             el.style.color = isError ? '#c62828' : '#4cb8b9';
             el.style.display = 'block';
-            setTimeout(function () { el.style.display = 'none'; }, 3500);
+            setTimeout(function () { el.style.display = 'none'; }, 4000);
+        }
+
+        // Shrink phone photos so normal selfies upload cleanly
+        function compressImage(file) {
+            return new Promise(function (resolve, reject) {
+                if (!file.type || !file.type.startsWith('image/')) {
+                    reject(new Error('Please choose an image file.'));
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onerror = function () { reject(new Error('Could not read that photo.')); };
+                reader.onload = function () {
+                    const img = new Image();
+                    img.onerror = function () { reject(new Error('Could not load that photo.')); };
+                    img.onload = function () {
+                        const maxSide = 1200;
+                        let w = img.width;
+                        let h = img.height;
+                        if (w > maxSide || h > maxSide) {
+                            if (w >= h) {
+                                h = Math.round(h * (maxSide / w));
+                                w = maxSide;
+                            } else {
+                                w = Math.round(w * (maxSide / h));
+                                h = maxSide;
+                            }
+                        }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = w;
+                        canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, w, h);
+                        canvas.toBlob(function (blob) {
+                            if (!blob) {
+                                reject(new Error('Could not process that photo.'));
+                                return;
+                            }
+                            resolve(new File([blob], 'avatar.jpg', { type: 'image/jpeg' }));
+                        }, 'image/jpeg', 0.85);
+                    };
+                    img.src = reader.result;
+                };
+                reader.readAsDataURL(file);
+            });
         }
 
         auth.onAuthStateChanged(async function(user) {
@@ -208,28 +252,37 @@
         async function uploadProfilePic(file) {
             const user = auth.currentUser;
             if (!user || !file) return;
-            if (!file.type || !file.type.startsWith('image/')) {
-                showPicMsg('Please choose an image file.', true);
-                return;
-            }
-            if (file.size > MAX_PIC_MB * 1024 * 1024) {
-                showPicMsg('Image must be under ' + MAX_PIC_MB + 'MB.', true);
-                return;
-            }
 
             const progress = document.getElementById('picProgress');
             const bar = document.getElementById('picBar');
             const text = document.getElementById('picProgressText');
             progress.style.display = 'block';
             bar.style.width = '0%';
-            text.textContent = 'Uploading…';
+            text.textContent = 'Preparing photo…';
 
             try {
-                const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
-                const path = 'profile-pics/' + user.uid + '/avatar.' + ext;
+                let uploadFile = file;
+                try {
+                    text.textContent = 'Resizing photo…';
+                    uploadFile = await compressImage(file);
+                } catch (compressErr) {
+                    // If compress fails (e.g. HEIC on some devices), try original if under limit
+                    if (file.size > MAX_PIC_MB * 1024 * 1024) {
+                        throw compressErr;
+                    }
+                    uploadFile = file;
+                }
+
+                if (uploadFile.size > MAX_PIC_MB * 1024 * 1024) {
+                    showPicMsg('Image is still too large after resize. Try a smaller photo.', true);
+                    return;
+                }
+
+                text.textContent = 'Uploading…';
+                const path = 'profile-pics/' + user.uid + '/avatar.jpg';
                 const ref = storage.ref(path);
-                const task = ref.put(file, {
-                    contentType: file.type || 'image/jpeg',
+                const task = ref.put(uploadFile, {
+                    contentType: uploadFile.type || 'image/jpeg',
                     customMetadata: { uploadedBy: user.uid }
                 });
 
@@ -256,11 +309,15 @@
                     currentProfile.photoURL = url;
                     currentProfile.photoPath = path;
                 }
-                showPic(url);
+                showPic(url + '?t=' + Date.now());
                 showPicMsg('Profile picture updated!');
             } catch (err) {
                 console.error(err);
-                showPicMsg((err && err.message) || 'Upload failed. Check Storage rules for profile-pics.', true);
+                var msg = (err && err.message) || 'Upload failed.';
+                if (String(msg).toLowerCase().indexOf('permission') !== -1 || (err && err.code === 'storage/unauthorized')) {
+                    msg = 'Permission denied. Update Firebase Storage rules for profile-pics (see instructions).';
+                }
+                showPicMsg(msg, true);
             } finally {
                 progress.style.display = 'none';
                 bar.style.width = '0%';
