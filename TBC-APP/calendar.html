@@ -1,1 +1,368 @@
-PLACEHOLDER_WILL_FAIL
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendar - TBC Church App</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://browser.sentry-cdn.com/7.119.0/bundle.min.js" crossorigin="anonymous"></script>
+<style>
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:20px 0}
+.day-header{font-weight:bold;text-align:center;padding:8px;background:#7bafdd;color:#fff;border-radius:6px}
+.day-cell{min-height:70px;border:1px solid #ddd;padding:6px;border-radius:8px;background:#fff;cursor:pointer;position:relative}
+.day-cell.other-month{background:#f8f8f8;color:#aaa}
+.day-number{font-weight:bold;margin-bottom:4px}
+.event{font-size:.75rem;color:#fff;padding:2px 6px;border-radius:4px;margin:2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.event-more{font-size:.7rem;color:#666;margin-top:2px;font-weight:bold}
+.filter-bar{display:flex;flex-wrap:wrap;gap:8px;margin:15px 0}
+.filter-btn{padding:8px 16px;border:2px solid #ccc;background:#fff;color:#666;border-radius:20px;cursor:pointer;font-weight:bold}
+.filter-btn.active{color:#fff}
+.day-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:100;padding:16px;box-sizing:border-box}
+.day-modal.open{display:flex}
+.day-modal-content{background:#fff;border-radius:16px;padding:20px;width:100%;max-width:420px;max-height:80vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.day-modal h3{margin-top:0;color:#404040}
+.day-event{padding:12px;border:1px solid #ddd;border-radius:12px;margin-bottom:10px}
+.day-event .ministry-tag{display:inline-block;font-size:.75rem;color:#fff;padding:2px 8px;border-radius:10px;margin-top:6px}
+.cal-nav{margin:16px 0 12px;text-align:center}
+.cal-nav-btns{display:flex;justify-content:stretch;gap:10px;margin-bottom:12px;width:100%}
+.cal-nav-btn{flex:1;width:auto;min-width:0;padding:12px 8px;border-radius:12px;border:2px solid #4cb8b9;background:#fff;color:#4cb8b9;font-weight:bold;font-size:.95rem;cursor:pointer;box-sizing:border-box}
+.cal-nav-btn:active{transform:scale(.96)}
+.cal-nav-label{display:block;text-align:center;color:#404040;margin-top:6px;line-height:1.35}
+.cal-nav-label #cal-month{display:block;font-size:1.35rem;font-weight:700}
+.cal-nav-label #cal-year{display:block;font-size:1.05rem;font-weight:600;color:#7a8fac;margin-top:2px}
+.schedule-extra{display:none;margin-top:4px}
+.schedule-extra.visible{display:block}
+.person-wrap{position:relative}
+.person-results{position:absolute;left:0;right:0;top:100%;background:#fff;border:2px solid #7a8fac;border-top:none;border-radius:0 0 12px 12px;max-height:200px;overflow-y:auto;z-index:50;display:none}
+.person-results.open{display:block}
+.person-results div{padding:10px 14px;cursor:pointer;border-bottom:1px solid #eee;font-size:.95rem;color:#404040}
+.person-results div:hover{background:#eef8f8}
+.person-chip{display:inline-flex;align-items:center;gap:8px;background:#eef8f8;border:1px solid #4cb8b9;border-radius:999px;padding:6px 12px;margin:6px 0 10px;font-weight:600;color:#404040}
+.person-chip button{border:none;background:transparent;color:#c62828;font-weight:700;cursor:pointer;font-size:1rem;padding:0 2px}
+.song-chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
+.song-chips button{border:1px solid #7a8fac;background:#f7fafb;border-radius:999px;padding:6px 12px;font-size:.85rem;cursor:pointer;color:#404040}
+.song-chips button:hover{border-color:#4cb8b9;background:#eef8f8}
+.req-card{background:#fff;border:1px solid rgba(122,143,172,.35);border-radius:14px;padding:14px;margin:10px 0;box-shadow:0 2px 8px rgba(64,64,64,.06)}
+.req-card h4{margin:0 0 6px;color:#404040}
+.req-meta{font-size:.85rem;color:#7a8fac;margin-bottom:8px}
+.req-actions{display:flex;gap:8px;margin-top:10px}
+.req-actions button{flex:1;margin:0}
+.btn-available{background:linear-gradient(135deg,#27ae60 0%,#4cb8b9 100%)!important;color:#fff;border:none;padding:12px;border-radius:12px;font-weight:700;cursor:pointer}
+.btn-unavailable{background:linear-gradient(135deg,#7a8fac 0%,#404040 100%)!important;color:#fff;border:none;padding:12px;border-radius:12px;font-weight:700;cursor:pointer}
+#my-requests-section{display:none;margin:12px 0 8px}
+#my-requests-section h3{color:#404040;margin:0 0 8px;font-size:1.1rem}
+label.form-label{display:block;font-weight:600;margin:10px 0 4px;color:#404040}
+input.form-input,textarea.form-input,select.form-input{width:100%;padding:12px;margin:8px 0;border:1px solid #ddd;border-radius:8px;box-sizing:border-box}
+</style>
+</head>
+<body>
+<header>
+<h1>Church Calendar</h1>
+<button class="hamburger" onclick="toggleDrawer()" aria-label="Open menu"><span></span><span></span><span></span></button>
+</header>
+<div class="container">
+<div class="filter-bar" id="filter-bar"></div>
+<div id="my-requests-section">
+<h3>My Schedule Requests</h3>
+<div id="my-requests-list"></div>
+</div>
+<div class="cal-nav">
+<div class="cal-nav-btns">
+<button type="button" class="cal-nav-btn" onclick="prevMonth()">< Prev</button>
+<button type="button" class="cal-nav-btn" onclick="nextMonth()">Next ></button>
+</div>
+<div class="cal-nav-label">
+<span id="cal-month"></span>
+<span id="cal-year"></span>
+</div>
+</div>
+<div class="calendar-grid" id="calendar-grid"></div>
+<div id="add-event-section" style="display:none">
+<h3 style="margin-top:30px;color:#404040">Add New Event</h3>
+<p id="add-event-hint" style="font-size:.85rem;color:#7a8fac;margin:0 0 8px"></p>
+<div style="background:#fff;padding:20px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.1)">
+<input type="date" id="event-date" class="form-input">
+<input type="text" id="event-title" class="form-input" placeholder="Event Title">
+<textarea id="event-desc" class="form-input" placeholder="Description (optional)" style="height:80px"></textarea>
+<select id="event-ministry" class="form-input" onchange="onMinistryChange()"></select>
+<div id="schedule-extra" class="schedule-extra">
+<label class="form-label" for="personSearch">Assign person *</label>
+<div class="person-wrap">
+<input type="text" id="personSearch" class="form-input" placeholder="Start typing a name…" autocomplete="off" style="margin:0">
+<div class="person-results" id="personResults"></div>
+</div>
+<div id="selectedPersonChip"></div>
+<div id="knownSongsWrap" style="display:none">
+<div style="font-size:.85rem;color:#7a8fac;margin:4px 0">Their songs (tap to use):</div>
+<div class="song-chips" id="knownSongs"></div>
+</div>
+<div id="songFieldWrap" style="display:none">
+<label class="form-label" for="event-song">Song *</label>
+<input type="text" id="event-song" class="form-input" placeholder="Song they will sing (or assign one)">
+<p style="font-size:.8rem;color:#7a8fac;margin:0 0 8px">Required for Music Ministry. Saved to their profile for future scheduling.</p>
+</div>
+</div>
+<button onclick="addEvent()" class="menu-btn" style="margin-top:10px">Add Event</button>
+</div>
+</div>
+</div>
+<div class="nav-overlay" id="overlay" onclick="toggleDrawer()"></div>
+<div class="nav-drawer" id="drawer">
+<h3 style="margin-top:0;color:#404040">Menu</h3>
+<a href="index.html">Home</a>
+<a href="about.html">About Us</a>
+<a href="calendar.html">Calendar</a>
+<a href="chat.html">Ministry Chats</a>
+<a href="bible/index.html">Bible</a>
+<a href="give.html">Give on Tithe.ly</a>
+<a href="sermons.html">Sermons & Live Streams</a>
+<a href="soul-winning.html">Soul Winning</a>
+<a href="upload-photos.html">Upload Photos</a>
+<a href="profile.html">Profile</a>
+<a href="#" onclick="signOutUser().then(()=>window.location.href='index.html')">Logout</a>
+</div>
+<div class="day-modal" id="day-modal" onclick="if(event.target===this)closeDayModal()">
+<div class="day-modal-content">
+<h3 id="day-modal-title">Events</h3>
+<div id="day-modal-events"></div>
+<button onclick="closeDayModal()" style="width:100%;margin-top:10px;background:#7a8fac;color:#fff;border:none;padding:12px;border-radius:12px;font-weight:bold">Close</button>
+</div>
+</div>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="auth.js"></script>
+<script src="home-logo.js"></script>
+<script>
+let currentDate=new Date();
+let allEvents=[];
+let selectedFilters=new Set(['Whole Church']);
+let currentProfile=null;
+const ministryColors={'Whole Church':'#7bafdd','Music Ministry':'#8845a5','Sentry':'#e67e22','Nursery':'#27ae60','Media':'#4cb8b9'};
+const allMinistries=['Whole Church','Music Ministry','Sentry','Nursery','Media'];
+const SCHEDULE_MINISTRIES=['Music Ministry','Sentry','Nursery','Media'];
+let directory=[];
+let selectedPerson=null;
+function getMinistryColor(m){return ministryColors[m]||'#4cb8b9'}
+function toggleDrawer(){document.getElementById('drawer').classList.toggle('open');document.getElementById('overlay').classList.toggle('open')}
+function closeDayModal(){document.getElementById('day-modal').classList.remove('open')}
+function escapeHtml(str){return String(str||'').replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"')}
+function renderFilterBar(userMinistries,isAdmin){
+const container=document.getElementById('filter-bar');
+container.innerHTML='';
+allMinistries.forEach(ministry=>{
+if(ministry!=='Whole Church'&&!(isAdmin||userMinistries.includes(ministry)))return;
+const btn=document.createElement('button');
+btn.className='filter-btn'+(selectedFilters.has(ministry)?' active':'');
+btn.textContent=ministry;
+btn.style.borderColor=getMinistryColor(ministry);
+if(selectedFilters.has(ministry)){btn.style.background=getMinistryColor(ministry);btn.style.color='#fff'}
+btn.onclick=()=>{if(selectedFilters.has(ministry))selectedFilters.delete(ministry);else selectedFilters.add(ministry);if(selectedFilters.size===0)selectedFilters.add('Whole Church');renderFilterBar(userMinistries,isAdmin);renderCalendar()};
+container.appendChild(btn);
+});
+}
+function renderCalendar(){
+const grid=document.getElementById('calendar-grid');
+const year=currentDate.getFullYear();
+const month=currentDate.getMonth();
+document.getElementById('cal-month').textContent=currentDate.toLocaleString('default',{month:'long'});
+document.getElementById('cal-year').textContent=String(currentDate.getFullYear());
+grid.innerHTML='';
+['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d=>{const h=document.createElement('div');h.className='day-header';h.textContent=d;grid.appendChild(h)});
+const firstDay=new Date(year,month,1).getDay();
+const daysInMonth=new Date(year,month+1,0).getDate();
+const prevDays=new Date(year,month,0).getDate();
+for(let i=0;i<firstDay;i++){const cell=document.createElement('div');cell.className='day-cell other-month';cell.innerHTML='<div class="day-number">'+(prevDays-firstDay+1+i)+'</div>';grid.appendChild(cell)}
+for(let day=1;day<=daysInMonth;day++){
+const cell=document.createElement('div');
+cell.className='day-cell';
+const dateStr=year+'-'+String(month+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');
+cell.innerHTML='<div class="day-number">'+day+'</div>';
+const dayEvents=allEvents.filter(ev=>ev.date===dateStr&&selectedFilters.has(ev.ministry));
+const maxShow=2;
+dayEvents.slice(0,maxShow).forEach(ev=>{const evEl=document.createElement('div');evEl.className='event';evEl.textContent=ev.title;evEl.style.background=getMinistryColor(ev.ministry);cell.appendChild(evEl)});
+if(dayEvents.length>maxShow){const more=document.createElement('div');more.className='event-more';more.textContent='+'+(dayEvents.length-maxShow)+' more';cell.appendChild(more)}
+cell.onclick=()=>showDayEvents(dateStr,dayEvents);
+grid.appendChild(cell);
+}
+}
+function showDayEvents(dateStr,events){
+const modal=document.getElementById('day-modal');
+const titleEl=document.getElementById('day-modal-title');
+const eventsEl=document.getElementById('day-modal-events');
+const parts=dateStr.split('-');
+const d=new Date(parseInt(parts[0]),parseInt(parts[1])-1,parseInt(parts[2]));
+titleEl.textContent=d.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
+eventsEl.innerHTML='';
+if(!events||!events.length){eventsEl.innerHTML='<p style="color:#666">No events on this day.</p>'}
+else{events.forEach(ev=>{
+const div=document.createElement('div');
+div.className='day-event';
+const color=getMinistryColor(ev.ministry);
+let extra='';
+if(ev.assignedToName){extra+='<div style="margin-top:6px;font-size:.85rem">Assigned: '+escapeHtml(ev.assignedToName)+(ev.assignmentStatus?' ('+escapeHtml(ev.assignmentStatus)+')':'')+'</div>'}
+if(ev.song)extra+='<div style="margin-top:4px;font-size:.85rem">Song: '+escapeHtml(ev.song)+'</div>';
+div.innerHTML='<strong>'+escapeHtml(ev.title||'')+'</strong>'+(ev.description?'<div style="margin-top:6px;color:#555">'+escapeHtml(ev.description)+'</div>':'')+extra+'<div class="ministry-tag" style="background:'+color+'">'+(ev.ministry||'')+'</div>';
+eventsEl.appendChild(div);
+})}
+modal.classList.add('open');
+}
+async function loadEvents(){
+try{const snapshot=await db.collection('events').get();allEvents=[];snapshot.forEach(doc=>allEvents.push({id:doc.id,...doc.data()}));renderCalendar()}
+catch(err){console.error(err);renderCalendar()}
+}
+function setupAddEventForm(profile){
+const section=document.getElementById('add-event-section');
+const select=document.getElementById('event-ministry');
+const hint=document.getElementById('add-event-hint');
+const isAdmin=profile.role==='admin';
+const isLeader=profile.role==='leader';
+const leaderOf=Array.isArray(profile.leaderOf)?profile.leaderOf.slice():[];
+let allowed=[];
+if(isAdmin){allowed=allMinistries.slice();hint.textContent='As an admin you can create events for any ministry.'}
+else if(isLeader&&leaderOf.length){allowed=leaderOf.filter(m=>allMinistries.includes(m));if(!allowed.length)allowed=leaderOf.slice();hint.textContent='You can create events for: '+allowed.join(', ')}
+else{section.style.display='none';return}
+if(!allowed.length){section.style.display='none';return}
+select.innerHTML=allowed.map(m=>'<option value="'+m.replace(/"/g,'"')+'">'+m+'</option>').join('');
+section.style.display='block';
+onMinistryChange();
+loadDirectory();
+}
+async function loadDirectory(){
+try{
+const snap=await db.collection('users').where('approved','==',true).get();
+directory=[];
+snap.forEach(doc=>{const d=doc.data();directory.push({uid:doc.id,name:d.name||d.email||'Member',email:d.email||'',songs:Array.isArray(d.songs)?d.songs:[]})});
+directory.sort((a,b)=>a.name.localeCompare(b.name));
+}catch(err){
+console.error(err);
+try{
+const snap=await db.collection('users').get();
+directory=[];
+snap.forEach(doc=>{const d=doc.data();if(d.approved===false)return;directory.push({uid:doc.id,name:d.name||d.email||'Member',email:d.email||'',songs:Array.isArray(d.songs)?d.songs:[]})});
+directory.sort((a,b)=>a.name.localeCompare(b.name));
+}catch(e2){console.error(e2)}
+}
+}
+function onMinistryChange(){
+const ministry=document.getElementById('event-ministry').value;
+const extra=document.getElementById('schedule-extra');
+const songWrap=document.getElementById('songFieldWrap');
+if(SCHEDULE_MINISTRIES.includes(ministry)){
+extra.classList.add('visible');
+songWrap.style.display=ministry==='Music Ministry'?'block':'none';
+}else{
+extra.classList.remove('visible');
+clearSelectedPerson();
+document.getElementById('event-song').value='';
+}
+}
+function clearSelectedPerson(){
+selectedPerson=null;
+document.getElementById('selectedPersonChip').innerHTML='';
+document.getElementById('personSearch').value='';
+document.getElementById('knownSongsWrap').style.display='none';
+document.getElementById('knownSongs').innerHTML='';
+}
+function selectPerson(uid){
+const p=directory.find(x=>x.uid===uid);
+if(!p)return;
+selectedPerson=p;
+document.getElementById('personSearch').value='';
+document.getElementById('personResults').classList.remove('open');
+document.getElementById('selectedPersonChip').innerHTML='<div class="person-chip">'+escapeHtml(p.name)+' <button type="button" onclick="clearSelectedPerson()" aria-label="Remove">&times;</button></div>';
+const ministry=document.getElementById('event-ministry').value;
+if(ministry==='Music Ministry'){
+const wrap=document.getElementById('knownSongsWrap');
+const chips=document.getElementById('knownSongs');
+if(p.songs&&p.songs.length){
+wrap.style.display='block';
+chips.innerHTML=p.songs.map(s=>'<button type="button" onclick="document.getElementById(\'event-song\').value=\''+String(s).replace(/'/g,"\\'")+'\'">'+escapeHtml(s)+'</button>').join('');
+}else{wrap.style.display='none';chips.innerHTML=''}
+}
+}
+function bindPersonSearch(){
+const input=document.getElementById('personSearch');
+const results=document.getElementById('personResults');
+if(!input)return;
+input.addEventListener('input',function(){
+const q=input.value.trim().toLowerCase();
+if(!q){results.classList.remove('open');results.innerHTML='';return}
+const matches=directory.filter(p=>p.name.toLowerCase().indexOf(q)!==-1||(p.email&&p.email.toLowerCase().indexOf(q)!==-1)).slice(0,12);
+if(!matches.length){results.innerHTML='<div style="color:#7a8fac">No matches</div>';results.classList.add('open');return}
+results.innerHTML=matches.map(p=>'<div onclick="selectPerson(\''+p.uid+'\')">'+escapeHtml(p.name)+(p.email?' <span style="color:#7a8fac;font-size:.85rem">'+escapeHtml(p.email)+'</span>':'')+'</div>').join('');
+results.classList.add('open');
+});
+document.addEventListener('click',function(e){if(!e.target.closest('.person-wrap'))results.classList.remove('open')});
+}
+async function addEvent(){
+if(!currentProfile)return;
+const date=document.getElementById('event-date').value;
+const title=document.getElementById('event-title').value.trim();
+const desc=document.getElementById('event-desc').value.trim();
+const ministry=document.getElementById('event-ministry').value;
+const isSchedule=SCHEDULE_MINISTRIES.includes(ministry);
+const song=(document.getElementById('event-song')&&document.getElementById('event-song').value||'').trim();
+if(!date||!title){alert('Please enter a date and title');return}
+const isAdmin=currentProfile.role==='admin';
+const leaderOf=currentProfile.leaderOf||[];
+if(!isAdmin&&!leaderOf.includes(ministry)){alert('You can only create events for ministries you lead.');return}
+if(isSchedule&&!selectedPerson){alert('Please assign a person for this schedule.');return}
+if(ministry==='Music Ministry'&&!song){alert('Please enter a song for Music Ministry.');return}
+try{
+const eventData={date,title,description:desc,ministry,createdByUid:auth.currentUser.uid,createdByName:currentProfile.name||currentProfile.email||'Leader',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+if(isSchedule&&selectedPerson){eventData.assignedToUid=selectedPerson.uid;eventData.assignedToName=selectedPerson.name;eventData.assignmentStatus='pending'}
+if(ministry==='Music Ministry'&&song)eventData.song=song;
+const eventRef=await db.collection('events').add(eventData);
+if(isSchedule&&selectedPerson){
+await db.collection('scheduleRequests').add({eventId:eventRef.id,date,title,ministry,song:song||null,assignedToUid:selectedPerson.uid,assignedToName:selectedPerson.name,createdByUid:auth.currentUser.uid,createdByName:currentProfile.name||currentProfile.email||'Leader',status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+if(ministry==='Music Ministry'&&song){
+try{await db.collection('users').doc(selectedPerson.uid).update({songs:firebase.firestore.FieldValue.arrayUnion(song)})}catch(songErr){console.warn(songErr)}
+}
+}
+alert(isSchedule?'Event added. '+selectedPerson.name+' will see a schedule request on the calendar.':'Event added!');
+document.getElementById('event-date').value='';
+document.getElementById('event-title').value='';
+document.getElementById('event-desc').value='';
+if(document.getElementById('event-song'))document.getElementById('event-song').value='';
+clearSelectedPerson();
+await loadEvents();
+}catch(err){alert('Error: '+err.message)}
+}
+function loadMyRequests(){
+if(!auth.currentUser)return;
+const uid=auth.currentUser.uid;
+db.collection('scheduleRequests').where('assignedToUid','==',uid).where('status','==','pending').onSnapshot(function(snap){
+const section=document.getElementById('my-requests-section');
+const list=document.getElementById('my-requests-list');
+if(snap.empty){section.style.display='none';list.innerHTML='';return}
+section.style.display='block';
+const items=[];snap.forEach(doc=>items.push({id:doc.id,...doc.data()}));
+items.sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+list.innerHTML=items.map(r=>'<div class="req-card"><h4>'+escapeHtml(r.title||'Schedule')+'</h4><div class="req-meta">'+escapeHtml(r.ministry||'')+' · '+escapeHtml(r.date||'')+(r.song?' · Song: '+escapeHtml(r.song):'')+'<br>From: '+escapeHtml(r.createdByName||'Leader')+'</div><p style="margin:0;color:#404040">Are you available for this?</p><div class="req-actions"><button type="button" class="btn-available" onclick="respondRequest(\''+r.id+'\',\'available\',\''+(r.eventId||'')+'\')">Available</button><button type="button" class="btn-unavailable" onclick="respondRequest(\''+r.id+'\',\'unavailable\',\''+(r.eventId||'')+'\')">Not available</button></div></div>').join('');
+},function(err){console.error(err)});
+}
+async function respondRequest(requestId,status,eventId){
+try{
+await db.collection('scheduleRequests').doc(requestId).update({status:status,respondedAt:firebase.firestore.FieldValue.serverTimestamp()});
+if(eventId){try{await db.collection('events').doc(eventId).update({assignmentStatus:status})}catch(e){console.warn(e)}}
+alert(status==='available'?'Marked available. Thank you!':'Marked not available.');
+}catch(err){alert('Error: '+err.message)}
+}
+function prevMonth(){currentDate.setMonth(currentDate.getMonth()-1);renderCalendar()}
+function nextMonth(){currentDate.setMonth(currentDate.getMonth()+1);renderCalendar()}
+requireApprovedUser().then(profile=>{
+if(profile){
+currentProfile=profile;
+const userMinistries=profile.ministries||[];
+const isAdmin=profile.role==='admin';
+renderFilterBar(userMinistries,isAdmin);
+setupAddEventForm(profile);
+bindPersonSearch();
+loadMyRequests();
+loadEvents();
+}
+});
+</script>
+</body>
+</html>
