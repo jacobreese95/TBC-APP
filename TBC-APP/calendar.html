@@ -180,7 +180,7 @@ const dateStr=year+'-'+String(month+1).padStart(2,'0')+'-'+String(day).padStart(
 cell.innerHTML='<div class="day-number">'+day+'</div>';
 const dayEvents=allEvents.filter(ev=>ev.date===dateStr&&selectedFilters.has(ev.ministry));
 const maxShow=2;
-dayEvents.slice(0,maxShow).forEach(ev=>{const evEl=document.createElement('div');evEl.className='event';evEl.textContent=ev.title;evEl.style.background=getMinistryColor(ev.ministry);cell.appendChild(evEl)});
+dayEvents.slice(0,maxShow).forEach(ev=>{const evEl=document.createElement('div');evEl.className='event';evEl.textContent=ev.song?(ev.title+' — '+ev.song):ev.title;evEl.style.background=getMinistryColor(ev.ministry);cell.appendChild(evEl)});
 if(dayEvents.length>maxShow){const more=document.createElement('div');more.className='event-more';more.textContent='+'+(dayEvents.length-maxShow)+' more';cell.appendChild(more)}
 cell.onclick=()=>showDayEvents(dateStr,dayEvents);
 grid.appendChild(cell);
