@@ -39,8 +39,9 @@
 .person-results.open{display:block}
 .person-results div{padding:10px 14px;cursor:pointer;border-bottom:1px solid #eee;font-size:.95rem;color:#404040}
 .person-results div:hover{background:#eef8f8}
-.person-chip{display:inline-flex;align-items:center;gap:8px;background:#eef8f8;border:1px solid #4cb8b9;border-radius:999px;padding:6px 12px;margin:6px 0 10px;font-weight:600;color:#404040}
+.person-chip{display:inline-flex;align-items:center;gap:8px;background:#eef8f8;border:1px solid #4cb8b9;border-radius:999px;padding:6px 12px;margin:4px 4px 4px 0;font-weight:600;color:#404040}
 .person-chip button{border:none;background:transparent;color:#c62828;font-weight:700;cursor:pointer;font-size:1rem;padding:0 2px}
+#selectedPersonChip{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0}
 .song-chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
 .song-chips button{border:1px solid #7a8fac;background:#f7fafb;border-radius:999px;padding:6px 12px;font-size:.85rem;cursor:pointer;color:#404040}
 .song-chips button:hover{border-color:#4cb8b9;background:#eef8f8}
@@ -88,9 +89,9 @@ input.form-input,textarea.form-input,select.form-input{width:100%;padding:12px;m
 <textarea id="event-desc" class="form-input" placeholder="Description (optional)" style="height:80px"></textarea>
 <select id="event-ministry" class="form-input" onchange="onMinistryChange()"></select>
 <div id="schedule-extra" class="schedule-extra">
-<label class="form-label" for="personSearch">Assign person *</label>
+<label class="form-label" for="personSearch">Assign people *</label>
 <div class="person-wrap">
-<input type="text" id="personSearch" class="form-input" placeholder="Start typing a name…" autocomplete="off" style="margin:0">
+<input type="text" id="personSearch" class="form-input" placeholder="Type a name to add…" autocomplete="off" style="margin:0">
 <div class="person-results" id="personResults"></div>
 </div>
 <div id="selectedPersonChip"></div>
@@ -101,7 +102,7 @@ input.form-input,textarea.form-input,select.form-input{width:100%;padding:12px;m
 <div id="songFieldWrap" style="display:none">
 <label class="form-label" for="event-song">Song (optional)</label>
 <input type="text" id="event-song" class="form-input" placeholder="Optional — assign a song, or leave blank for them to choose">
-<p style="font-size:.8rem;color:#7a8fac;margin:0 0 8px">Optional for leaders. The assigned person must enter a song when they accept.</p>
+<p style="font-size:.8rem;color:#7a8fac;margin:0 0 8px">Optional for leaders. Each person must confirm/enter song when they accept.</p>
 </div>
 </div>
 <button onclick="addEvent()" class="menu-btn" style="margin-top:10px">Add Event</button>
@@ -114,6 +115,7 @@ input.form-input,textarea.form-input,select.form-input{width:100%;padding:12px;m
 <a href="index.html">Home</a>
 <a href="about.html">About Us</a>
 <a href="calendar.html">Calendar</a>
+<a href="music-groups.html">Music Groups</a>
 <a href="chat.html">Ministry Chats</a>
 <a href="bible/index.html">Bible</a>
 <a href="give.html">Give on Tithe.ly</a>
@@ -144,7 +146,7 @@ const ministryColors={'Whole Church':'#7bafdd','Music Ministry':'#8845a5','Sentr
 const allMinistries=['Whole Church','Music Ministry','Sentry','Nursery','Media'];
 const SCHEDULE_MINISTRIES=['Music Ministry','Sentry','Nursery','Media'];
 let directory=[];
-let selectedPerson=null;
+let selectedPeople=[];
 function getMinistryColor(m){return ministryColors[m]||'#4cb8b9'}
 function toggleDrawer(){document.getElementById('drawer').classList.toggle('open');document.getElementById('overlay').classList.toggle('open')}
 function closeDayModal(){document.getElementById('day-modal').classList.remove('open')}
@@ -187,7 +189,7 @@ const evEl=document.createElement('div');
 evEl.className='event';
 evEl.style.background=getMinistryColor(ev.ministry);
 if(ev.ministry==='Music Ministry'){
-var nm=ev.assignedToName||'';
+var nm=(ev.assignedPeople&&ev.assignedPeople.length)?ev.assignedPeople.map(function(p){return p.name}).join(', '):(ev.assignedToName||'');
 var sg=ev.song||'';
 if(!nm||!sg){
 var t=ev.title||'';
@@ -221,7 +223,7 @@ div.className='day-event';
 const color=getMinistryColor(ev.ministry);
 let extra='';
 if(ev.ministry==='Music Ministry'){
-var nm=escapeHtml(ev.assignedToName||'');
+var nm=(ev.assignedPeople&&ev.assignedPeople.length)?ev.assignedPeople.map(function(p){return escapeHtml(p.name)}).join(', '):escapeHtml(ev.assignedToName||'');
 var sg=escapeHtml(ev.song||'');
 if(!nm||!sg){var t=ev.title||'';var p2=t.split(' — ');if(!nm)nm=escapeHtml(p2[0]||t);if(!sg&&p2.length>1)sg=escapeHtml(p2.slice(1).join(' — '));}
 if(ev.assignmentStatus)extra+='<div style="margin-top:6px;font-size:.85rem">Status: '+escapeHtml(ev.assignmentStatus)+'</div>';
@@ -293,28 +295,40 @@ if(descEl) descEl.style.display=isMusic?'none':'block';
 if(isMusic){titleEl.value='';descEl.value='';titleEl.placeholder=''}else{titleEl.placeholder='Event Title'}
 }
 function clearSelectedPerson(){
-selectedPerson=null;
+selectedPeople=[];
 document.getElementById('selectedPersonChip').innerHTML='';
 document.getElementById('personSearch').value='';
 document.getElementById('knownSongsWrap').style.display='none';
 document.getElementById('knownSongs').innerHTML='';
 }
-function selectPerson(uid){
-const p=directory.find(x=>x.uid===uid);
-if(!p)return;
-selectedPerson=p;
-document.getElementById('personSearch').value='';
-document.getElementById('personResults').classList.remove('open');
-document.getElementById('selectedPersonChip').innerHTML='<div class="person-chip">'+escapeHtml(p.name)+' <button type="button" onclick="clearSelectedPerson()" aria-label="Remove">&times;</button></div>';
+function removeSelectedPerson(uid){
+selectedPeople=selectedPeople.filter(p=>p.uid!==uid);
+renderSelectedPeople();
+}
+function renderSelectedPeople(){
+const box=document.getElementById('selectedPersonChip');
+box.innerHTML=selectedPeople.map(p=>'<div class="person-chip">'+escapeHtml(p.name)+' <button type="button" onclick="removeSelectedPerson(\''+p.uid+'\')" aria-label="Remove">&times;</button></div>').join('');
 const ministry=document.getElementById('event-ministry').value;
-if(ministry==='Music Ministry'){
+if(ministry==='Music Ministry'&&selectedPeople.length===1){
+const p=selectedPeople[0];
 const wrap=document.getElementById('knownSongsWrap');
 const chips=document.getElementById('knownSongs');
 if(p.songs&&p.songs.length){
 wrap.style.display='block';
 chips.innerHTML=p.songs.map(s=>'<button type="button" onclick="document.getElementById(\'event-song\').value=\''+String(s).replace(/'/g,"\\'")+'\'">'+escapeHtml(s)+'</button>').join('');
 }else{wrap.style.display='none';chips.innerHTML=''}
+}else{
+document.getElementById('knownSongsWrap').style.display='none';
 }
+}
+function selectPerson(uid){
+const p=directory.find(x=>x.uid===uid);
+if(!p)return;
+if(selectedPeople.some(x=>x.uid===uid))return;
+selectedPeople.push(p);
+document.getElementById('personSearch').value='';
+document.getElementById('personResults').classList.remove('open');
+renderSelectedPeople();
 }
 function bindPersonSearch(){
 const input=document.getElementById('personSearch');
@@ -323,7 +337,7 @@ if(!input)return;
 input.addEventListener('input',function(){
 const q=input.value.trim().toLowerCase();
 if(!q){results.classList.remove('open');results.innerHTML='';return}
-const matches=directory.filter(p=>p.name.toLowerCase().indexOf(q)!==-1||(p.email&&p.email.toLowerCase().indexOf(q)!==-1)).slice(0,12);
+const matches=directory.filter(p=>(p.name.toLowerCase().indexOf(q)!==-1||(p.email&&p.email.toLowerCase().indexOf(q)!==-1))&&!selectedPeople.some(s=>s.uid===p.uid)).slice(0,12);
 if(!matches.length){results.innerHTML='<div style="color:#7a8fac">No matches</div>';results.classList.add('open');return}
 results.innerHTML=matches.map(p=>'<div onclick="selectPerson(\''+p.uid+'\')">'+escapeHtml(p.name)+(p.email?' <span style="color:#7a8fac;font-size:.85rem">'+escapeHtml(p.email)+'</span>':'')+'</div>').join('');
 results.classList.add('open');
@@ -341,25 +355,32 @@ const isMusic=ministry==='Music Ministry';
 const song=(document.getElementById('event-song')&&document.getElementById('event-song').value||'').trim();
 if(!date){alert('Please enter a date');return}
 if(isMusic){
-if(!selectedPerson){alert('Please assign the person who will sing.');return}
-title=selectedPerson.name+(song?' — '+song:'');
+if(!selectedPeople.length){alert('Please assign at least one person who will sing.');return}
+title=selectedPeople.map(p=>p.name).join(', ')+(song?' — '+song:'');
 }else if(!title){alert('Please enter a date and title');return}
 const isAdmin=currentProfile.role==='admin';
 const leaderOf=currentProfile.leaderOf||[];
 if(!isAdmin&&!leaderOf.includes(ministry)){alert('You can only create events for ministries you lead.');return}
-if(isSchedule&&!selectedPerson){alert('Please assign a person for this schedule.');return}
+if(isSchedule&&!selectedPeople.length){alert('Please assign at least one person for this schedule.');return}
 try{
 const eventData={date,title,description:isMusic?'':desc,ministry,createdByUid:auth.currentUser.uid,createdByName:currentProfile.name||currentProfile.email||'Leader',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
-if(isSchedule&&selectedPerson){eventData.assignedToUid=selectedPerson.uid;eventData.assignedToName=selectedPerson.name;eventData.assignmentStatus='pending'}
+if(isSchedule&&selectedPeople.length){
+eventData.assignedToUid=selectedPeople[0].uid;
+eventData.assignedToName=selectedPeople.map(p=>p.name).join(', ');
+eventData.assignedPeople=selectedPeople.map(p=>({uid:p.uid,name:p.name}));
+eventData.assignmentStatus='pending';
+}
 if(isMusic&&song)eventData.song=song;
 const eventRef=await db.collection('events').add(eventData);
-if(isSchedule&&selectedPerson){
-await db.collection('scheduleRequests').add({eventId:eventRef.id,date,title,ministry,song:song||null,assignedToUid:selectedPerson.uid,assignedToName:selectedPerson.name,createdByUid:auth.currentUser.uid,createdByName:currentProfile.name||currentProfile.email||'Leader',status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+if(isSchedule&&selectedPeople.length){
+for(const person of selectedPeople){
+await db.collection('scheduleRequests').add({eventId:eventRef.id,date,title,ministry,song:song||null,assignedToUid:person.uid,assignedToName:person.name,createdByUid:auth.currentUser.uid,createdByName:currentProfile.name||currentProfile.email||'Leader',status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
 if(isMusic&&song){
-try{await db.collection('users').doc(selectedPerson.uid).update({songs:firebase.firestore.FieldValue.arrayUnion(song)})}catch(songErr){console.warn(songErr)}
+try{await db.collection('users').doc(person.uid).update({songs:firebase.firestore.FieldValue.arrayUnion(song)})}catch(songErr){console.warn(songErr)}
 }
 }
-alert(isSchedule?'Event added. '+selectedPerson.name+' will see a schedule request on the calendar.':'Event added!');
+}
+alert(isSchedule?'Event added. '+selectedPeople.map(p=>p.name).join(', ')+' will each see a schedule request.':'Event added!');
 document.getElementById('event-date').value='';
 document.getElementById('event-title').value='';
 document.getElementById('event-desc').value='';
@@ -413,7 +434,10 @@ await db.collection('scheduleRequests').doc(requestId).update(updates);
 if(eventId){
 var eventUpdates={assignmentStatus:status};
 if(song)eventUpdates.song=song;
-if(song)eventUpdates.title=(await db.collection('events').doc(eventId).get()).data().assignedToName+' — '+song;
+if(song){
+var ed=(await db.collection('events').doc(eventId).get()).data()||{};
+eventUpdates.title=(ed.assignedToName||'')+' — '+song;
+}
 try{await db.collection('events').doc(eventId).update(eventUpdates)}catch(e){console.warn(e)}
 }
 if(song&&auth.currentUser){
