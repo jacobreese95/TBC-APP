@@ -9,12 +9,12 @@
 <style>
 .calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:20px 0}
 .day-header{font-weight:bold;text-align:center;padding:8px;background:#7bafdd;color:#fff;border-radius:6px}
-.day-cell{min-height:70px;border:1px solid #ddd;padding:6px;border-radius:8px;background:#fff;cursor:pointer;position:relative}
+.day-cell{min-height:78px;border:1px solid #ddd;padding:6px;border-radius:8px;background:#fff;cursor:pointer;position:relative}
 .day-cell.other-month{background:#f8f8f8;color:#aaa}
 .day-number{font-weight:bold;margin-bottom:4px}
-.event{font-size:.75rem;color:#fff;padding:2px 6px;border-radius:4px;margin:2px 0;line-height:1.2;overflow:hidden}
-.event .ev-name{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
-.event .ev-song{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.68rem;opacity:.95;margin-top:1px}
+.event{font-size:.75rem;color:#fff;padding:2px 6px;border-radius:4px;margin:2px 0;line-height:1.25;overflow:hidden}
+.event .ev-name{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700}
+.event .ev-song{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.65rem;opacity:.95;margin-top:1px;font-weight:500}
 .event-more{font-size:.7rem;color:#666;margin-top:2px;font-weight:bold}
 .filter-bar{display:flex;flex-wrap:wrap;gap:8px;margin:15px 0}
 .filter-btn{padding:8px 16px;border:2px solid #ccc;background:#fff;color:#666;border-radius:20px;cursor:pointer;font-weight:bold}
@@ -182,7 +182,25 @@ const dateStr=year+'-'+String(month+1).padStart(2,'0')+'-'+String(day).padStart(
 cell.innerHTML='<div class="day-number">'+day+'</div>';
 const dayEvents=allEvents.filter(ev=>ev.date===dateStr&&selectedFilters.has(ev.ministry));
 const maxShow=2;
-dayEvents.slice(0,maxShow).forEach(ev=>{const evEl=document.createElement('div');evEl.className='event';evEl.style.background=getMinistryColor(ev.ministry);if(ev.ministry==='Music Ministry'){var nm=ev.assignedToName||ev.title||'';evEl.innerHTML='<span class="ev-name">'+escapeHtml(nm)+'</span>'+(ev.song?'<span class="ev-song">'+escapeHtml(ev.song)+'</span>':'')}else{evEl.textContent=ev.title||''}cell.appendChild(evEl)});
+dayEvents.slice(0,maxShow).forEach(ev=>{
+const evEl=document.createElement('div');
+evEl.className='event';
+evEl.style.background=getMinistryColor(ev.ministry);
+if(ev.ministry==='Music Ministry'){
+var nm=ev.assignedToName||'';
+var sg=ev.song||'';
+if(!nm||!sg){
+var t=ev.title||'';
+var parts=t.split(' — ');
+if(!nm)nm=parts[0]||t;
+if(!sg&&parts.length>1)sg=parts.slice(1).join(' — ');
+}
+evEl.innerHTML='<span class="ev-name">'+escapeHtml(nm)+'</span>'+(sg?'<span class="ev-song">'+escapeHtml(sg)+'</span>':'');
+}else{
+evEl.textContent=ev.title||'';
+}
+cell.appendChild(evEl);
+});
 if(dayEvents.length>maxShow){const more=document.createElement('div');more.className='event-more';more.textContent='+'+(dayEvents.length-maxShow)+' more';cell.appendChild(more)}
 cell.onclick=()=>showDayEvents(dateStr,dayEvents);
 grid.appendChild(cell);
@@ -202,12 +220,12 @@ const div=document.createElement('div');
 div.className='day-event';
 const color=getMinistryColor(ev.ministry);
 let extra='';
-var heading=ev.title||'';
 if(ev.ministry==='Music Ministry'){
-heading=escapeHtml(ev.assignedToName||ev.title||'');
-if(ev.song)heading+=' — '+escapeHtml(ev.song);
+var nm=escapeHtml(ev.assignedToName||'');
+var sg=escapeHtml(ev.song||'');
+if(!nm||!sg){var t=ev.title||'';var p2=t.split(' — ');if(!nm)nm=escapeHtml(p2[0]||t);if(!sg&&p2.length>1)sg=escapeHtml(p2.slice(1).join(' — '));}
 if(ev.assignmentStatus)extra+='<div style="margin-top:6px;font-size:.85rem">Status: '+escapeHtml(ev.assignmentStatus)+'</div>';
-div.innerHTML='<strong>'+heading+'</strong>'+extra+'<div class="ministry-tag" style="background:'+color+'">'+(ev.ministry||'')+'</div>';
+div.innerHTML='<strong style="display:block">'+nm+'</strong>'+(sg?'<div style="margin-top:4px">'+sg+'</div>':'')+extra+'<div class="ministry-tag" style="background:'+color+'">'+(ev.ministry||'')+'</div>';
 }else{
 if(ev.assignedToName){extra+='<div style="margin-top:6px;font-size:.85rem">Assigned: '+escapeHtml(ev.assignedToName)+(ev.assignmentStatus?' ('+escapeHtml(ev.assignmentStatus)+')':'')+'</div>'}
 if(ev.song)extra+='<div style="margin-top:4px;font-size:.85rem">Song: '+escapeHtml(ev.song)+'</div>';
