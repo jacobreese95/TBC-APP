@@ -54,6 +54,47 @@
             border-radius: 10px;
             margin-top: 6px;
         }
+        .cal-nav {
+            margin: 16px 0 12px;
+            text-align: center;
+        }
+        .cal-nav-btns {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .cal-nav-btn {
+            width: 110px;
+            padding: 10px 0;
+            border-radius: 10px;
+            border: 2px solid #4cb8b9;
+            background: white;
+            color: #4cb8b9;
+            font-weight: bold;
+            font-size: 0.95rem;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+        .cal-nav-btn:active {
+            transform: scale(0.96);
+        }
+        .cal-nav-label {
+            display: flex;
+            justify-content: center;
+            align-items: baseline;
+            gap: 10px;
+            color: #404040;
+        }
+        .cal-nav-label #cal-month {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+        .cal-nav-label #cal-year {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #7a8fac;
+        }
     </style>
 </head>
 <body>
@@ -67,10 +108,15 @@
     <div class="container">
         <div class="filter-bar" id="filter-bar"></div>
 
-        <div style="display:flex; justify-content:space-between; align-items:center; margin:15px 0;">
-            <button onclick="prevMonth()" style="padding:8px 16px; border-radius:8px; border:2px solid #4cb8b9; background:white; color:#4cb8b9; font-weight:bold;">< Prev</button>
-            <h2 id="month-year" style="margin:0; color:#404040;"></h2>
-            <button onclick="nextMonth()" style="padding:8px 16px; border-radius:8px; border:2px solid #4cb8b9; background:white; color:#4cb8b9; font-weight:bold;">Next ></button>
+        <div class="cal-nav">
+            <div class="cal-nav-btns">
+                <button type="button" class="cal-nav-btn" onclick="prevMonth()">< Prev</button>
+                <button type="button" class="cal-nav-btn" onclick="nextMonth()">Next ></button>
+            </div>
+            <div class="cal-nav-label">
+                <span id="cal-month"></span>
+                <span id="cal-year"></span>
+            </div>
         </div>
 
         <div class="calendar-grid" id="calendar-grid"></div>
@@ -173,8 +219,8 @@
             const grid = document.getElementById('calendar-grid');
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
-            document.getElementById('month-year').textContent =
-                currentDate.toLocaleDateString('default', { month: 'long', year: 'numeric' });
+            document.getElementById('cal-month').textContent = currentDate.toLocaleString('default', { month: 'long' });
+            document.getElementById('cal-year').textContent = String(currentDate.getFullYear());
 
             grid.innerHTML = '';
             ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => {
