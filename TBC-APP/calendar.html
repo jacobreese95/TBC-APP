@@ -12,7 +12,9 @@
 .day-cell{min-height:70px;border:1px solid #ddd;padding:6px;border-radius:8px;background:#fff;cursor:pointer;position:relative}
 .day-cell.other-month{background:#f8f8f8;color:#aaa}
 .day-number{font-weight:bold;margin-bottom:4px}
-.event{font-size:.75rem;color:#fff;padding:2px 6px;border-radius:4px;margin:2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.event{font-size:.75rem;color:#fff;padding:2px 6px;border-radius:4px;margin:2px 0;line-height:1.2;overflow:hidden}
+.event .ev-name{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.event .ev-song{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.68rem;opacity:.95;margin-top:1px}
 .event-more{font-size:.7rem;color:#666;margin-top:2px;font-weight:bold}
 .filter-bar{display:flex;flex-wrap:wrap;gap:8px;margin:15px 0}
 .filter-btn{padding:8px 16px;border:2px solid #ccc;background:#fff;color:#666;border-radius:20px;cursor:pointer;font-weight:bold}
@@ -180,7 +182,7 @@ const dateStr=year+'-'+String(month+1).padStart(2,'0')+'-'+String(day).padStart(
 cell.innerHTML='<div class="day-number">'+day+'</div>';
 const dayEvents=allEvents.filter(ev=>ev.date===dateStr&&selectedFilters.has(ev.ministry));
 const maxShow=2;
-dayEvents.slice(0,maxShow).forEach(ev=>{const evEl=document.createElement('div');evEl.className='event';var label=ev.title||'';if(ev.ministry==='Music Ministry'){label=(ev.assignedToName||ev.title||'');if(ev.song)label+=' — '+ev.song}else if(ev.song){label=(ev.title||'')+' — '+ev.song}evEl.textContent=label;evEl.style.background=getMinistryColor(ev.ministry);cell.appendChild(evEl)});
+dayEvents.slice(0,maxShow).forEach(ev=>{const evEl=document.createElement('div');evEl.className='event';evEl.style.background=getMinistryColor(ev.ministry);if(ev.ministry==='Music Ministry'){var nm=ev.assignedToName||ev.title||'';evEl.innerHTML='<span class="ev-name">'+escapeHtml(nm)+'</span>'+(ev.song?'<span class="ev-song">'+escapeHtml(ev.song)+'</span>':'')}else{evEl.textContent=ev.title||''}cell.appendChild(evEl)});
 if(dayEvents.length>maxShow){const more=document.createElement('div');more.className='event-more';more.textContent='+'+(dayEvents.length-maxShow)+' more';cell.appendChild(more)}
 cell.onclick=()=>showDayEvents(dateStr,dayEvents);
 grid.appendChild(cell);
