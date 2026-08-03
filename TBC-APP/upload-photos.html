@@ -1,1 +1,331 @@
-<PLACEHOLDER>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Upload Photos - TBC Church App</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.tabs{display:flex;gap:6px;margin:12px 0 18px}
+.tab-btn{flex:1;padding:12px 8px;border:none;border-radius:12px;font-weight:600;font-size:.95rem;cursor:pointer;background:#e8eef2;color:#404040;box-shadow:none;margin:0}
+.tab-btn.active{background:linear-gradient(135deg,#4cb8b9 0%,#7bafdd 100%);color:#fff}
+.panel{display:none}.panel.active{display:block}
+.upload-card{background:#fff;border:1px solid rgba(122,143,172,.35);border-radius:14px;padding:16px;margin:12px 0;box-shadow:0 2px 8px rgba(64,64,64,.06)}
+.drop-zone{border:2px dashed #7a8fac;border-radius:14px;padding:28px 16px;text-align:center;background:#f7fafb;cursor:default}
+.drop-zone.dragover{border-color:#4cb8b9;background:#eef8f8}
+.drop-icon{font-size:2.4rem;margin-bottom:8px}
+.preview-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.preview-item{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:#dedcd0}
+.preview-item img{width:100%;height:100%;object-fit:cover;display:block}
+.preview-item .remove-btn{position:absolute;top:4px;right:4px;width:28px;height:28px;border-radius:50%;border:none;background:rgba(198,40,40,.9);color:#fff;font-size:1rem;font-weight:700;cursor:pointer;padding:0;margin:0;line-height:28px;box-shadow:none}
+.progress-wrap{margin-top:12px;display:none}
+.progress-bar-bg{height:10px;background:#e8eef2;border-radius:6px;overflow:hidden}
+.progress-bar{height:100%;width:0%;background:linear-gradient(135deg,#4cb8b9,#7bafdd);transition:width .2s}
+.progress-text{font-size:.85rem;color:#7a8fac;margin-top:6px;text-align:center}
+label{display:block;font-weight:600;font-size:.9rem;color:#404040;margin:12px 0 4px}
+select{width:100%;height:48px;padding:12px 14px;margin:0 0 10px;border:2px solid #7a8fac;border-radius:14px;font-size:1rem;background:#fff;color:#404040}
+.gallery-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(min-width:500px){.gallery-grid{grid-template-columns:repeat(3,1fr)}}
+.gallery-item{position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;background:#dedcd0;box-shadow:0 2px 8px rgba(64,64,64,.1);cursor:pointer}
+.gallery-item img{width:100%;height:100%;object-fit:cover;display:block}
+.gallery-meta{position:absolute;left:0;right:0;bottom:0;padding:8px 10px;background:linear-gradient(transparent,rgba(0,0,0,.65));color:#fff;font-size:.75rem;line-height:1.3}
+.empty-state{text-align:center;color:#7a8fac;padding:40px 16px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#404040;color:#fff;padding:12px 20px;border-radius:24px;font-weight:600;z-index:3000;display:none;box-shadow:0 4px 16px rgba(0,0,0,.25);max-width:90%;text-align:center}
+#lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:4000;align-items:center;justify-content:center;flex-direction:column;padding:16px}
+#lightbox.open{display:flex}
+#lightbox img{max-width:100%;max-height:70vh;border-radius:10px;object-fit:contain}
+#lightbox .lb-caption{color:#fff;margin-top:14px;text-align:center;max-width:500px}
+#lightbox .lb-actions{display:flex;gap:10px;margin-top:16px;width:100%;max-width:360px}
+#lightbox .lb-actions button{flex:1;margin:0}
+.btn-danger{background:linear-gradient(135deg,#c62828 0%,#e57373 100%)!important}
+.btn-secondary{background:linear-gradient(135deg,#7a8fac 0%,#7bafdd 100%)!important}
+.filter-row{margin-bottom:12px}.filter-row select{margin:0}
+</style>
+</head>
+<body>
+<header><h1>Church Photos</h1></header>
+<div class="container">
+<button class="back-btn" onclick="window.location.href='index.html'">← Back to Home</button>
+<div class="tabs">
+<button class="tab-btn active" data-tab="upload" onclick="switchTab('upload')">Upload</button>
+<button class="tab-btn" data-tab="gallery" onclick="switchTab('gallery')">Gallery <span id="photoCount" style="opacity:.85"></span></button>
+</div>
+<div id="panel-upload" class="panel active">
+<div class="upload-card">
+<div class="drop-zone" id="dropZone">
+<div class="drop-icon">📷</div>
+<div style="font-weight:600;color:#404040;margin-bottom:12px">Add photos</div>
+<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+<button type="button" class="btn-secondary" style="width:auto;margin:0;padding:12px 16px;font-size:.95rem" onclick="event.stopPropagation();document.getElementById('fileInputLibrary').click()">📱 From Photos</button>
+<button type="button" class="btn-secondary" style="width:auto;margin:0;padding:12px 16px;font-size:.95rem" onclick="event.stopPropagation();document.getElementById('fileInputCamera').click()">📸 Take Photo</button>
+</div>
+<div style="font-size:.8rem;color:#7a8fac;margin-top:10px">You can also drag & drop images here</div>
+<input type="file" id="fileInputLibrary" accept="image/*" multiple style="display:none">
+<input type="file" id="fileInputCamera" accept="image/*" capture="environment" style="display:none">
+</div>
+<div class="preview-grid" id="previewGrid"></div>
+<label for="photoCaption">Caption *</label>
+<input type="text" id="photoCaption" placeholder="What is this photo of?" required maxlength="200">
+<label for="photoEvent">Event / Category *</label>
+<select id="photoEvent" required>
+<option value="" disabled selected>Select an event…</option>
+<option value="General">General</option>
+<option value="Sunday Service">Sunday Service</option>
+<option value="Kids">Kids / VBS</option>
+<option value="Youth">Youth</option>
+<option value="Young Adults">Young Adults</option>
+<option value="Outreach">Outreach / Soul Winning</option>
+<option value="Special Event">Special Event</option>
+<option value="Other">Other</option>
+</select>
+<div class="progress-wrap" id="progressWrap">
+<div class="progress-bar-bg"><div class="progress-bar" id="progressBar"></div></div>
+<div class="progress-text" id="progressText">Uploading…</div>
+</div>
+<button class="menu-btn" id="uploadBtn" onclick="uploadPhotos()" disabled>Upload Photos</button>
+</div>
+<p style="text-align:center;font-size:.85rem;color:#7a8fac;margin-top:8px">Photos are shared with the church family. A date and time is recorded automatically when you submit.</p>
+</div>
+<div id="panel-gallery" class="panel">
+<div class="filter-row">
+<select id="eventFilter" onchange="renderGallery()">
+<option value="all">All events</option>
+<option value="General">General</option>
+<option value="Kids">Kids / VBS</option>
+<option value="Youth">Youth</option>
+<option value="Young Adults">Young Adults</option>
+<option value="Outreach">Outreach / Soul Winning</option>
+<option value="Special Event">Special Event</option>
+<option value="Other">Other</option>
+<option value="Sunday Service">Sunday Service</option>
+</select>
+</div>
+<div id="galleryGrid" class="gallery-grid">
+<div class="empty-state" style="grid-column:1/-1">Loading photos…</div>
+</div>
+</div>
+</div>
+<div id="lightbox">
+<img id="lbImage" src="" alt="">
+<div class="lb-caption" id="lbCaption"></div>
+<div class="lb-actions">
+<button class="btn-secondary" onclick="closeLightbox()">Close</button>
+<button class="btn-danger" id="lbDeleteBtn" onclick="deleteCurrentPhoto()" style="display:none">Delete</button>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
+<script src="auth.js"></script>
+<script src="home-logo.js"></script>
+<script>
+const storage = firebase.storage();
+let currentProfile = null;
+let photos = [];
+let selectedFiles = [];
+let currentLightboxId = null;
+const MAX_FILE_MB = 8;
+const MAX_FILES = 12;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(() => { t.style.display = 'none'; }, 3500);
+}
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+}
+function escapeHtml(str) {
+  return String(str || '').replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"');
+}
+requireApprovedUser().then(function (profile) {
+  if (!profile) return;
+  currentProfile = profile;
+  loadPhotos();
+});
+const fileInputLibrary = document.getElementById('fileInputLibrary');
+const fileInputCamera = document.getElementById('fileInputCamera');
+const dropZone = document.getElementById('dropZone');
+function onFilesPicked(input) {
+  addFiles(Array.from(input.files || []));
+  input.value = '';
+}
+fileInputLibrary.addEventListener('change', function () { onFilesPicked(fileInputLibrary); });
+fileInputCamera.addEventListener('change', function () { onFilesPicked(fileInputCamera); });
+dropZone.addEventListener('dragover', function (e) { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', function () { dropZone.classList.remove('dragover'); });
+dropZone.addEventListener('drop', function (e) {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  addFiles(Array.from(e.dataTransfer.files || []).filter(f => f.type.startsWith('image/')));
+});
+function addFiles(files) {
+  for (const file of files) {
+    if (!file.type.startsWith('image/')) continue;
+    if (file.size > MAX_FILE_MB * 1024 * 1024) { showToast(file.name + ' is over ' + MAX_FILE_MB + 'MB – skipped'); continue; }
+    if (selectedFiles.length >= MAX_FILES) { showToast('Max ' + MAX_FILES + ' photos at a time'); break; }
+    selectedFiles.push({ file: file, previewUrl: URL.createObjectURL(file) });
+  }
+  renderPreviews();
+}
+function removePreview(index) {
+  URL.revokeObjectURL(selectedFiles[index].previewUrl);
+  selectedFiles.splice(index, 1);
+  renderPreviews();
+}
+function renderPreviews() {
+  const grid = document.getElementById('previewGrid');
+  const btn = document.getElementById('uploadBtn');
+  if (!selectedFiles.length) {
+    grid.innerHTML = '';
+    btn.disabled = true;
+    btn.textContent = 'Upload Photos';
+    return;
+  }
+  btn.disabled = false;
+  btn.textContent = 'Upload ' + selectedFiles.length + ' Photo' + (selectedFiles.length > 1 ? 's' : '');
+  grid.innerHTML = selectedFiles.map(function (item, i) {
+    return '<div class="preview-item"><img src="' + item.previewUrl + '" alt=""><button type="button" class="remove-btn" onclick="removePreview(' + i + ')">×</button></div>';
+  }).join('');
+}
+async function uploadPhotos() {
+  if (!selectedFiles.length || !currentProfile) return;
+  const caption = document.getElementById('photoCaption').value.trim();
+  const eventTag = document.getElementById('photoEvent').value;
+  if (!caption) { showToast('Caption is required'); document.getElementById('photoCaption').focus(); return; }
+  if (!eventTag) { showToast('Please select an event / category'); document.getElementById('photoEvent').focus(); return; }
+  const btn = document.getElementById('uploadBtn');
+  const wrap = document.getElementById('progressWrap');
+  const bar = document.getElementById('progressBar');
+  const text = document.getElementById('progressText');
+  btn.disabled = true;
+  wrap.style.display = 'block';
+  bar.style.width = '0%';
+  const total = selectedFiles.length;
+  let done = 0, errors = 0, lastErrorMsg = '';
+  for (let i = 0; i < selectedFiles.length; i++) {
+    text.textContent = 'Uploading ' + (i + 1) + ' of ' + total + '…';
+    try {
+      await uploadOne(selectedFiles[i].file, caption, eventTag, function (pct) {
+        bar.style.width = ((done + pct / 100) / total * 100) + '%';
+      });
+      done++;
+    } catch (err) {
+      console.error(err);
+      errors++;
+      lastErrorMsg = (err && err.code) ? (err.code + ': ' + (err.message || '')) : ((err && err.message) || 'Upload error');
+    }
+    bar.style.width = (done / total * 100) + '%';
+  }
+  selectedFiles.forEach(s => URL.revokeObjectURL(s.previewUrl));
+  selectedFiles = [];
+  renderPreviews();
+  document.getElementById('photoCaption').value = '';
+  document.getElementById('photoEvent').selectedIndex = 0;
+  wrap.style.display = 'none';
+  btn.disabled = false;
+  if (errors && !done) showToast(lastErrorMsg || 'Upload failed. Enable Storage + check rules.');
+  else if (errors) showToast(done + ' uploaded, ' + errors + ' failed');
+  else showToast(done + ' photo' + (done > 1 ? 's' : '') + ' uploaded with timestamp!');
+  switchTab('gallery');
+}
+function uploadOne(file, caption, eventTag, onProgress) {
+  return new Promise(function (resolve, reject) {
+    const uid = auth.currentUser.uid;
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+    const path = 'church-photos/' + uid + '/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext;
+    const ref = storage.ref(path);
+    const task = ref.put(file, {
+      contentType: file.type || 'image/jpeg',
+      customMetadata: { uploadedBy: currentProfile.name || '', caption: caption }
+    });
+    task.on('state_changed',
+      function (snap) {
+        if (onProgress && snap.totalBytes) onProgress((snap.bytesTransferred / snap.totalBytes) * 100);
+      },
+      function (err) { reject(err); },
+      async function () {
+        try {
+          const url = await task.snapshot.ref.getDownloadURL();
+          await db.collection('photos').add({
+            url: url, storagePath: path, caption: caption, event: eventTag,
+            fileName: file.name, contentType: file.type || 'image/jpeg', size: file.size,
+            uploadedBy: currentProfile.name || currentProfile.email || 'Member',
+            uploadedByUid: uid,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          resolve();
+        } catch (e) { reject(e); }
+      }
+    );
+  });
+}
+function loadPhotos() {
+  db.collection('photos').orderBy('createdAt', 'desc').limit(100).onSnapshot(function (snap) {
+    photos = [];
+    snap.forEach(function (doc) { photos.push({ id: doc.id, ...doc.data() }); });
+    document.getElementById('photoCount').textContent = photos.length ? '(' + photos.length + ')' : '';
+    renderGallery();
+  }, function (err) {
+    console.error(err);
+    document.getElementById('galleryGrid').innerHTML = '<div class="empty-state" style="grid-column:1/-1">Error loading photos: ' + escapeHtml(err.message || String(err)) + '</div>';
+  });
+}
+function renderGallery() {
+  const filter = document.getElementById('eventFilter').value;
+  const grid = document.getElementById('galleryGrid');
+  const list = filter === 'all' ? photos : photos.filter(p => p.event === filter);
+  if (!list.length) {
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1">No photos yet. Be the first to upload!</div>';
+    return;
+  }
+  grid.innerHTML = list.map(function (p) {
+    const dateStr = p.createdAt && p.createdAt.toDate ? p.createdAt.toDate().toLocaleString() : '';
+    return '<div class="gallery-item" onclick="openLightbox(\'' + p.id + '\')">' +
+      '<img src="' + escapeHtml(p.url) + '" alt="" loading="lazy">' +
+      '<div class="gallery-meta"><strong>' + escapeHtml(p.caption || '(no caption)') + '</strong><br>' +
+      escapeHtml(p.event || '') + ' · ' + escapeHtml(p.uploadedBy || '') +
+      (dateStr ? '<br>' + dateStr : '') + '</div></div>';
+  }).join('');
+}
+function openLightbox(id) {
+  const p = photos.find(x => x.id === id);
+  if (!p) return;
+  currentLightboxId = id;
+  document.getElementById('lbImage').src = p.url;
+  const dateStr = p.createdAt && p.createdAt.toDate ? p.createdAt.toDate().toLocaleString() : '';
+  document.getElementById('lbCaption').innerHTML =
+    '<strong>' + escapeHtml(p.caption || '(no caption)') + '</strong><br>' +
+    escapeHtml(p.event || '') + ' · ' + escapeHtml(p.uploadedBy || '') +
+    (dateStr ? '<br>Submitted: ' + dateStr : '');
+  const canDelete = currentProfile && (currentProfile.role === 'admin' || p.uploadedByUid === (auth.currentUser && auth.currentUser.uid));
+  document.getElementById('lbDeleteBtn').style.display = canDelete ? 'block' : 'none';
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  currentLightboxId = null;
+  document.getElementById('lbImage').src = '';
+}
+async function deleteCurrentPhoto() {
+  if (!currentLightboxId) return;
+  if (!confirm('Delete this photo permanently?')) return;
+  const p = photos.find(x => x.id === currentLightboxId);
+  if (!p) return;
+  try {
+    if (p.storagePath) { try { await storage.ref(p.storagePath).delete(); } catch (e) { console.warn(e); } }
+    await db.collection('photos').doc(p.id).delete();
+    closeLightbox();
+    showToast('Photo deleted');
+  } catch (err) { showToast('Error: ' + err.message); }
+}
+document.getElementById('lightbox').addEventListener('click', function (e) {
+  if (e.target === this) closeLightbox();
+});
+</script>
+</body>
+</html>
