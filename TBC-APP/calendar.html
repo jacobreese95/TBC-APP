@@ -33,7 +33,6 @@
 .person-results{position:absolute;left:0;right:0;top:100%;background:#fff;border:2px solid #7a8fac;border-top:none;border-radius:0 0 12px 12px;max-height:200px;overflow-y:auto;z-index:50;display:none}
 .person-results.open{display:block}
 .person-results div,.person-result-item{padding:12px 14px;cursor:pointer;border-bottom:1px solid #eee;font-size:.95rem;color:#404040;-webkit-tap-highlight-color:transparent}
-.person-result-item:active{background:#eef8f8}
 .person-chip{display:inline-flex;align-items:center;gap:8px;background:#eef8f8;border:1px solid #4cb8b9;border-radius:999px;padding:6px 12px;margin:4px 4px 4px 0;font-weight:600}
 .person-chip button{border:none;background:transparent;color:#c62828;font-weight:700;cursor:pointer;font-size:1.1rem}
 #selectedPersonChip{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0;min-height:8px}
@@ -82,7 +81,7 @@ input.form-input,textarea.form-input,select.form-input{width:100%;padding:12px;m
 <select id="event-ministry" class="form-input" onchange="onMinistryChange()"></select>
 <div id="schedule-extra" class="schedule-extra">
 <label class="form-label" for="personSearch">Assign people *</label>
-<p style="font-size:.8rem;color:#7a8fac;margin:0 0 6px">Type a name, tap to add. Type again to add more people — each shows as a chip.</p>
+<p style="font-size:.8rem;color:#7a8fac;margin:0 0 6px">First person added is the song lead (picks the song only — not an app leader). Add more as needed.</p>
 <div class="person-wrap">
 <input type="text" id="personSearch" class="form-input" placeholder="Type a name to add…" autocomplete="off" style="margin:0">
 <div class="person-results" id="personResults"></div>
@@ -92,15 +91,15 @@ input.form-input,textarea.form-input,select.form-input{width:100%;padding:12px;m
 <div id="groupNameWrap" style="display:none">
 <label class="form-label" for="event-group-name">Group name *</label>
 <input type="text" id="event-group-name" class="form-input" placeholder="e.g. Sunday Trio">
-<p style="font-size:.8rem;color:#7a8fac;margin:0 0 8px">Shown on the calendar when 2+ people are assigned. Each person still gets a request and must enter the song.</p>
+<p style="font-size:.8rem;color:#7a8fac;margin:0 0 8px">Shown on the calendar. Song lead picks the song; others only confirm availability.</p>
 </div>
 <div id="knownSongsWrap" style="display:none">
 <div style="font-size:.85rem;color:#7a8fac;margin:4px 0">Their songs (tap to use):</div>
 <div class="song-chips" id="knownSongs"></div>
 </div>
 <div id="songFieldWrap" style="display:none">
-<label class="form-label" for="event-song">Song (optional)</label>
-<input type="text" id="event-song" class="form-input" placeholder="Optional — assign a song, or leave blank for them to choose">
+<label class="form-label" for="event-song">Song (optional for leader)</label>
+<input type="text" id="event-song" class="form-input" placeholder="Optional — song lead can set this when they accept">
 </div>
 </div>
 <button onclick="addEvent()" class="menu-btn" style="margin-top:10px">Add Event</button>
@@ -215,6 +214,7 @@ var nm=escapeHtml(ev.groupName||'')||((ev.assignedPeople&&ev.assignedPeople.leng
 var sg=escapeHtml(ev.song||'');
 if(!nm||!sg){var t=ev.title||'';var p2=t.split(' — ');if(!nm)nm=escapeHtml(p2[0]||t);if(!sg&&p2.length>1)sg=escapeHtml(p2.slice(1).join(' — '));}
 if(ev.groupName&&ev.assignedPeople&&ev.assignedPeople.length)extra+='<div style="margin-top:6px;font-size:.85rem">Members: '+ev.assignedPeople.map(function(p){return escapeHtml(p.name)}).join(', ')+'</div>';
+if(ev.songLeadName)extra+='<div style="margin-top:4px;font-size:.85rem">Song lead: '+escapeHtml(ev.songLeadName)+'</div>';
 if(ev.assignmentStatus)extra+='<div style="margin-top:6px;font-size:.85rem">Status: '+escapeHtml(ev.assignmentStatus)+'</div>';
 div.innerHTML='<strong style="display:block">'+nm+'</strong>'+(sg?'<div style="margin-top:4px">'+sg+'</div>':'')+extra+'<div class="ministry-tag" style="background:'+color+'">'+(ev.ministry||'')+'</div>';
 }else{
@@ -291,9 +291,9 @@ renderSelectedPeople();
 }
 function renderSelectedPeople(){
 const box=document.getElementById('selectedPersonChip');
-box.innerHTML=selectedPeople.map(p=>'<div class="person-chip">'+escapeHtml(p.name)+' <button type="button" onclick="removeSelectedPerson(\''+p.uid+'\')">&times;</button></div>').join('');
+box.innerHTML=selectedPeople.map(function(p,i){return '<div class="person-chip">'+(i===0&&selectedPeople.length>=2?'<span style="font-size:.7rem;background:#8845a5;color:#fff;border-radius:6px;padding:1px 6px;margin-right:4px">Song lead</span>':'')+escapeHtml(p.name)+' <button type="button" onclick="removeSelectedPerson(\''+p.uid+'\')">&times;</button></div>'}).join('');
 var countEl=document.getElementById('peopleCount');
-if(countEl)countEl.textContent=selectedPeople.length?(selectedPeople.length===1?'1 person selected — type another name to add more':selectedPeople.length+' people selected'):'';
+if(countEl)countEl.textContent=selectedPeople.length?(selectedPeople.length===1?'1 person selected — type another name to add more':selectedPeople.length+' people selected (first is song lead)'):'';
 const gWrap=document.getElementById('groupNameWrap');
 if(gWrap)gWrap.style.display=selectedPeople.length>=2?'block':'none';
 if(selectedPeople.length<2){var gn=document.getElementById('event-group-name');if(gn)gn.value='';}
@@ -366,17 +366,21 @@ eventData.assignedToUid=selectedPeople[0].uid;
 eventData.assignedToName=selectedPeople.length>=2&&groupName?groupName:selectedPeople.map(p=>p.name).join(', ');
 eventData.assignedPeople=selectedPeople.map(p=>({uid:p.uid,name:p.name}));
 eventData.assignmentStatus='pending';
+eventData.songLeadUid=selectedPeople[0].uid;
+eventData.songLeadName=selectedPeople[0].name;
 if(selectedPeople.length>=2&&groupName)eventData.groupName=groupName;
 }
 if(isMusic&&song)eventData.song=song;
 const eventRef=await db.collection('events').add(eventData);
 if(isSchedule&&selectedPeople.length){
-for(const person of selectedPeople){
-await db.collection('scheduleRequests').add({eventId:eventRef.id,date,title,ministry,song:song||null,groupName:groupName||null,assignedToUid:person.uid,assignedToName:person.name,createdByUid:auth.currentUser.uid,createdByName:currentProfile.name||currentProfile.email||'Leader',status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-if(isMusic&&song){try{await db.collection('users').doc(person.uid).update({songs:firebase.firestore.FieldValue.arrayUnion(song)})}catch(e){}}
+for(let pi=0;pi<selectedPeople.length;pi++){
+const person=selectedPeople[pi];
+const isSongLead=isMusic&&(pi===0);
+await db.collection('scheduleRequests').add({eventId:eventRef.id,date,title,ministry,song:song||null,groupName:groupName||null,assignedToUid:person.uid,assignedToName:person.name,isSongLead:!!isSongLead,createdByUid:auth.currentUser.uid,createdByName:currentProfile.name||currentProfile.email||'Leader',status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+if(isMusic&&song&&isSongLead){try{await db.collection('users').doc(person.uid).update({songs:firebase.firestore.FieldValue.arrayUnion(song)})}catch(e){}}
 }
 }
-alert(isSchedule?'Event added. '+selectedPeople.map(p=>p.name).join(', ')+' will each see a schedule request.':'Event added!');
+alert(isSchedule?'Event added. '+selectedPeople.map(p=>p.name).join(', ')+' will each see a schedule request. Song lead: '+selectedPeople[0].name:'Event added!');
 document.getElementById('event-date').value='';
 document.getElementById('event-title').value='';
 document.getElementById('event-desc').value='';
@@ -397,21 +401,24 @@ const items=[];snap.forEach(doc=>items.push({id:doc.id,...doc.data()}));
 items.sort((a,b)=>(a.date||'').localeCompare(b.date||''));
 list.innerHTML=items.map(function(r){
 var isMusic=r.ministry==='Music Ministry';
+var isSongLead=!!r.isSongLead||(isMusic&&!r.groupName);
 var songBlock='';
-if(isMusic){
-songBlock='<label class="form-label" for="req-song-'+r.id+'">Song you will sing *</label><input type="text" id="req-song-'+r.id+'" class="form-input" placeholder="Enter the song" value="'+escapeHtml(r.song||'')+'">';
+if(isMusic&&isSongLead){
+songBlock='<label class="form-label" for="req-song-'+r.id+'">Song for this assignment *</label><input type="text" id="req-song-'+r.id+'" class="form-input" placeholder="Enter the song" value="'+escapeHtml(r.song||'')+'"><p style="font-size:.8rem;color:#7a8fac;margin:0 0 8px">You are the song lead (not an app leader). Enter the song when you accept.</p>';
+}else if(isMusic&&r.groupName){
+songBlock='<p style="font-size:.85rem;color:#7a8fac;margin:0 0 8px">The song lead will choose the song. You only need to confirm availability.</p>';
 }
-return '<div class="req-card"><h4>'+escapeHtml(r.groupName||r.title||'Schedule')+'</h4><div style="font-size:.85rem;color:#7a8fac;margin-bottom:8px">'+escapeHtml(r.ministry||'')+' · '+escapeHtml(r.date||'')+'</div>'+songBlock+'<p>Are you available?</p><div class="req-actions"><button type="button" class="btn-available" onclick="respondRequest(\''+r.id+'\',\'available\',\''+(r.eventId||'')+'\',\''+escapeHtml(r.ministry||'')+'\')">Available</button><button type="button" class="btn-unavailable" onclick="respondRequest(\''+r.id+'\',\'unavailable\',\''+(r.eventId||'')+'\',\''+escapeHtml(r.ministry||'')+'\')">Not available</button></div></div>';
+return '<div class="req-card"><h4>'+escapeHtml(r.groupName||r.title||'Schedule')+(isSongLead&&r.groupName?' <span style="font-size:.75rem;background:#8845a5;color:#fff;border-radius:6px;padding:2px 8px">Song lead</span>':'')+'</h4><div style="font-size:.85rem;color:#7a8fac;margin-bottom:8px">'+escapeHtml(r.ministry||'')+' · '+escapeHtml(r.date||'')+'</div>'+songBlock+'<p>Are you available?</p><div class="req-actions"><button type="button" class="btn-available" onclick="respondRequest(\''+r.id+'\',\'available\',\''+(r.eventId||'')+'\',\''+escapeHtml(r.ministry||'')+'\','+(isSongLead?'true':'false')+')">Available</button><button type="button" class="btn-unavailable" onclick="respondRequest(\''+r.id+'\',\'unavailable\',\''+(r.eventId||'')+'\',\''+escapeHtml(r.ministry||'')+'\',false)">Not available</button></div></div>';
 }).join('');
 },function(err){console.error(err)});
 }
-async function respondRequest(requestId,status,eventId,ministry){
+async function respondRequest(requestId,status,eventId,ministry,isSongLead){
 try{
 var song='';
-if(ministry==='Music Ministry'&&status==='available'){
+if(ministry==='Music Ministry'&&status==='available'&&isSongLead){
 var songInput=document.getElementById('req-song-'+requestId);
 song=(songInput&&songInput.value||'').trim();
-if(!song){alert('Please enter the song you will sing before accepting.');return}
+if(!song){alert('Please enter the song before accepting.');return}
 }
 var updates={status:status,respondedAt:firebase.firestore.FieldValue.serverTimestamp()};
 if(song)updates.song=song;
