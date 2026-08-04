@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ministry Chats - TBC Church App</title>
+    <script src="theme.js"></script>
     <link rel="stylesheet" href="style.css">
-    <!-- Sentry Error Tracking -->
-    <script src="https://browser.sentry-cdn.com/7.119.0/bundle.min.js" integrity="sha384-..." crossorigin="anonymous"></script>
 </head>
 <body>
     <header>
@@ -17,23 +16,25 @@
     </header>
 
     <div class="container">
-        <div class="chat-list menu-stack" id="chat-list">
+        <p style="text-align:center;color:var(--muted);font-size:0.9rem;margin:0 0 8px;">Choose a ministry chat</p>
+        <div class="option-grid" id="chat-list">
             <!-- Populated dynamically based on user ministries -->
         </div>
     </div>
 
     <div class="nav-overlay" id="overlay" onclick="toggleDrawer()"></div>
     <div class="nav-drawer" id="drawer">
-        <h3 style="margin-top:0; color:#404040;">Menu</h3>
+        <h3 style="margin-top:0; color:var(--text);">Menu</h3>
         <a href="index.html">Home</a>
         <a href="about.html">About Us</a>
         <a href="calendar.html">Calendar</a>
+        <a href="directory.html">Church Directory</a>
         <a href="chat.html">Ministry Chats</a>
         <a href="bible/index.html">Bible</a>
         <a href="sermons.html">Sermons</a>
         <a href="give.html">Give</a>
         <a href="profile.html">Profile</a>
-        <a href="#" onclick="logoutUser(); return false;" style="color:#8845a5; font-weight:bold; margin-top:20px;">Logout</a>
+        <a href="#" onclick="logoutUser(); return false;" style="color:var(--purple); font-weight:bold; margin-top:20px;">Logout</a>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -42,14 +43,6 @@
     <script src="auth.js"></script>
     <script src="home-logo.js"></script>
     <script>
-        // Initialize Sentry (replace DSN with your project key)
-        if (typeof Sentry !== 'undefined') {
-            Sentry.init({
-                dsn: 'YOUR_SENTRY_DSN_HERE', // <-- paste your Sentry DSN here
-                tracesSampleRate: 1.0,
-            });
-        }
-
         function toggleDrawer() {
             const drawer = document.getElementById('drawer');
             const overlay = document.getElementById('overlay');
@@ -57,8 +50,14 @@
             overlay.classList.toggle('open');
         }
 
-        // Whole Church is always visible. Others show for admins or assigned users.
         const allMinistries = ['Whole Church', 'Music Ministry', 'Sentry', 'Nursery', 'Media'];
+        const ministryIcons = {
+            'Whole Church': '⛪',
+            'Music Ministry': '🎵',
+            'Sentry': '🛡️',
+            'Nursery': '👶',
+            'Media': '🎥'
+        };
 
         async function renderChatList() {
             const container = document.getElementById('chat-list');
@@ -67,16 +66,18 @@
             const profile = await requireApprovedUser();
             if (!profile) return;
 
-            // profile is the Firestore document itself (has .role and .ministries)
             const userMinistries = profile.ministries || [];
             const isAdmin = profile.role === 'admin';
 
             allMinistries.forEach(ministry => {
                 if (ministry === 'Whole Church' || isAdmin || userMinistries.includes(ministry)) {
                     const btn = document.createElement('button');
-                    btn.className = 'menu-btn';
-                    btn.textContent = ministry;
-                    btn.onclick = () => window.location.href = `chat-room.html?room=${encodeURIComponent(ministry)}`;
+                    btn.type = 'button';
+                    btn.className = 'option-tile';
+                    btn.innerHTML =
+                        '<span class="tile-icon" aria-hidden="true">' + (ministryIcons[ministry] || '💬') + '</span>' +
+                        '<span class="tile-label">' + ministry + '</span>';
+                    btn.onclick = () => window.location.href = 'chat-room.html?room=' + encodeURIComponent(ministry);
                     container.appendChild(btn);
                 }
             });
