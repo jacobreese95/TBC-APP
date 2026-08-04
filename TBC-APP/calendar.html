@@ -16,9 +16,7 @@
 .event .ev-name{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700}
 .event .ev-song{display:block;font-size:.65rem;opacity:.95;margin-top:1px}
 .event-more{font-size:.7rem;color:#666;margin-top:2px;font-weight:bold}
-.filter-bar{display:flex;flex-wrap:wrap;gap:8px;margin:15px 0}
-.filter-btn{padding:8px 16px;border:2px solid #ccc;background:#fff;color:#666;border-radius:20px;cursor:pointer;font-weight:bold}
-.filter-btn.active{color:#fff}
+.filter-bar{margin:12px 0 16px}
 .day-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:100;padding:16px}
 .day-modal.open{display:flex}
 .day-modal-content{background:#fff;border-radius:16px;padding:20px;width:100%;max-width:420px;max-height:80vh;overflow-y:auto}
@@ -56,7 +54,7 @@ input.form-input,textarea.form-input,select.form-input{width:100%;padding:12px;m
 <button class="hamburger" onclick="toggleDrawer()" aria-label="Open menu"><span></span><span></span><span></span></button>
 </header>
 <div class="container">
-<div class="filter-bar" id="filter-bar"></div>
+<div class="option-grid compact filter-bar" id="filter-bar"></div>
 <div id="my-requests-section">
 <h3>My Schedule Requests</h3>
 <div id="my-requests-list"></div>
@@ -153,16 +151,16 @@ function getMinistryColor(m){return ministryColors[m]||'#4cb8b9'}
 function toggleDrawer(){document.getElementById('drawer').classList.toggle('open');document.getElementById('overlay').classList.toggle('open')}
 function closeDayModal(){document.getElementById('day-modal').classList.remove('open')}
 function escapeHtml(str){return String(str||'').replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"')}
+const ministryIcons={'Whole Church':'⛪','Music Ministry':'🎵','Sentry':'🛡️','Nursery':'👶','Media':'🎥'};
 function renderFilterBar(userMinistries,isAdmin){
 const container=document.getElementById('filter-bar');
 container.innerHTML='';
 allMinistries.forEach(ministry=>{
 if(ministry!=='Whole Church'&&!(isAdmin||userMinistries.includes(ministry)))return;
 const btn=document.createElement('button');
-btn.className='filter-btn'+(selectedFilters.has(ministry)?' active':'');
-btn.textContent=ministry;
-btn.style.borderColor=getMinistryColor(ministry);
-if(selectedFilters.has(ministry)){btn.style.background=getMinistryColor(ministry);btn.style.color='#fff'}
+btn.type='button';
+btn.className='option-tile'+(selectedFilters.has(ministry)?' active':'');
+btn.innerHTML='<span class="tile-icon" aria-hidden="true">'+(ministryIcons[ministry]||'📅')+'</span><span class="tile-label">'+ministry+'</span>';
 btn.onclick=()=>{if(selectedFilters.has(ministry))selectedFilters.delete(ministry);else selectedFilters.add(ministry);if(selectedFilters.size===0)selectedFilters.add('Whole Church');renderFilterBar(userMinistries,isAdmin);renderCalendar()};
 container.appendChild(btn);
 });
