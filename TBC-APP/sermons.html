@@ -272,6 +272,7 @@
           var id = item.id && item.id.videoId ? item.id.videoId : (typeof item.id === 'string' ? item.id : '');
           if (!id && item.snippet && item.snippet.resourceId) id = item.snippet.resourceId.videoId;
           if (!id || id === featuredId) return;
+          if (cards.length >= 10) return;
           var title = (item.snippet && item.snippet.title) || 'Service';
           var published = (item.snippet && (item.snippet.publishedAt || item.snippet.publishTime)) || '';
           var thumb = thumbUrl(item);
@@ -363,7 +364,7 @@
             eventType: 'completed',
             type: 'video',
             order: 'date',
-            maxResults: '10'
+            maxResults: '12'
           });
 
           var recent = (completed.items || []);
@@ -374,7 +375,7 @@
               channelId: CHANNEL_ID,
               type: 'video',
               order: 'date',
-              maxResults: '10'
+              maxResults: '12'
             });
             recent = latest.items || [];
           }
