@@ -14,6 +14,7 @@
     <div class="nav-drawer" id="navDrawer">
         <a href="about.html">About Us</a>
         <a href="calendar.html" id="drawer-calendar">Calendar</a>
+        <a href="directory.html" id="drawer-directory">Church Directory</a>
         <a href="chat.html" id="drawer-chats">Ministry Chats</a>
         <a href="bible/index.html">Bible</a>
         <a href="give.html">Give on Tithe.ly</a>
@@ -32,6 +33,7 @@
     <div class="container menu-stack">
         <button class="menu-btn" onclick="window.location.href='about.html'">About Us</button>
         <button class="menu-btn" id="btn-calendar" onclick="goToProtected('calendar.html')">Calendar</button>
+        <button class="menu-btn" id="btn-directory" onclick="goToProtected('directory.html')">Church Directory</button>
         <button class="menu-btn" id="btn-chats" onclick="goToProtected('chat.html')">Ministry Chats</button>
         <button class="menu-btn" onclick="window.location.href='bible/index.html'">Bible</button>
         <button class="menu-btn" onclick="window.location.href='give.html'">Give on Tithe.ly</button>
@@ -56,7 +58,6 @@
             document.getElementById('navOverlay').classList.toggle('open');
         }
 
-        // Protected navigation for gated sections
         async function goToProtected(page) {
             const profile = await requireApprovedUser();
             if (profile) {
@@ -69,11 +70,13 @@
             const drawerProfile = document.getElementById('drawer-profile');
             const drawerLogout = document.getElementById('drawer-logout');
             const drawerCalendar = document.getElementById('drawer-calendar');
+            const drawerDirectory = document.getElementById('drawer-directory');
             const drawerChats = document.getElementById('drawer-chats');
             const drawerSoul = document.getElementById('drawer-soulwinning');
             const drawerUpload = document.getElementById('drawer-upload');
             const drawerAdmin = document.getElementById('drawer-admin');
             const btnCalendar = document.getElementById('btn-calendar');
+            const btnDirectory = document.getElementById('btn-directory');
             const btnChats = document.getElementById('btn-chats');
             const btnSoul = document.getElementById('btn-soulwinning');
             const btnUpload = document.getElementById('btn-upload');
@@ -83,11 +86,13 @@
                 drawerProfile.style.display = 'none';
                 drawerLogout.style.display = 'none';
                 drawerCalendar.style.display = 'none';
+                drawerDirectory.style.display = 'none';
                 drawerChats.style.display = 'none';
                 drawerSoul.style.display = 'none';
                 drawerUpload.style.display = 'none';
                 drawerAdmin.style.display = 'none';
                 btnCalendar.style.display = 'none';
+                btnDirectory.style.display = 'none';
                 btnChats.style.display = 'none';
                 btnSoul.style.display = 'none';
                 btnUpload.style.display = 'none';
@@ -98,10 +103,12 @@
             drawerProfile.style.display = 'block';
             drawerLogout.style.display = 'block';
             drawerCalendar.style.display = 'block';
+            drawerDirectory.style.display = 'block';
             drawerChats.style.display = 'block';
             drawerSoul.style.display = 'block';
             drawerUpload.style.display = 'block';
             btnCalendar.style.display = 'block';
+            btnDirectory.style.display = 'block';
             btnChats.style.display = 'block';
             btnSoul.style.display = 'block';
             btnUpload.style.display = 'block';
@@ -115,6 +122,8 @@
                 }
                 if (profile && !profile.approved) {
                     drawerProfile.style.display = 'none';
+                    drawerDirectory.style.display = 'none';
+                    btnDirectory.style.display = 'none';
                 }
             } catch (e) {}
         });
