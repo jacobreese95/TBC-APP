@@ -136,10 +136,11 @@
             max-width: 85%;
             word-wrap: break-word;
             display: flex;
+            flex-direction: row;
             gap: 10px;
             align-items: flex-start;
         }
-        .message.sent { background: #4cb8b9; color: white; margin-left: auto; flex-direction: row-reverse; }
+        .message.sent { background: #4cb8b9; color: white; margin-left: auto; }
         .message.received { background: white; border: 1px solid #ddd; }
         .message.prayer { background: #f3e8ff; border: 2px solid #8845a5; color: #404040; }
         .message.prayer strong { color: #8845a5; }
@@ -471,7 +472,6 @@
                 const rows = [];
                 snapshot.forEach(doc => rows.push({ id: doc.id, ...doc.data() }));
 
-                // Prefetch photos for messages missing photoURL
                 const uids = [];
                 rows.forEach(m => {
                     if (m.uid && !m.photoURL && photoCache[m.uid] === undefined) uids.push(m.uid);
@@ -491,6 +491,7 @@
                     div.className = classes;
                     const name = m.name || displayName || 'User';
                     const photo = m.photoURL || photoCache[m.uid] || '';
+                    // Avatar always first = left of the name
                     let html = avatarHtml(photo);
                     html += '<div class="msg-content"><strong>' + escapeHtml(name) + '</strong>' + escapeHtml(m.text || '');
                     if (m.isPrayer) {
