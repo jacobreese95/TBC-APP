@@ -202,8 +202,8 @@
       var CHANNEL_ID = 'UCQqlzMIDobV23YjacOZysSg';
       var CHANNEL_HANDLE = '@TBCWichita1';
       var API_KEY_STORAGE = 'tbc-youtube-api-key';
-      // Optional: hardcode a key here later if you prefer (still restrict it in Google Cloud)
-      var HARDCODED_API_KEY = '';
+      // Restricted YouTube Data API key for public stream listing
+      var HARDCODED_API_KEY = 'AIzaSyBCbF-l-iS52aiS7Rsr6zL_bTHxzLo2Mj0';
 
       function toggleMenu() {
         document.getElementById('navDrawer').classList.toggle('open');
@@ -296,7 +296,6 @@
             e.preventDefault();
             var vid = el.getAttribute('data-vid');
             if (!vid) return;
-            // promote clicked video to featured player
             var fake = {
               id: { videoId: vid },
               snippet: {
@@ -312,10 +311,10 @@
 
       function escapeHtml(str) {
         return String(str || '')
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
+          .replace(/&/g, '&')
+          .replace(/</g, '<')
+          .replace(/>/g, '>')
+          .replace(/"/g, '"');
       }
 
       async function ytGet(path, params) {
@@ -343,7 +342,6 @@
         document.getElementById('featured').innerHTML = '<div class="stream-status">Loading streams…</div>';
 
         try {
-          // 1) Live right now?
           var live = await ytGet('search', {
             part: 'snippet',
             channelId: CHANNEL_ID,
@@ -359,7 +357,6 @@
             isLive = true;
           }
 
-          // 2) Recent completed livestreams (preferred over regular uploads)
           var completed = await ytGet('search', {
             part: 'snippet',
             channelId: CHANNEL_ID,
@@ -371,7 +368,6 @@
 
           var recent = (completed.items || []);
 
-          // Fallback: if no completed livestreams, use latest channel videos
           if (!recent.length) {
             var latest = await ytGet('search', {
               part: 'snippet',
@@ -414,7 +410,6 @@
         loadStreams();
       });
 
-      // Prefill if we already have a key
       (function () {
         var existing = getApiKey();
         if (existing) document.getElementById('apiKeyInput').value = existing;
