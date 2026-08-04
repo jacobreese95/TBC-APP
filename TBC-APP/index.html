@@ -6,6 +6,94 @@
     <title>TBC Church App</title>
     <script src="theme.js"></script>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .home-title {
+            text-align: center;
+            margin: 4px 16px 18px;
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: 0.01em;
+        }
+        .home-title span {
+            color: var(--teal);
+        }
+        .home-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            padding: 4px 4px 28px;
+            max-width: 420px;
+            margin: 0 auto;
+        }
+        .home-tile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            min-height: 108px;
+            padding: 16px 8px 14px;
+            margin: 0;
+            width: 100%;
+            background: var(--surface);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+            font-family: inherit;
+        }
+        .home-tile:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+            border-color: rgba(76, 184, 185, 0.45);
+            filter: none;
+        }
+        .home-tile:active {
+            transform: scale(0.97);
+        }
+        .home-tile .tile-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.55rem;
+            background: linear-gradient(135deg, rgba(76, 184, 185, 0.18) 0%, rgba(123, 175, 221, 0.22) 100%);
+            color: var(--teal);
+            line-height: 1;
+        }
+        .home-tile .tile-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-align: center;
+            line-height: 1.25;
+            color: var(--text);
+            letter-spacing: 0.01em;
+        }
+        #bottomAuth {
+            max-width: 420px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-bottom: 36px;
+        }
+        @media (max-width: 360px) {
+            .home-grid {
+                gap: 8px;
+            }
+            .home-tile {
+                min-height: 96px;
+                padding: 12px 6px 10px;
+            }
+            .home-tile .tile-label {
+                font-size: 0.72rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <button class="hamburger" onclick="toggleMenu()" aria-label="Open menu">
@@ -30,20 +118,61 @@
     <div class="home-logo-wrap">
         <img src="tbclogo.jpeg" alt="Temple Baptist Church Logo">
     </div>
+    <h1 class="home-title">Temple <span>Baptist</span> Church</h1>
 
-    <div class="container menu-stack">
-        <button class="menu-btn" onclick="window.location.href='about.html'">About Us</button>
-        <button class="menu-btn" id="btn-calendar" onclick="goToProtected('calendar.html')">Calendar</button>
-        <button class="menu-btn" id="btn-directory" onclick="goToProtected('directory.html')">Church Directory</button>
-        <button class="menu-btn" id="btn-chats" onclick="goToProtected('chat.html')">Ministry Chats</button>
-        <button class="menu-btn" onclick="window.location.href='bible/index.html'">Bible</button>
-        <button class="menu-btn" onclick="window.location.href='give.html'">Give on Tithe.ly</button>
-        <button class="menu-btn" onclick="window.location.href='sermons.html'">Sermons & Live Streams</button>
-        <button class="menu-btn" id="btn-soulwinning" onclick="goToProtected('soul-winning.html')">Soul Winning</button>
-        <button class="menu-btn" id="btn-upload" onclick="goToProtected('upload-photos.html')">Upload Photos</button>
+    <div class="container">
+        <div class="home-grid" id="homeGrid">
+            <button type="button" class="home-tile" onclick="window.location.href='bible/index.html'">
+                <span class="tile-icon" aria-hidden="true">📖</span>
+                <span class="tile-label">Bible</span>
+            </button>
+            <button type="button" class="home-tile" id="btn-calendar" onclick="goToProtected('calendar.html')">
+                <span class="tile-icon" aria-hidden="true">📅</span>
+                <span class="tile-label">Calendar</span>
+            </button>
+            <button type="button" class="home-tile" id="btn-chats" onclick="goToProtected('chat.html')">
+                <span class="tile-icon" aria-hidden="true">💬</span>
+                <span class="tile-label">Chats</span>
+            </button>
+
+            <button type="button" class="home-tile" id="btn-directory" onclick="goToProtected('directory.html')">
+                <span class="tile-icon" aria-hidden="true">👥</span>
+                <span class="tile-label">Directory</span>
+            </button>
+            <button type="button" class="home-tile" onclick="window.location.href='sermons.html'">
+                <span class="tile-icon" aria-hidden="true">🎬</span>
+                <span class="tile-label">Sermons</span>
+            </button>
+            <button type="button" class="home-tile" onclick="window.location.href='give.html'">
+                <span class="tile-icon" aria-hidden="true">💝</span>
+                <span class="tile-label">Give</span>
+            </button>
+
+            <button type="button" class="home-tile" onclick="window.location.href='about.html'">
+                <span class="tile-icon" aria-hidden="true">⛪</span>
+                <span class="tile-label">About</span>
+            </button>
+            <button type="button" class="home-tile" id="btn-soulwinning" onclick="goToProtected('soul-winning.html')">
+                <span class="tile-icon" aria-hidden="true">🗺️</span>
+                <span class="tile-label">Soul Winning</span>
+            </button>
+            <button type="button" class="home-tile" id="btn-upload" onclick="goToProtected('upload-photos.html')">
+                <span class="tile-icon" aria-hidden="true">📷</span>
+                <span class="tile-label">Photos</span>
+            </button>
+
+            <button type="button" class="home-tile" id="btn-profile" onclick="goToProtected('profile.html')" style="display:none">
+                <span class="tile-icon" aria-hidden="true">👤</span>
+                <span class="tile-label">Profile</span>
+            </button>
+            <button type="button" class="home-tile" id="btn-admin" onclick="goToProtected('admin.html')" style="display:none">
+                <span class="tile-icon" aria-hidden="true">⚙️</span>
+                <span class="tile-label">Admin</span>
+            </button>
+        </div>
     </div>
 
-    <div id="bottomAuth" class="container" style="margin-top: 30px; display: none;">
+    <div id="bottomAuth" class="container" style="margin-top: 8px; display: none;">
         <button class="menu-btn login-btn" onclick="window.location.href='login.html'">Login</button>
         <button class="menu-btn" style="background: linear-gradient(135deg, #7a8fac 0%, #404040 100%); margin-top: 12px;" onclick="window.location.href='signup.html'">Create an Account</button>
     </div>
@@ -80,6 +209,8 @@
             const btnChats = document.getElementById('btn-chats');
             const btnSoul = document.getElementById('btn-soulwinning');
             const btnUpload = document.getElementById('btn-upload');
+            const btnProfile = document.getElementById('btn-profile');
+            const btnAdmin = document.getElementById('btn-admin');
 
             if (!user) {
                 bottom.style.display = 'block';
@@ -96,6 +227,8 @@
                 btnChats.style.display = 'none';
                 btnSoul.style.display = 'none';
                 btnUpload.style.display = 'none';
+                if (btnProfile) btnProfile.style.display = 'none';
+                if (btnAdmin) btnAdmin.style.display = 'none';
                 return;
             }
 
@@ -107,11 +240,12 @@
             drawerChats.style.display = 'block';
             drawerSoul.style.display = 'block';
             drawerUpload.style.display = 'block';
-            btnCalendar.style.display = 'block';
-            btnDirectory.style.display = 'block';
-            btnChats.style.display = 'block';
-            btnSoul.style.display = 'block';
-            btnUpload.style.display = 'block';
+            btnCalendar.style.display = 'flex';
+            btnDirectory.style.display = 'flex';
+            btnChats.style.display = 'flex';
+            btnSoul.style.display = 'flex';
+            btnUpload.style.display = 'flex';
+            if (btnProfile) btnProfile.style.display = 'flex';
 
             try {
                 const profile = await ensureUserProfile(user);
@@ -120,13 +254,16 @@
                 }
                 if (profile && profile.role === 'admin') {
                     drawerAdmin.style.display = 'block';
+                    if (btnAdmin) btnAdmin.style.display = 'flex';
                 } else {
                     drawerAdmin.style.display = 'none';
+                    if (btnAdmin) btnAdmin.style.display = 'none';
                 }
                 if (profile && !profile.approved) {
                     drawerProfile.style.display = 'none';
                     drawerDirectory.style.display = 'none';
                     btnDirectory.style.display = 'none';
+                    if (btnProfile) btnProfile.style.display = 'none';
                 }
             } catch (e) {}
         });
