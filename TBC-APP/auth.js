@@ -17,6 +17,8 @@ if (!firebase.apps.length) {
 
 const auth = firebase.auth();
 const db = firebase.firestore();
+window.auth = auth;
+window.db = db;
 
 async function signUpUser({ name, birthday, phone, email, address, password }) {
   const cred = await auth.createUserWithEmailAndPassword(email, password);
