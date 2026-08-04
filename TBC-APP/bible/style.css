@@ -1,5 +1,6 @@
-/* TBC Bible section – same church theme as app */
-:root {
+/* TBC Bible section – same church theme as app + dark mode */
+:root,
+[data-theme="light"] {
   --slate: #7a8fac;
   --sky: #7bafdd;
   --cream: #dedcd0;
@@ -9,9 +10,38 @@
   --purple: #8845a5;
   --lilac: #ac8ce6;
   --white: #ffffff;
+  --bg: #dedcd0;
+  --surface: #ffffff;
+  --text: #404040;
+  --muted: #7a8fac;
+  --border: rgba(122, 143, 172, 0.35);
+  --input-bg: #ffffff;
+  --drawer-bg: #ffffff;
   --radius: 14px;
   --shadow: 0 4px 14px rgba(64, 64, 64, 0.12);
   --shadow-hover: 0 6px 20px rgba(64, 64, 64, 0.18);
+}
+
+[data-theme="dark"] {
+  --slate: #9aa8bc;
+  --sky: #6ba3d4;
+  --cream: #1a1d24;
+  --charcoal: #e8eaed;
+  --lime: #9bc95a;
+  --teal: #3da8a9;
+  --purple: #a56bc4;
+  --lilac: #9b7fd4;
+  --white: #232833;
+  --bg: #12141a;
+  --surface: #1e222b;
+  --text: #e8eaed;
+  --muted: #9aa8bc;
+  --border: rgba(154, 168, 188, 0.28);
+  --input-bg: #2a303c;
+  --drawer-bg: #1a1e27;
+  --radius: 14px;
+  --shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  --shadow-hover: 0 6px 20px rgba(0, 0, 0, 0.45);
 }
 
 * { box-sizing: border-box; }
@@ -20,14 +50,14 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   margin: 0;
   padding: 0;
-  background: var(--cream);
-  color: var(--charcoal);
+  background: var(--bg);
+  color: var(--text);
   line-height: 1.5;
 }
 
 header {
   background: linear-gradient(135deg, var(--teal) 0%, var(--sky) 55%, var(--lilac) 100%);
-  color: var(--white);
+  color: #ffffff;
   padding: 18px 56px 18px 56px;
   text-align: center;
   box-shadow: var(--shadow);
@@ -59,7 +89,7 @@ button,
   display: block;
   width: 100%;
   background: linear-gradient(135deg, var(--teal) 0%, var(--sky) 100%);
-  color: var(--white);
+  color: #ffffff;
   border: none;
   padding: 16px 20px;
   margin: 10px 0;
@@ -122,8 +152,8 @@ textarea {
   border: 2px solid var(--slate);
   border-radius: var(--radius);
   font-size: 1rem;
-  background: var(--white);
-  color: var(--charcoal);
+  background: var(--input-bg);
+  color: var(--text);
   outline: none;
 }
 
@@ -137,27 +167,28 @@ textarea:focus {
 .section,
 .verse,
 .search-result {
-  background: var(--white);
-  border: 1px solid rgba(122, 143, 172, 0.35);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 14px 16px;
   margin: 12px 0;
   box-shadow: 0 2px 8px rgba(64, 64, 64, 0.06);
+  color: var(--text);
 }
 
 .verse { cursor: pointer; }
 .verse:hover { border-color: var(--teal); box-shadow: var(--shadow); }
 .verse strong { color: var(--purple); }
-.verse-text { font-size: 1.1rem; line-height: 1.55; margin: 8px 0 4px; }
+.verse-text { font-size: 1.1rem; line-height: 1.55; margin: 8px 0 4px; color: var(--text); }
 .verse-menu {
   display: none;
   margin-top: 12px;
   padding-top: 8px;
-  border-top: 1px solid rgba(122, 143, 172, 0.3);
+  border-top: 1px solid var(--border);
 }
 
 .word-block {
-  background: linear-gradient(180deg, #f7fafb 0%, #eef5f6 100%);
+  background: var(--input-bg);
   border-left: 4px solid var(--teal);
   padding: 12px 14px;
   margin: 10px 0;
@@ -173,7 +204,7 @@ textarea:focus {
 
 .def-label {
   font-weight: 700;
-  color: var(--slate);
+  color: var(--muted);
   margin-top: 8px;
   display: block;
   font-size: 0.85rem;
@@ -181,15 +212,18 @@ textarea:focus {
   letter-spacing: 0.04em;
 }
 
+.search-count { color: var(--muted); }
+.search-ref { color: var(--purple); font-weight: 700; }
+.search-text { color: var(--text); }
+
 mark { background: var(--lime); padding: 0 3px; border-radius: 3px; }
 
 a { color: var(--teal); font-weight: 600; }
 
 a:hover { color: var(--purple); }
 
-h2 { color: var(--charcoal); font-size: 1.2rem; margin: 8px 0 12px; }
+h2 { color: var(--text); font-size: 1.2rem; margin: 8px 0 12px; }
 
-/* Fixed home logo - top left */
 .home-logo-btn {
   position: fixed;
   top: 10px;
@@ -201,7 +235,7 @@ h2 { color: var(--charcoal); font-size: 1.2rem; margin: 8px 0 12px; }
   border-radius: 50%;
   overflow: hidden;
   box-shadow: var(--shadow);
-  background: var(--white);
+  background: var(--surface);
   padding: 2px;
   text-decoration: none;
   transition: transform 0.15s ease;
@@ -219,13 +253,12 @@ h2 { color: var(--charcoal); font-size: 1.2rem; margin: 8px 0 12px; }
   display: block;
 }
 
-/* Hamburger – fixed top-right corner, lines centered */
 .hamburger {
   position: fixed;
   top: 12px;
   right: 14px;
   z-index: 2000;
-  background: var(--white);
+  background: var(--surface);
   border: none;
   width: 44px;
   height: 44px;
@@ -250,7 +283,7 @@ h2 { color: var(--charcoal); font-size: 1.2rem; margin: 8px 0 12px; }
   display: block;
   width: 20px;
   height: 2.5px;
-  background: var(--charcoal);
+  background: var(--text);
   margin: 0;
   border-radius: 2px;
 }
@@ -261,7 +294,7 @@ h2 { color: var(--charcoal); font-size: 1.2rem; margin: 8px 0 12px; }
   right: -280px;
   width: 280px;
   height: 100vh;
-  background: var(--white);
+  background: var(--drawer-bg);
   box-shadow: -4px 0 20px rgba(0,0,0,0.15);
   z-index: 2001;
   transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
@@ -276,15 +309,15 @@ h2 { color: var(--charcoal); font-size: 1.2rem; margin: 8px 0 12px; }
 .nav-drawer a {
   display: block;
   padding: 16px 24px;
-  color: var(--charcoal);
+  color: var(--text);
   font-size: 1.05rem;
   font-weight: 600;
   text-decoration: none;
-  border-bottom: 1px solid rgba(122,143,172,0.2);
+  border-bottom: 1px solid var(--border);
 }
 
 .nav-drawer a:hover {
-  background: var(--cream);
+  background: var(--input-bg);
   color: var(--teal);
 }
 
