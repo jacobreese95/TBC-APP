@@ -133,13 +133,43 @@
             margin: 8px 0;
             padding: 10px 14px;
             border-radius: 18px;
-            max-width: 80%;
+            max-width: 85%;
             word-wrap: break-word;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
         }
-        .message.sent { background: #4cb8b9; color: white; margin-left: auto; }
+        .message.sent { background: #4cb8b9; color: white; margin-left: auto; flex-direction: row-reverse; }
         .message.received { background: white; border: 1px solid #ddd; }
         .message.prayer { background: #f3e8ff; border: 2px solid #8845a5; color: #404040; }
         .message.prayer strong { color: #8845a5; }
+        .msg-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+            background: #dedcd0;
+            border: 2px solid rgba(255,255,255,0.5);
+        }
+        .message.received .msg-avatar { border-color: #4cb8b9; }
+        .message.prayer .msg-avatar { border-color: #8845a5; }
+        .msg-avatar-ph {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            background: #dedcd0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: #7a8fac;
+            border: 2px solid #ccc;
+        }
+        .message.sent .msg-avatar-ph { border-color: rgba(255,255,255,0.6); color: #fff; background: rgba(255,255,255,0.25); }
+        .msg-content { flex: 1; min-width: 0; }
+        .msg-content strong { display: block; margin-bottom: 2px; }
         .prayer-tag {
             display: inline-block;
             margin-top: 4px;
@@ -270,7 +300,6 @@
         <a href="#" onclick="logoutUser(); return false;" style="color:#8845a5; font-weight:bold; margin-top:20px;">Logout</a>
     </div>
 
-    <!-- Day Preview Modal -->
     <div class="day-modal" id="day-modal" onclick="if (event.target.id === 'day-modal') closeDayModal()">
         <div class="day-modal-content">
             <h3 id="day-modal-title"></h3>
@@ -288,8 +317,10 @@
         let room = new URLSearchParams(window.location.search).get('room') || 'Whole Church';
         let currentUser = null;
         let displayName = 'User';
+        let myPhotoURL = '';
         let isSending = false;
-        let weekEvents = []; // events for the visible week
+        let weekEvents = [];
+        var photoCache = {};
 
         function toggleDrawer() {
             document.getElementById('drawer').classList.toggle('open');
@@ -300,15 +331,18 @@
             document.getElementById('day-modal').classList.remove('open');
         }
 
+        function escapeHtml(str) {
+            return String(str || '').replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"');
+        }
+
         function dateKey(d) {
             const y = d.getFullYear();
             const m = String(d.getMonth() + 1).padStart(2, '0');
             const day = String(d.getDate()).padStart(2, '0');
-            return `${y}-${m}-${day}`;
+            return y + '-' + m + '-' + day;
         }
 
         function getEventsForDate(dateStr) {
-            // This room's events + Whole Church events always show
             return weekEvents.filter(e =>
                 e.date === dateStr &&
                 (e.ministry === room || e.ministry === 'Whole Church')
@@ -332,9 +366,9 @@
                     const div = document.createElement('div');
                     div.className = 'day-event';
                     div.innerHTML =
-                        `<strong>${ev.title || 'Event'}</strong>` +
-                        (ev.description ? `<br>${ev.description}` : '') +
-                        `<div class="ministry-tag">${ev.ministry || ''}</div>`;
+                        '<strong>' + escapeHtml(ev.title || 'Event') + '</strong>' +
+                        (ev.description ? '<br>' + escapeHtml(ev.description) : '') +
+                        '<div class="ministry-tag">' + escapeHtml(ev.ministry || '') + '</div>';
                     eventsEl.appendChild(div);
                 });
             }
@@ -347,7 +381,6 @@
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
-            // Start from today, show 7 days ahead
             for (let i = 0; i < 7; i++) {
                 const d = new Date(today);
                 d.setDate(today.getDate() + i);
@@ -361,16 +394,16 @@
                 const showCount = 2;
                 events.slice(0, showCount).forEach(ev => {
                     const cls = ev.ministry === 'Whole Church' ? 'week-event church' : 'week-event';
-                    eventsHtml += `<div class="${cls}" title="${ev.title}">${ev.title}</div>`;
+                    eventsHtml += '<div class="' + cls + '" title="' + escapeHtml(ev.title) + '">' + escapeHtml(ev.title) + '</div>';
                 });
                 if (events.length > showCount) {
-                    eventsHtml += `<div class="week-event-more">+${events.length - showCount} more</div>`;
+                    eventsHtml += '<div class="week-event-more">+' + (events.length - showCount) + ' more</div>';
                 }
 
                 div.innerHTML =
-                    `<div class="week-day-name">${d.toLocaleDateString('en-US', { weekday: 'short' })}</div>` +
-                    `<div class="week-day-num">${d.getDate()}</div>` +
-                    `<div class="week-day-events">${eventsHtml}</div>`;
+                    '<div class="week-day-name">' + d.toLocaleDateString('en-US', { weekday: 'short' }) + '</div>' +
+                    '<div class="week-day-num">' + d.getDate() + '</div>' +
+                    '<div class="week-day-events">' + eventsHtml + '</div>';
 
                 div.onclick = () => showDayPreview(d);
                 header.appendChild(div);
@@ -387,8 +420,6 @@
             const endStr = dateKey(end);
 
             try {
-                // Load all events in the week range, then filter client-side
-                // (avoids needing a composite index for ministry + date)
                 const snapshot = await db.collection('events').get();
                 weekEvents = [];
                 snapshot.forEach(doc => {
@@ -409,32 +440,70 @@
             container.scrollTop = container.scrollHeight;
         }
 
-        function loadMessages() {
+        async function getPhotoForUid(uid, fallbackUrl) {
+            if (fallbackUrl) {
+                photoCache[uid] = fallbackUrl;
+                return fallbackUrl;
+            }
+            if (photoCache[uid] !== undefined) return photoCache[uid];
+            try {
+                const snap = await db.collection('users').doc(uid).get();
+                const url = (snap.exists && snap.data().photoURL) ? snap.data().photoURL : '';
+                photoCache[uid] = url;
+                return url;
+            } catch (e) {
+                photoCache[uid] = '';
+                return '';
+            }
+        }
+
+        function avatarHtml(url) {
+            if (url) {
+                return '<img class="msg-avatar" src="' + escapeHtml(url) + '" alt="">';
+            }
+            return '<div class="msg-avatar-ph">👤</div>';
+        }
+
+        async function loadMessages() {
             const container = document.getElementById('chat-messages');
-            db.collection('chats').doc(room).collection('messages').orderBy('createdAt').get()
-              .then(snapshot => {
-                  container.innerHTML = '';
-                  snapshot.forEach(doc => {
-                      const m = doc.data();
-                      const div = document.createElement('div');
-                      let classes = 'message ';
-                      if (m.isPrayer) {
-                          classes += 'prayer';
-                      } else {
-                          classes += (m.uid === currentUser.uid ? 'sent' : 'received');
-                      }
-                      div.className = classes;
-                      const name = m.name || displayName || 'User';
-                      let html = `<strong>${name}</strong><br>${m.text}`;
-                      if (m.isPrayer) {
-                          html += `<div class="prayer-tag">🙏 Prayer Request</div>`;
-                      }
-                      div.innerHTML = html;
-                      container.appendChild(div);
-                  });
-                  scrollToBottom();
-              })
-              .catch(e => console.error(e));
+            try {
+                const snapshot = await db.collection('chats').doc(room).collection('messages').orderBy('createdAt').get();
+                const rows = [];
+                snapshot.forEach(doc => rows.push({ id: doc.id, ...doc.data() }));
+
+                // Prefetch photos for messages missing photoURL
+                const uids = [];
+                rows.forEach(m => {
+                    if (m.uid && !m.photoURL && photoCache[m.uid] === undefined) uids.push(m.uid);
+                });
+                const unique = Array.from(new Set(uids));
+                await Promise.all(unique.map(uid => getPhotoForUid(uid, '')));
+
+                container.innerHTML = '';
+                rows.forEach(m => {
+                    const div = document.createElement('div');
+                    let classes = 'message ';
+                    if (m.isPrayer) {
+                        classes += 'prayer';
+                    } else {
+                        classes += (m.uid === currentUser.uid ? 'sent' : 'received');
+                    }
+                    div.className = classes;
+                    const name = m.name || displayName || 'User';
+                    const photo = m.photoURL || photoCache[m.uid] || '';
+                    let html = avatarHtml(photo);
+                    html += '<div class="msg-content"><strong>' + escapeHtml(name) + '</strong>' + escapeHtml(m.text || '');
+                    if (m.isPrayer) {
+                        html += '<div class="prayer-tag">🙏 Prayer Request</div>';
+                    }
+                    html += '</div>';
+                    div.innerHTML = html;
+                    container.appendChild(div);
+                });
+                scrollToBottom();
+            } catch (e) {
+                console.error(e);
+            }
         }
 
         function sendMessage(isPrayer) {
@@ -453,6 +522,7 @@
                 text,
                 uid: currentUser.uid,
                 name: displayName,
+                photoURL: myPhotoURL || '',
                 isPrayer: !!isPrayer,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             })
@@ -476,6 +546,8 @@
                     if (userDoc.exists) {
                         const u = userDoc.data();
                         displayName = u.name || u.displayName || currentUser.displayName || 'User';
+                        myPhotoURL = u.photoURL || '';
+                        photoCache[currentUser.uid] = myPhotoURL;
                     } else {
                         displayName = currentUser.displayName || currentUser.name || 'User';
                     }
