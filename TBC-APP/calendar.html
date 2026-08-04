@@ -76,15 +76,16 @@ input.form-input,textarea.form-input,select.form-input{width:100%;padding:12px;m
 <h3 style="margin-top:30px;color:#404040">Add New Event</h3>
 <p id="add-event-hint" style="font-size:.85rem;color:#7a8fac;margin:0 0 8px"></p>
 <div style="background:#fff;padding:20px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.1)">
+<label class="form-label" for="event-date">Date *</label>
 <input type="date" id="event-date" class="form-input">
 <input type="text" id="event-title" class="form-input" placeholder="Event Title">
 <textarea id="event-desc" class="form-input" placeholder="Description (optional)" style="height:80px"></textarea>
 <select id="event-ministry" class="form-input" onchange="onMinistryChange()"></select>
 <div id="schedule-extra" class="schedule-extra">
 <label class="form-label" for="personSearch">Assign people *</label>
-<p style="font-size:.8rem;color:#7a8fac;margin:0 0 6px">First person added is the song lead (picks the song only — not an app leader). Or type a saved group name below after adding 2+ people.</p>
+<p style="font-size:.8rem;color:#7a8fac;margin:0 0 6px">Type a person name or a saved group name (e.g. Reese Family). First person is song lead. With 2+ people, a group name is required.</p>
 <div class="person-wrap">
-<input type="text" id="personSearch" class="form-input" placeholder="Type a name to add…" autocomplete="off" style="margin:0">
+<input type="text" id="personSearch" class="form-input" placeholder="Type a name or group…" autocomplete="off" style="margin:0">
 <div class="person-results" id="personResults"></div>
 </div>
 <div id="selectedPersonChip"></div>
@@ -135,6 +136,7 @@ input.form-input,textarea.form-input,select.form-input{width:100%;padding:12px;m
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="auth.js"></script>
 <script src="home-logo.js"></script>
+<script src="calendar-music-enhance.js"></script>
 <script>
 let currentDate=new Date();
 let allEvents=[];
@@ -283,6 +285,8 @@ if(!g)return;
 selectedGroupId=g.id;
 document.getElementById('event-group-name').value=g.name||'';
 document.getElementById('groupNameResults').classList.remove('open');
+var pr=document.getElementById('personResults');if(pr)pr.classList.remove('open');
+var ps=document.getElementById('personSearch');if(ps)ps.value='';
 selectedPeople=[];
 const members=(g.members&&g.members.length)?g.members.slice():(g.memberUids||[]).map(uid=>{const p=directory.find(d=>d.uid===uid);return p?{uid:p.uid,name:p.name}:{uid:uid,name:uid}});
 if(g.songLeadUid){members.sort((a,b)=>a.uid===g.songLeadUid?-1:b.uid===g.songLeadUid?1:0);}
@@ -383,6 +387,17 @@ if(countEl)countEl.textContent=selectedPeople.length?(selectedPeople.length===1?
 const gWrap=document.getElementById('groupNameWrap');
 if(gWrap)gWrap.style.display=selectedPeople.length>=2?'block':'none';
 if(selectedPeople.length<2){var gn=document.getElementById('event-group-name');if(gn)gn.value='';selectedGroupId=null;}
+else if(selectedPeople.length>=2){
+var uids=selectedPeople.map(function(p){return p.uid}).sort().join(',');
+var matched=savedGroups.find(function(g){
+var mu=(g.memberUids||[]).slice().sort().join(',');
+if(mu===uids)return true;
+if(g.members&&g.members.length){var mu2=g.members.map(function(m){return m.uid}).sort().join(',');return mu2===uids;}
+return false;
+});
+var gn=document.getElementById('event-group-name');
+if(matched){selectedGroupId=matched.id;if(gn&&(!gn.value.trim()||gn.value.trim()===matched.name))gn.value=matched.name||'';}
+}
 const ministry=document.getElementById('event-ministry').value;
 if(ministry==='Music Ministry'&&selectedPeople.length===1){
 const p=selectedPeople[0];
@@ -411,12 +426,20 @@ input.dataset.bound='1';
 function showMatches(){
 const q=input.value.trim().toLowerCase();
 if(!q){results.classList.remove('open');results.innerHTML='';return}
-const matches=directory.filter(p=>(p.name.toLowerCase().indexOf(q)!==-1||(p.email&&p.email.toLowerCase().indexOf(q)!==-1))&&!selectedPeople.some(s=>s.uid===p.uid)).slice(0,12);
-if(!matches.length){results.innerHTML='<div style="color:#7a8fac">No matches</div>';results.classList.add('open');return}
-results.innerHTML=matches.map(p=>'<div class="person-result-item" data-uid="'+p.uid+'">'+escapeHtml(p.name)+'</div>').join('');
-results.querySelectorAll('.person-result-item').forEach(function(el){
+const peopleMatches=directory.filter(p=>(p.name.toLowerCase().indexOf(q)!==-1||(p.email&&p.email.toLowerCase().indexOf(q)!==-1))&&!selectedPeople.some(s=>s.uid===p.uid)).slice(0,10);
+const groupMatches=savedGroups.filter(g=>(g.name||'').toLowerCase().indexOf(q)!==-1).slice(0,8);
+let html='';
+if(groupMatches.length){html+='<div style="padding:8px 14px;font-size:.75rem;font-weight:700;color:#8845a5;background:#f5eef8">Groups</div>';html+=groupMatches.map(g=>'<div class="person-result-item" data-gid="'+g.id+'"><strong>'+escapeHtml(g.name)+'</strong> <span style="color:#7a8fac;font-size:.85rem">('+(g.members||g.memberUids||[]).length+' people)</span></div>').join('');}
+if(peopleMatches.length){html+='<div style="padding:8px 14px;font-size:.75rem;font-weight:700;color:#4cb8b9;background:#eef8f8">People</div>';html+=peopleMatches.map(p=>'<div class="person-result-item" data-uid="'+p.uid+'">'+escapeHtml(p.name)+'</div>').join('');}
+if(!html){results.innerHTML='<div style="color:#7a8fac;padding:12px">No matches</div>';results.classList.add('open');return}
+results.innerHTML=html;
+results.querySelectorAll('.person-result-item[data-uid]').forEach(function(el){
 el.addEventListener('touchstart',function(e){e.preventDefault();selectPerson(el.getAttribute('data-uid'));},{passive:false});
 el.addEventListener('mousedown',function(e){e.preventDefault();selectPerson(el.getAttribute('data-uid'));});
+});
+results.querySelectorAll('.person-result-item[data-gid]').forEach(function(el){
+el.addEventListener('touchstart',function(e){e.preventDefault();selectSavedGroup(el.getAttribute('data-gid'));},{passive:false});
+el.addEventListener('mousedown',function(e){e.preventDefault();selectSavedGroup(el.getAttribute('data-gid'));});
 });
 results.classList.add('open');
 }
