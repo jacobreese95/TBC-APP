@@ -101,7 +101,7 @@ header img {
   margin: 0 auto;
 }
 
-/* Modern buttons */
+/* Modern buttons – primary actions only (tiles override separately) */
 button,
 .menu-btn,
 .chapter-btn,
@@ -424,4 +424,89 @@ textarea:focus {
   .home-tile .tile-label {
     font-size: 0.72rem;
   }
+}
+
+/* Home page logo (main index) */
+.home-logo-wrap {
+  text-align: center;
+  padding: 20px 16px 6px;
+  margin: 0 auto;
+}
+.home-logo-wrap img {
+  display: block;
+  margin: 0 auto;
+  max-height: 110px;
+  max-width: 180px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 12px;
+}
+
+/* Floating home button (top-left on every page except main home) */
+.home-logo-btn {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 2100;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.home-logo-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.home-logo-btn:active {
+  transform: scale(0.94);
+}
+
+/* Force tiles to win over global button styles */
+button.option-tile,
+button.home-tile,
+.option-tile,
+.home-tile {
+  display: flex !important;
+  width: 100% !important;
+  margin: 0 !important;
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow) !important;
+  padding: 16px 8px 14px !important;
+  font-size: inherit !important;
+  filter: none !important;
+}
+button.option-tile:hover,
+button.home-tile:hover,
+.option-tile:hover,
+.home-tile:hover {
+  filter: none !important;
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  box-shadow: var(--shadow-hover) !important;
+  border-color: rgba(76, 184, 185, 0.45) !important;
+}
+.option-grid.compact button.option-tile,
+.option-grid.compact .option-tile {
+  min-height: 88px !important;
+  padding: 12px 6px 10px !important;
+}
+button.option-tile.active,
+.option-tile.active {
+  border-color: var(--teal) !important;
+  box-shadow: 0 0 0 2px rgba(76, 184, 185, 0.35), var(--shadow) !important;
 }
