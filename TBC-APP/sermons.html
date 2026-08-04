@@ -202,7 +202,6 @@
       var CHANNEL_ID = 'UCQqlzMIDobV23YjacOZysSg';
       var CHANNEL_HANDLE = '@TBCWichita1';
       var API_KEY_STORAGE = 'tbc-youtube-api-key';
-      // Restricted YouTube Data API key for public stream listing
       var HARDCODED_API_KEY = 'AIzaSyBCbF-l-iS52aiS7Rsr6zL_bTHxzLo2Mj0';
 
       function toggleMenu() {
@@ -379,6 +378,13 @@
             });
             recent = latest.items || [];
           }
+
+          // Newest first (top of list → older as you scroll down)
+          recent.sort(function (a, b) {
+            var da = new Date((a.snippet && (a.snippet.publishedAt || a.snippet.publishTime)) || 0).getTime();
+            var db = new Date((b.snippet && (b.snippet.publishedAt || b.snippet.publishTime)) || 0).getTime();
+            return db - da;
+          });
 
           if (!featured && recent.length) {
             featured = recent[0];
