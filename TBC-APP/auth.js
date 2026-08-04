@@ -144,32 +144,27 @@ function authErrorMessage(err) {
   return (err && err.message) || "Something went wrong. Please try again.";
 }
 
+function getAssetPrefixForPage() {
+  var path = (window.location.pathname || '').toLowerCase();
+  if (path.indexOf('/bible/') === -1) return '';
+  var after = path.split('/bible/')[1] || '';
+  var parts = after.split('/').filter(function (p) {
+    return p && p.indexOf('.') === -1;
+  });
+  return '../'.repeat(1 + parts.length);
+}
+
 /* Home logo button (top-left) on every page except the main home page */
 (function injectHomeLogoButton() {
   function isMainHomePage() {
     var path = (window.location.pathname || '').toLowerCase();
     var file = path.split('/').pop() || '';
-    // Bible and other folders are never the main home
     if (path.indexOf('/bible/') !== -1) return false;
-    // Main home is only the root index
     if (file === '' || file === 'index.html') {
-      // If path has bible or nested folders with extra segments, not main home
       var parts = path.split('/').filter(function (p) { return p && p !== 'index.html'; });
-      // e.g. / or /index.html or /tbc-app/index.html
       return parts.length <= 1;
     }
     return false;
-  }
-
-  function getAssetPrefix() {
-    var path = (window.location.pathname || '').toLowerCase();
-    if (path.indexOf('/bible/') === -1) return '';
-    var after = path.split('/bible/')[1] || '';
-    var parts = after.split('/').filter(function (p) {
-      return p && p.indexOf('.') === -1;
-    });
-    var depth = 1 + parts.length;
-    return '../'.repeat(depth);
   }
 
   function inject() {
@@ -177,7 +172,7 @@ function authErrorMessage(err) {
     if (document.getElementById('home-logo-btn')) return;
     if (!document.body) return;
 
-    var prefix = getAssetPrefix();
+    var prefix = getAssetPrefixForPage();
     var a = document.createElement('a');
     a.id = 'home-logo-btn';
     a.className = 'home-logo-btn';
@@ -198,7 +193,74 @@ function authErrorMessage(err) {
   } else {
     inject();
   }
-  // Retry once in case body was not ready
   setTimeout(inject, 50);
   setTimeout(inject, 300);
+})();
+
+/* Show Admin in any hamburger drawer when the user is an admin */
+(function injectAdminMenuLink() {
+  function showAdminLink() {
+    var prefix = getAssetPrefixForPage();
+    var adminHref = prefix + 'admin.html';
+
+    // Show any existing admin links
+    document.querySelectorAll('#drawer-admin, a[href="admin.html"], a[href$="/admin.html"]').forEach(function (el) {
+      el.style.display = 'block';
+      if (!el.getAttribute('href') || el.getAttribute('href') === '#') {
+        el.setAttribute('href', adminHref);
+      }
+    });
+
+    // Inject into drawers that don't already have Admin
+    var drawers = document.querySelectorAll('.nav-drawer, #drawer, #navDrawer');
+    drawers.forEach(function (drawer) {
+      if (!drawer) return;
+      if (drawer.querySelector('a[href*="admin.html"], #drawer-admin')) {
+        var existing = drawer.querySelector('a[href*="admin.html"], #drawer-admin');
+        if (existing) existing.style.display = 'block';
+        return;
+      }
+      var a = document.createElement('a');
+      a.id = 'drawer-admin';
+      a.href = adminHref;
+      a.textContent = 'Admin';
+      // Insert before Logout if possible
+      var logout = null;
+      drawer.querySelectorAll('a').forEach(function (link) {
+        var t = (link.textContent || '').toLowerCase();
+        if (t.indexOf('logout') !== -1 || t.indexOf('log out') !== -1) logout = link;
+      });
+      if (logout && logout.parentNode === drawer) {
+        drawer.insertBefore(a, logout);
+      } else {
+        drawer.appendChild(a);
+      }
+    });
+  }
+
+  function hideAdminLink() {
+    document.querySelectorAll('#drawer-admin').forEach(function (el) {
+      el.style.display = 'none';
+    });
+  }
+
+  auth.onAuthStateChanged(async function (user) {
+    if (!user) {
+      hideAdminLink();
+      return;
+    }
+    try {
+      var profile = await ensureUserProfile(user);
+      if (profile && profile.role === 'admin') {
+        showAdminLink();
+        // Retry in case drawer rendered late
+        setTimeout(showAdminLink, 200);
+        setTimeout(showAdminLink, 800);
+      } else {
+        hideAdminLink();
+      }
+    } catch (e) {
+      console.warn(e);
+    }
+  });
 })();
