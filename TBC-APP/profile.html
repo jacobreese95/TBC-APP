@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile - TBC Church App</title>
+    <script src="theme.js"></script>
     <link rel="stylesheet" href="style.css">
     <style>
         .profile-form { max-width: 400px; margin: 20px auto; padding: 20px; }
@@ -23,7 +24,7 @@
             margin: 0 auto 12px;
             position: relative;
             overflow: hidden;
-            background: #dedcd0;
+            background: var(--cream, #dedcd0);
             border: 3px solid #4cb8b9;
             box-shadow: 0 2px 10px rgba(0,0,0,.12);
         }
@@ -75,6 +76,16 @@
             background: linear-gradient(135deg, #4cb8b9, #7bafdd);
             transition: width 0.15s;
         }
+        .info-box {
+            background: var(--input-bg, #f7fafb);
+            border: 1px solid var(--border, #ddd);
+            border-radius: 8px;
+            padding: 12px;
+            margin: 8px 0 15px;
+            min-height: 40px;
+            color: var(--text, #404040);
+            font-size: 0.95rem;
+        }
     </style>
 </head>
 <body>
@@ -86,12 +97,12 @@
         <a href="index.html">Home</a>
         <a href="about.html">About Us</a>
         <a href="calendar.html">Calendar</a>
+        <a href="directory.html">Church Directory</a>
         <a href="music-groups.html">Music Groups</a>
         <a href="chat.html">Ministry Chats</a>
         <a href="bible/index.html">Bible</a>
         <a href="give.html">Give on Tithe.ly</a>
         <a href="sermons.html">Sermons & Live Streams</a>
-        <a href="#" onclick="window.open('https://www.google.com/maps/place/11801+E+Lincoln+St,+Wichita,+KS+67207', '_blank'); toggleMenu(); return false;">View Location on Google Maps</a>
         <a href="soul-winning.html">Soul Winning</a>
         <a href="profile.html">Profile</a>
         <a href="#" onclick="signOutUser().then(() => window.location.href='index.html')">Logout</a>
@@ -131,11 +142,17 @@
             <label>Address</label>
             <textarea id="address" rows="3" placeholder="Street, City, State, ZIP"></textarea>
 
+            <label>Appearance</label>
+            <div class="theme-toggle" role="group" aria-label="Theme">
+                <button type="button" id="themeLight" onclick="chooseTheme('light')">☀️ Light</button>
+                <button type="button" id="themeDark" onclick="chooseTheme('dark')">🌙 Dark</button>
+            </div>
+
             <label>Music Groups</label>
-            <div id="musicGroupsBox" style="background:#f7fafb;border:1px solid #ddd;border-radius:8px;padding:12px;margin:8px 0 15px;min-height:40px;color:#404040;font-size:0.95rem;">Loading…</div>
+            <div id="musicGroupsBox" class="info-box">Loading…</div>
 
             <label>Songs (from groups & solos)</label>
-            <div id="songsBox" style="background:#f7fafb;border:1px solid #ddd;border-radius:8px;padding:12px;margin:8px 0 15px;min-height:40px;color:#404040;font-size:0.95rem;">Loading…</div>
+            <div id="songsBox" class="info-box">Loading…</div>
 
             <button class="menu-btn" onclick="saveProfile()">Save Changes</button>
             <p id="saveMsg" style="color:#4cb8b9; text-align:center; display:none;">Saved!</p>
@@ -156,6 +173,23 @@
         const storage = firebase.storage();
         let currentProfile = null;
         const MAX_PIC_MB = 15;
+
+        function syncThemeButtons() {
+            var t = (typeof getAppTheme === 'function' ? getAppTheme() : 'light');
+            document.getElementById('themeLight').classList.toggle('active', t === 'light');
+            document.getElementById('themeDark').classList.toggle('active', t === 'dark');
+        }
+
+        async function chooseTheme(t) {
+            if (typeof setAppTheme === 'function') setAppTheme(t);
+            syncThemeButtons();
+            var user = auth.currentUser;
+            if (user) {
+                try {
+                    await db.collection('users').doc(user.uid).set({ theme: t }, { merge: true });
+                } catch (e) { console.warn(e); }
+            }
+        }
 
         function showPic(url) {
             const img = document.getElementById('picImg');
@@ -179,7 +213,6 @@
             setTimeout(function () { el.style.display = 'none'; }, 4000);
         }
 
-        // Shrink phone photos so normal selfies upload cleanly
         function compressImage(file) {
             return new Promise(function (resolve, reject) {
                 if (!file.type || !file.type.startsWith('image/')) {
@@ -236,6 +269,10 @@
                 document.getElementById('email').value = currentProfile.email || '';
                 document.getElementById('address').value = currentProfile.address || '';
                 showPic(currentProfile.photoURL || '');
+                if (currentProfile.theme && typeof setAppTheme === 'function') {
+                    setAppTheme(currentProfile.theme);
+                }
+                syncThemeButtons();
                 loadMusicInfo(currentProfile, user.uid);
             }
         });
@@ -266,7 +303,6 @@
                     text.textContent = 'Resizing photo…';
                     uploadFile = await compressImage(file);
                 } catch (compressErr) {
-                    // If compress fails (e.g. HEIC on some devices), try original if under limit
                     if (file.size > MAX_PIC_MB * 1024 * 1024) {
                         throw compressErr;
                     }
@@ -315,7 +351,7 @@
                 console.error(err);
                 var msg = (err && err.message) || 'Upload failed.';
                 if (String(msg).toLowerCase().indexOf('permission') !== -1 || (err && err.code === 'storage/unauthorized')) {
-                    msg = 'Permission denied. Update Firebase Storage rules for profile-pics (see instructions).';
+                    msg = 'Permission denied. Update Firebase Storage rules for profile-pics.';
                 }
                 showPicMsg(msg, true);
             } finally {
@@ -352,7 +388,8 @@
                 name: document.getElementById('name').value.trim(),
                 birthday: document.getElementById('birthday').value,
                 phone: document.getElementById('phone').value.trim(),
-                address: document.getElementById('address').value.trim()
+                address: document.getElementById('address').value.trim(),
+                theme: (typeof getAppTheme === 'function' ? getAppTheme() : 'light')
             };
 
             await db.collection('users').doc(user.uid).update(updates);
@@ -360,6 +397,8 @@
             msg.style.display = 'block';
             setTimeout(() => msg.style.display = 'none', 2000);
         }
+
+        syncThemeButtons();
     </script>
 </body>
 </html>
