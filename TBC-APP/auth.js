@@ -143,3 +143,62 @@ function authErrorMessage(err) {
   }
   return (err && err.message) || "Something went wrong. Please try again.";
 }
+
+/* Home logo button (top-left) on every page except the main home page */
+(function injectHomeLogoButton() {
+  function isMainHomePage() {
+    var path = (window.location.pathname || '').toLowerCase();
+    var file = path.split('/').pop() || '';
+    // Bible and other folders are never the main home
+    if (path.indexOf('/bible/') !== -1) return false;
+    // Main home is only the root index
+    if (file === '' || file === 'index.html') {
+      // If path has bible or nested folders with extra segments, not main home
+      var parts = path.split('/').filter(function (p) { return p && p !== 'index.html'; });
+      // e.g. / or /index.html or /tbc-app/index.html
+      return parts.length <= 1;
+    }
+    return false;
+  }
+
+  function getAssetPrefix() {
+    var path = (window.location.pathname || '').toLowerCase();
+    if (path.indexOf('/bible/') === -1) return '';
+    var after = path.split('/bible/')[1] || '';
+    var parts = after.split('/').filter(function (p) {
+      return p && p.indexOf('.') === -1;
+    });
+    var depth = 1 + parts.length;
+    return '../'.repeat(depth);
+  }
+
+  function inject() {
+    if (isMainHomePage()) return;
+    if (document.getElementById('home-logo-btn')) return;
+    if (!document.body) return;
+
+    var prefix = getAssetPrefix();
+    var a = document.createElement('a');
+    a.id = 'home-logo-btn';
+    a.className = 'home-logo-btn';
+    a.href = prefix + 'index.html';
+    a.title = 'Home';
+    a.setAttribute('aria-label', 'Go to home');
+
+    var img = document.createElement('img');
+    img.src = prefix + 'tbclogo.jpeg';
+    img.alt = 'TBC Home';
+    a.appendChild(img);
+
+    document.body.appendChild(a);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', inject);
+  } else {
+    inject();
+  }
+  // Retry once in case body was not ready
+  setTimeout(inject, 50);
+  setTimeout(inject, 300);
+})();
