@@ -1,5 +1,13 @@
-/* Bible chrome: top-left home logo + bottom prev/next chapter buttons */
+/* Bible chrome: theme + top-left home logo + bottom prev/next chapter buttons */
 (function () {
+  // Apply saved app theme (shared with main app via localStorage)
+  try {
+    var theme = localStorage.getItem('tbc-theme') || 'light';
+    theme = theme === 'dark' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', theme);
+    if (document.body) document.body.setAttribute('data-theme', theme);
+  } catch (e) {}
+
   // Ensure logo styles exist even if page CSS is missing them
   if (!document.getElementById('home-logo-style')) {
     var logoStyle = document.createElement('style');
@@ -7,7 +15,7 @@
     logoStyle.textContent =
       '.home-logo-btn{position:fixed;top:10px;left:12px;z-index:3000;display:block;' +
       'width:44px;height:44px;border-radius:50%;overflow:hidden;box-shadow:0 4px 14px rgba(64,64,64,0.18);' +
-      'background:#fff;padding:2px;text-decoration:none;}' +
+      'background:var(--surface,#fff);padding:2px;text-decoration:none;}' +
       '.home-logo-btn img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;}' +
       '.home-logo-btn:active{transform:scale(0.92);}';
     document.head.appendChild(logoStyle);
@@ -17,7 +25,6 @@
     var path = (window.location.pathname || '').replace(/\\/g, '/');
     var lower = path.toLowerCase();
 
-    // Prefer path matching (works on workers.dev)
     var idx = lower.indexOf('/bible/');
     if (idx !== -1) {
       var after = path.slice(idx + '/bible/'.length);
@@ -26,7 +33,6 @@
       return '../'.repeat(dirs.length + 1);
     }
 
-    // Fallbacks for file:// and odd hosts
     if (/\/bible\/old-testament\/genesis\/chapter-/i.test(lower)) return '../../../../';
     if (/\/bible\/old-testament\/genesis/i.test(lower)) return '../../../';
     if (/\/bible\/(old|new)-testament/i.test(lower)) return '../../';
@@ -47,7 +53,6 @@
     img.src = prefix + 'tbclogo.jpeg';
     img.alt = 'TBC Home';
     img.onerror = function () {
-      // Fallback text if image path fails
       a.textContent = 'Home';
       a.style.cssText =
         'position:fixed;top:12px;left:12px;z-index:3000;background:#4cb8b9;color:#fff;' +
@@ -116,6 +121,12 @@
   }
 
   function run() {
+    try {
+      var theme = localStorage.getItem('tbc-theme') || 'light';
+      theme = theme === 'dark' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', theme);
+      if (document.body) document.body.setAttribute('data-theme', theme);
+    } catch (e) {}
     injectHomeLogo();
     injectChapterNav();
   }
