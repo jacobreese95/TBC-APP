@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TBC Church App</title>
+    <script src="theme.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -42,7 +43,6 @@
         <button class="menu-btn" id="btn-upload" onclick="goToProtected('upload-photos.html')">Upload Photos</button>
     </div>
 
-    <!-- Login / Create Account buttons at bottom when not logged in -->
     <div id="bottomAuth" class="container" style="margin-top: 30px; display: none;">
         <button class="menu-btn login-btn" onclick="window.location.href='login.html'">Login</button>
         <button class="menu-btn" style="background: linear-gradient(135deg, #7a8fac 0%, #404040 100%); margin-top: 12px;" onclick="window.location.href='signup.html'">Create an Account</button>
@@ -115,6 +115,9 @@
 
             try {
                 const profile = await ensureUserProfile(user);
+                if (profile && profile.theme && typeof setAppTheme === 'function') {
+                    setAppTheme(profile.theme);
+                }
                 if (profile && profile.role === 'admin') {
                     drawerAdmin.style.display = 'block';
                 } else {
