@@ -8,43 +8,33 @@
   } catch (e) {}
 })();
 
-/* Global home logo - top left on every page except the home page itself */
+/* Global home logo - top left on every page except the main home page */
 (function () {
-  function isHomePage() {
+  function isMainHomePage() {
     var path = (window.location.pathname || '').toLowerCase();
-    if (path.indexOf('/bible/') !== -1 || path.indexOf('/bible\\') !== -1) return false;
-    if (path.endsWith('/index.html') || path.endsWith('/')) {
+    var file = path.split('/').pop() || '';
+    if (path.indexOf('/bible/') !== -1) return false;
+    if (file === '' || file === 'index.html') {
       var parts = path.split('/').filter(function (p) { return p && p !== 'index.html'; });
-      if (parts.length === 0) return true;
-      if (parts.length === 1 && (parts[0] === 'tbc-app' || parts[0].indexOf('workers') !== -1)) return true;
-      if (parts[parts.length - 1] === 'tbc-app') return true;
-      return false;
+      return parts.length <= 1;
     }
     return false;
   }
 
   function getPrefix() {
-    var path = window.location.pathname || '';
-    var lower = path.toLowerCase();
-    var depth = 0;
-
-    if (lower.indexOf('/bible/') !== -1) {
-      var after = lower.split('/bible/')[1] || '';
-      var parts = after.split('/').filter(function (p) {
-        return p && p.indexOf('.') === -1;
-      });
-      depth = 1 + parts.length;
-    } else {
-      depth = 0;
-    }
-
-    if (depth === 0) return '';
-    return '../'.repeat(depth);
+    var path = (window.location.pathname || '').toLowerCase();
+    if (path.indexOf('/bible/') === -1) return '';
+    var after = path.split('/bible/')[1] || '';
+    var parts = after.split('/').filter(function (p) {
+      return p && p.indexOf('.') === -1;
+    });
+    return '../'.repeat(1 + parts.length);
   }
 
   function inject() {
-    if (isHomePage()) return;
+    if (isMainHomePage()) return;
     if (document.getElementById('home-logo-btn')) return;
+    if (!document.body) return;
 
     var prefix = getPrefix();
     var a = document.createElement('a');
@@ -59,9 +49,7 @@
     img.alt = 'TBC Home';
     a.appendChild(img);
 
-    if (document.body) {
-      document.body.appendChild(a);
-    }
+    document.body.appendChild(a);
   }
 
   if (document.readyState === 'loading') {
@@ -69,4 +57,6 @@
   } else {
     inject();
   }
+  setTimeout(inject, 50);
+  setTimeout(inject, 300);
 })();
