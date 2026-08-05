@@ -34,11 +34,40 @@ directory.sort((a,b)=>a.name.localeCompare(b.name));
 }
 async function loadSavedGroups(){
 savedGroups=[];
+var seen={};
+function addGroup(g){
+  if(!g||!g.name)return;
+  var key=(g.name||'').toLowerCase();
+  if(seen[key]){
+    var ex=seen[key];
+    (g.members||[]).forEach(function(m){
+      if(!ex.members.some(function(x){return x.uid===m.uid}))ex.members.push(m);
+    });
+    (g.memberUids||[]).forEach(function(uid){
+      if(ex.memberUids.indexOf(uid)===-1)ex.memberUids.push(uid);
+    });
+    (g.songs||[]).forEach(function(s){
+      if(ex.songs.indexOf(s)===-1)ex.songs.push(s);
+    });
+    return;
+  }
+  var entry={
+    id:g.id||('evt_'+key.replace(/[^a-z0-9]+/g,'_')),
+    name:g.name,
+    memberUids:g.memberUids?g.memberUids.slice():[],
+    members:g.members?g.members.slice():[],
+    songLeadUid:g.songLeadUid||null,
+    songLeadName:g.songLeadName||null,
+    songs:Array.isArray(g.songs)?g.songs.slice():[]
+  };
+  seen[key]=entry;
+  savedGroups.push(entry);
+}
 try{
   const snap=await db.collection('musicGroups').get();
   snap.forEach(function(doc){
     const d=doc.data()||{};
-    savedGroups.push({
+    addGroup({
       id:doc.id,
       name:d.name||'',
       memberUids:d.memberUids||[],
@@ -54,21 +83,39 @@ try{
     const snap2=await db.collection('users').doc(auth.currentUser.uid).collection('savedMusicGroups').get();
     snap2.forEach(function(doc){
       const d=doc.data()||{};
-      if(savedGroups.some(function(g){return g.id===doc.id||(g.name||'').toLowerCase()===(d.name||'').toLowerCase()}))return;
-      savedGroups.push({
+      addGroup({
         id:doc.id,
         name:d.name||'',
         memberUids:d.memberUids||[],
         members:d.members||[],
         songLeadUid:d.songLeadUid||null,
         songLeadName:d.songLeadName||null,
-        songs:Array.isArray(d.songs)?d.songs:[],
-        _local:true
+        songs:Array.isArray(d.songs)?d.songs:[]
       });
     });
   }
 }catch(e2){console.warn('user savedMusicGroups load failed',e2)}
+try{
+  const es=await db.collection('events').where('ministry','==','Music Ministry').limit(100).get();
+  es.forEach(function(doc){
+    const d=doc.data()||{};
+    if(!d.groupName)return;
+    var members=Array.isArray(d.assignedPeople)?d.assignedPeople.map(function(p){return {uid:p.uid,name:p.name}}):[];
+    var memberUids=members.map(function(m){return m.uid});
+    var songs=d.song?[d.song]:[];
+    addGroup({
+      id:d.musicGroupId||('evt_'+doc.id),
+      name:d.groupName,
+      memberUids:memberUids,
+      members:members,
+      songLeadUid:d.songLeadUid||null,
+      songLeadName:d.songLeadName||null,
+      songs:songs
+    });
+  });
+}catch(e3){console.warn('events group rebuild failed',e3)}
 savedGroups.sort(function(a,b){return (a.name||'').localeCompare(b.name||'')});
+console.log('Loaded music groups:',savedGroups.length,savedGroups.map(function(g){return g.name}));
 }
 function selectSavedGroup(groupId){
 const g=savedGroups.find(x=>x.id===groupId);
@@ -145,10 +192,8 @@ if(!existing){
 const songs=(existing&&Array.isArray(existing.songs))?existing.songs.slice():[];
 if(song&&songs.indexOf(song)===-1) songs.push(song);
 payload.songs=songs;
-
 var savedOk=false;
 var lastErr=null;
-
 try{
   if(groupId&&!(existing && existing._local)){
     await db.collection('musicGroups').doc(groupId).set(payload,{merge:true});
@@ -178,7 +223,6 @@ try{
   lastErr=e;
   console.error('top-level musicGroups write failed',e);
 }
-
 try{
   if(auth.currentUser){
     var localId=groupId||('g_'+groupName.toLowerCase().replace(/[^a-z0-9]+/g,'_').slice(0,40));
@@ -190,7 +234,6 @@ try{
   lastErr=e2;
   console.error('user savedMusicGroups write failed',e2);
 }
-
 if(groupId){
   for(var i=0;i<people.length;i++){
     try{
@@ -201,7 +244,6 @@ if(groupId){
     }catch(e3){console.warn(e3)}
   }
 }
-
 await loadSavedGroups();
 selectedGroupId=groupId;
 if(!savedOk){
