@@ -32,6 +32,7 @@ eventData.songLeadUid=selectedPeople[0].uid;
 eventData.songLeadName=selectedPeople[0].name;
 if(selectedPeople.length>=2&&groupName)eventData.groupName=groupName;
 }
+if(isMusic&&groupName)eventData.groupName=groupName;
 if(isMusic&&song)eventData.song=song;
 const eventRef=await db.collection('events').add(eventData);
 if(isMusic&&groupName&&selectedPeople.length>=2){
