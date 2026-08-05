@@ -14,13 +14,13 @@ if(!selectedPeople.length){alert('Please assign at least one person who will sin
 if(selectedPeople.length>=2&&!groupName){alert('Please enter a group name for this assignment.');return}
 if(selectedPeople.length>=2){title=groupName+(song?' — '+song:'');}
 else{title=selectedPeople.map(p=>p.name).join(', ')+(song?' — '+song:'');}
-}else if(ministry==='Media'||ministry==='Nursery'){
-// Handled by calendar-media-roles.js / calendar-nursery-roles.js
+}else if(ministry==='Media'||ministry==='Nursery'||ministry==='Sentry'){
+// Handled by calendar-media-roles.js / calendar-nursery-roles.js / calendar-sentry-roles.js
 }else if(!title){alert('Please enter a date and title');return}
 const isAdmin=currentProfile.role==='admin';
 const leaderOf=currentProfile.leaderOf||[];
 if(!isAdmin&&!leaderOf.includes(ministry)){alert('You can only create events for ministries you lead.');return}
-if(isSchedule&&ministry!=='Media'&&ministry!=='Nursery'&&!selectedPeople.length){alert('Please assign at least one person for this schedule.');return}
+if(isSchedule&&ministry!=='Media'&&ministry!=='Nursery'&&ministry!=='Sentry'&&!selectedPeople.length){alert('Please assign at least one person for this schedule.');return}
 try{
 const eventData={date,title,description:isMusic?'':desc,ministry,createdByUid:auth.currentUser.uid,createdByName:currentProfile.name||currentProfile.email||'Leader',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
 if(isSchedule&&selectedPeople.length){
