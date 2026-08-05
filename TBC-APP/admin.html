@@ -188,6 +188,14 @@
             profileHTML += '<input class="role-select" type="tel" id="phone-' + user.uid + '" value="' + phoneVal + '" placeholder="Phone">';
             profileHTML += '<label class="section-label" for="address-' + user.uid + '" style="font-weight:500">Address</label>';
             profileHTML += '<input class="role-select" type="text" id="address-' + user.uid + '" value="' + addressVal + '" placeholder="Address">';
+
+            var songs = Array.isArray(user.songs) ? user.songs.filter(Boolean) : [];
+            var groupNames = Array.isArray(user.musicGroupNames) ? user.musicGroupNames.filter(Boolean) : [];
+            profileHTML += '<div style="margin-top:10px;padding-top:10px;border-top:1px solid #e0e0e0;">';
+            profileHTML += '<div style="margin:4px 0;"><strong>Music groups:</strong> ' + (groupNames.length ? groupNames.join(', ') : 'None yet') + '</div>';
+            profileHTML += '<div style="margin:4px 0;"><strong>Songs:</strong> ' + (songs.length ? songs.join(', ') : 'None yet') + '</div>';
+            profileHTML += '</div>';
+
             profileHTML += '</div>';
 
             const roleBadge = user.role === 'admin'
