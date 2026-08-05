@@ -95,7 +95,7 @@ function renderList(filter){
   var countEl = document.getElementById('count');
   var filtered = allMembers.filter(function(m){
     if(!q) return true;
-    var blob = [m.name, m.phone, m.email, m.address, m.birthday].join(' ').toLowerCase();
+    var blob = [m.name, m.phone, m.email, m.address, m.birthday, m.churchJoinedDate].join(' ').toLowerCase();
     return blob.indexOf(q) !== -1;
   });
   countEl.textContent = filtered.length + ' member' + (filtered.length === 1 ? '' : 's');
@@ -121,7 +121,10 @@ function renderList(filter){
     var bday = m.birthday
       ? '<div class="dir-meta">🎂 ' + escapeHtml(formatBirthday(m.birthday)) + ageHtml + '</div>'
       : '';
-    return '<div class="dir-card">' + avatar + '<div class="dir-body"><p class="dir-name">' + escapeHtml(m.name || 'Member') + '</p>' + phone + email + address + bday + '</div></div>';
+    var joined = m.churchJoinedDate
+      ? '<div class="dir-meta">⛪ Joined ' + escapeHtml(formatBirthday(m.churchJoinedDate)) + '</div>'
+      : '';
+    return '<div class="dir-card">' + avatar + '<div class="dir-body"><p class="dir-name">' + escapeHtml(m.name || 'Member') + '</p>' + phone + email + address + bday + joined + '</div></div>';
   }).join('');
 }
 
@@ -149,6 +152,7 @@ requireApprovedUser().then(async function(profile){
         email: d.email || '',
         address: d.address || '',
         birthday: d.birthday || '',
+        churchJoinedDate: d.churchJoinedDate || '',
         photoURL: d.photoURL || ''
       });
     });
