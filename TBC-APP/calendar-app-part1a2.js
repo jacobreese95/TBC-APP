@@ -33,12 +33,42 @@ directory.sort((a,b)=>a.name.localeCompare(b.name));
 }
 }
 async function loadSavedGroups(){
-try{
-const snap=await db.collection('musicGroups').get();
 savedGroups=[];
-snap.forEach(doc=>{const d=doc.data();savedGroups.push({id:doc.id,name:d.name||'',memberUids:d.memberUids||[],members:d.members||[],songLeadUid:d.songLeadUid||null,songLeadName:d.songLeadName||null,songs:Array.isArray(d.songs)?d.songs:[]})});
-savedGroups.sort((a,b)=>a.name.localeCompare(b.name));
-}catch(e){console.warn(e);savedGroups=[]}
+try{
+  const snap=await db.collection('musicGroups').get();
+  snap.forEach(function(doc){
+    const d=doc.data()||{};
+    savedGroups.push({
+      id:doc.id,
+      name:d.name||'',
+      memberUids:d.memberUids||[],
+      members:d.members||[],
+      songLeadUid:d.songLeadUid||null,
+      songLeadName:d.songLeadName||null,
+      songs:Array.isArray(d.songs)?d.songs:[]
+    });
+  });
+}catch(e){console.warn('musicGroups load failed',e)}
+try{
+  if(auth.currentUser){
+    const snap2=await db.collection('users').doc(auth.currentUser.uid).collection('savedMusicGroups').get();
+    snap2.forEach(function(doc){
+      const d=doc.data()||{};
+      if(savedGroups.some(function(g){return g.id===doc.id||(g.name||'').toLowerCase()===(d.name||'').toLowerCase()}))return;
+      savedGroups.push({
+        id:doc.id,
+        name:d.name||'',
+        memberUids:d.memberUids||[],
+        members:d.members||[],
+        songLeadUid:d.songLeadUid||null,
+        songLeadName:d.songLeadName||null,
+        songs:Array.isArray(d.songs)?d.songs:[],
+        _local:true
+      });
+    });
+  }
+}catch(e2){console.warn('user savedMusicGroups load failed',e2)}
+savedGroups.sort(function(a,b){return (a.name||'').localeCompare(b.name||'')});
 }
 function selectSavedGroup(groupId){
 const g=savedGroups.find(x=>x.id===groupId);
@@ -93,7 +123,8 @@ document.addEventListener('click',function(e){if(!e.target.closest('#groupNameIn
 }
 async function saveOrUpdateMusicGroup(groupName,people,songLead,song){
 groupName=(groupName||'').trim();
-if(!groupName||!people||people.length<2)return null;
+if(!groupName) throw new Error('Group name is empty');
+if(!people||people.length<2) throw new Error('Need at least 2 people to save a group');
 const payload={
   name:groupName,
   memberUids:people.map(function(p){return p.uid}),
@@ -103,50 +134,78 @@ const payload={
   updatedAt:firebase.firestore.FieldValue.serverTimestamp()
 };
 let groupId=selectedGroupId||null;
+let existing=null;
+if(groupId){
+  existing=savedGroups.find(function(g){return g.id===groupId})||null;
+}
+if(!existing){
+  existing=savedGroups.find(function(g){return (g.name||'').toLowerCase()===groupName.toLowerCase()})||null;
+  if(existing) groupId=existing.id;
+}
+const songs=(existing&&Array.isArray(existing.songs))?existing.songs.slice():[];
+if(song&&songs.indexOf(song)===-1) songs.push(song);
+payload.songs=songs;
+
+var savedOk=false;
+var lastErr=null;
+
 try{
-  let existing=null;
-  if(groupId){
-    existing=savedGroups.find(function(g){return g.id===groupId})||null;
-  }
-  if(!existing){
-    existing=savedGroups.find(function(g){return (g.name||'').toLowerCase()===groupName.toLowerCase()})||null;
-    if(existing) groupId=existing.id;
-  }
-  if(!existing){
+  if(groupId&&!(existing && existing._local)){
+    await db.collection('musicGroups').doc(groupId).set(payload,{merge:true});
+    savedOk=true;
+  }else{
     try{
       const qs=await db.collection('musicGroups').where('name','==',groupName).limit(1).get();
       if(!qs.empty){
         groupId=qs.docs[0].id;
         const d=qs.docs[0].data()||{};
-        existing={id:groupId,name:d.name||groupName,songs:Array.isArray(d.songs)?d.songs:[]};
+        const songs2=Array.isArray(d.songs)?d.songs.slice():songs.slice();
+        if(song&&songs2.indexOf(song)===-1) songs2.push(song);
+        payload.songs=songs2;
+        await db.collection('musicGroups').doc(groupId).set(payload,{merge:true});
+        savedOk=true;
       }
     }catch(qe){console.warn(qe)}
+    if(!savedOk){
+      payload.createdAt=firebase.firestore.FieldValue.serverTimestamp();
+      payload.createdByUid=auth.currentUser?auth.currentUser.uid:null;
+      const ref=await db.collection('musicGroups').add(payload);
+      groupId=ref.id;
+      savedOk=true;
+    }
   }
-  const songs=(existing&&Array.isArray(existing.songs))?existing.songs.slice():[];
-  if(song&&songs.indexOf(song)===-1) songs.push(song);
-  payload.songs=songs;
-  if(groupId){
-    await db.collection('musicGroups').doc(groupId).set(payload,{merge:true});
-  }else{
-    payload.createdAt=firebase.firestore.FieldValue.serverTimestamp();
-    payload.createdByUid=auth.currentUser?auth.currentUser.uid:null;
-    const ref=await db.collection('musicGroups').add(payload);
-    groupId=ref.id;
+}catch(e){
+  lastErr=e;
+  console.error('top-level musicGroups write failed',e);
+}
+
+try{
+  if(auth.currentUser){
+    var localId=groupId||('g_'+groupName.toLowerCase().replace(/[^a-z0-9]+/g,'_').slice(0,40));
+    await db.collection('users').doc(auth.currentUser.uid).collection('savedMusicGroups').doc(localId).set(payload,{merge:true});
+    if(!groupId) groupId=localId;
+    savedOk=true;
   }
+}catch(e2){
+  lastErr=e2;
+  console.error('user savedMusicGroups write failed',e2);
+}
+
+if(groupId){
   for(var i=0;i<people.length;i++){
-    var person=people[i];
     try{
-      await db.collection('users').doc(person.uid).set({
+      await db.collection('users').doc(people[i].uid).set({
         musicGroupIds:firebase.firestore.FieldValue.arrayUnion(groupId),
         musicGroupNames:firebase.firestore.FieldValue.arrayUnion(groupName)
       },{merge:true});
-    }catch(e){console.warn('profile group link',e)}
+    }catch(e3){console.warn(e3)}
   }
-  await loadSavedGroups();
-  selectedGroupId=groupId;
-  return groupId;
-}catch(e){
-  console.error('saveOrUpdateMusicGroup',e);
-  throw e;
 }
+
+await loadSavedGroups();
+selectedGroupId=groupId;
+if(!savedOk){
+  throw lastErr||new Error('Could not save group (check Firestore rules for musicGroups)');
+}
+return groupId;
 }
