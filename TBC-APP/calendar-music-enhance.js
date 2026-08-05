@@ -32,7 +32,7 @@
       var q=input.value.trim().toLowerCase();
       if(!q){results.classList.remove('open');results.innerHTML='';return}
       var peopleMatches=(directory||[]).filter(function(p){
-        return (p.name.toLowerCase().indexOf(q)!==-1||(p.email&&p.email.toLowerCase().indexOf(q)!==-1))&&!selectedPeople.some(function(s){return s.uid===p.uid});
+        return ((p.name&&p.name.toLowerCase().indexOf(q)!==-1)||(p.email&&p.email.toLowerCase().indexOf(q)!==-1))&&!(selectedPeople||[]).some(function(s){return s.uid===p.uid});
       }).slice(0,10);
       var groupMatches=(savedGroups||[]).filter(function(g){return (g.name||'').toLowerCase().indexOf(q)!==-1}).slice(0,8);
       var html='';
@@ -44,7 +44,7 @@
         html+='<div style="padding:8px 14px;font-size:.75rem;font-weight:700;color:#4cb8b9;background:#eef8f8">People</div>';
         html+=peopleMatches.map(function(p){return '<div class="person-result-item" data-uid="'+p.uid+'">'+escapeHtml(p.name)+'</div>'}).join('');
       }
-      if(!html){results.innerHTML='<div style="color:#7a8fac;padding:12px">No matches</div>';results.classList.add('open');return}
+      if(!html){var hint=(savedGroups&&savedGroups.length)?('No matches for "'+q+'"'):'No saved groups yet — assign 2+ people, type a group name, Add Event';results.innerHTML='<div style="color:#7a8fac;padding:12px">'+hint+'</div>';results.classList.add('open');return}
       results.innerHTML=html;
       results.querySelectorAll('.person-result-item[data-uid]').forEach(function(el){
         el.addEventListener('touchstart',function(e){e.preventDefault();selectPerson(el.getAttribute('data-uid'));},{passive:false});
@@ -57,7 +57,7 @@
       results.classList.add('open');
     }
     input.addEventListener('input',showMatches);
-    input.addEventListener('focus',function(){if(input.value.trim())showMatches();});
+    input.addEventListener('focus',function(){if(typeof loadSavedGroups==='function'){loadSavedGroups().then(function(){if(input.value.trim())showMatches();}).catch(function(){if(input.value.trim())showMatches();});}else if(input.value.trim())showMatches();});
 
     if(typeof renderSelectedPeople==='function'&&!window.__groupMatchPatched){
       window.__groupMatchPatched=true;
