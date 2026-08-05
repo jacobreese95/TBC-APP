@@ -1,1 +1,184 @@
-PLACEHOLDER_DIR
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Church Directory - TBC</title>
+<script src="theme.js"></script>
+<link rel="stylesheet" href="style.css">
+<style>
+.search-bar{width:100%;padding:14px 16px;border:2px solid var(--slate,#7a8fac);border-radius:12px;font-size:16px;box-sizing:border-box;margin:12px 0 16px;background:var(--input-bg,#fff);color:var(--text,#404040)}
+.dir-list{display:flex;flex-direction:column;gap:12px}
+.dir-card{background:var(--surface,#fff);border:1px solid var(--border,rgba(122,143,172,.35));border-radius:14px;padding:16px;box-shadow:var(--shadow,0 2px 10px rgba(0,0,0,.08));display:flex;gap:14px;align-items:flex-start}
+.dir-avatar{width:64px;height:64px;border-radius:50%;object-fit:cover;background:var(--cream,#dedcd0);border:2px solid var(--teal,#4cb8b9);flex-shrink:0}
+.dir-avatar-ph{width:64px;height:64px;border-radius:50%;background:var(--cream,#dedcd0);border:2px solid var(--slate,#7a8fac);display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;color:var(--muted,#7a8fac)}
+.dir-body{flex:1;min-width:0}
+.dir-name{font-weight:700;font-size:1.1rem;color:var(--text,#404040);margin:0 0 4px}
+.dir-meta{font-size:.9rem;color:var(--muted,#555);line-height:1.45;margin:2px 0;word-break:break-word}
+.dir-meta a{color:var(--teal,#4cb8b9);text-decoration:none;font-weight:600}
+.dir-age{display:inline-block;background:var(--input-bg,#eef8f8);color:var(--teal,#4cb8b9);font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;margin-left:6px}
+.empty{text-align:center;color:var(--muted,#7a8fac);padding:40px 16px}
+.count{font-size:.85rem;color:var(--muted,#7a8fac);margin:0 0 8px}
+</style>
+</head>
+<body>
+<header>
+<h1>Church Directory</h1>
+<button class="hamburger" onclick="toggleMenu()" aria-label="Open menu"><span></span><span></span><span></span></button>
+</header>
+<div class="nav-overlay" id="navOverlay" onclick="toggleMenu()"></div>
+<div class="nav-drawer" id="navDrawer">
+<a href="index.html">Home</a>
+<a href="calendar.html">Calendar</a>
+<a href="directory.html">Church Directory</a>
+<a href="chat.html">Ministry Chats</a>
+<a href="bible/index.html">Bible</a>
+<a href="soul-winning.html">Soul Winning</a>
+<a href="upload-photos.html">Upload Photos</a>
+<a href="profile.html">Profile</a>
+<a href="admin.html" id="drawer-admin" style="display:none">Admin</a>
+<a href="#" onclick="signOutUser().then(()=>window.location.href='index.html')">Logout</a>
+</div>
+
+<div class="container">
+<p style="text-align:center;font-size:.85rem;color:var(--muted,#7a8fac);margin:0 0 8px">Approved members only · Tap phone or email to contact</p>
+<input type="search" id="search" class="search-bar" placeholder="Search by name, phone, email…" autocomplete="off">
+<p class="count" id="count"></p>
+<div class="dir-list" id="list"><p class="empty">Loading…</p></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="auth.js"></script>
+<script src="home-logo.js"></script>
+<script>
+function toggleMenu(){
+  document.getElementById('navDrawer').classList.toggle('open');
+  document.getElementById('navOverlay').classList.toggle('open');
+}
+
+function escapeHtml(str){
+  return String(str||'').replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"');
+}
+
+function ageFromBirthday(bday){
+  if(!bday) return null;
+  var parts = String(bday).split('-');
+  if(parts.length < 3) return null;
+  var y = parseInt(parts[0],10), m = parseInt(parts[1],10)-1, d = parseInt(parts[2],10);
+  if(!y || isNaN(y)) return null;
+  var today = new Date();
+  var age = today.getFullYear() - y;
+  var md = today.getMonth() - m;
+  if(md < 0 || (md === 0 && today.getDate() < d)) age--;
+  if(age < 0 || age > 120) return null;
+  return age;
+}
+
+function yearsAsMember(yearJoined){
+  if(!yearJoined) return null;
+  var y = parseInt(String(yearJoined).slice(0,4), 10);
+  if(!y || isNaN(y)) return null;
+  var yrs = new Date().getFullYear() - y;
+  if(yrs < 0 || yrs > 150) return null;
+  return yrs;
+}
+
+function formatBirthday(bday){
+  if(!bday) return '';
+  var parts = String(bday).split('-');
+  if(parts.length < 3) return bday;
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var m = parseInt(parts[1],10)-1;
+  var d = parseInt(parts[2],10);
+  if(m < 0 || m > 11) return bday;
+  return months[m] + ' ' + d + (parts[0] ? ', ' + parts[0] : '');
+}
+
+var allMembers = [];
+
+function renderList(filter){
+  var q = (filter||'').trim().toLowerCase();
+  var list = document.getElementById('list');
+  var countEl = document.getElementById('count');
+  var filtered = allMembers.filter(function(m){
+    if(!q) return true;
+    var blob = [m.name, m.phone, m.email, m.address, m.birthday, m.churchJoinedYear, m.churchJoinedDate].join(' ').toLowerCase();
+    return blob.indexOf(q) !== -1;
+  });
+  countEl.textContent = filtered.length + ' member' + (filtered.length === 1 ? '' : 's');
+  if(!filtered.length){
+    list.innerHTML = '<p class="empty">No members match your search.</p>';
+    return;
+  }
+  list.innerHTML = filtered.map(function(m){
+    var age = ageFromBirthday(m.birthday);
+    var ageHtml = age !== null ? '<span class="dir-age">' + age + ' yrs</span>' : '';
+    var avatar = m.photoURL
+      ? '<img class="dir-avatar" src="' + escapeHtml(m.photoURL) + '" alt="">'
+      : '<div class="dir-avatar-ph">👤</div>';
+    var phone = m.phone
+      ? '<div class="dir-meta">📞 <a href="tel:' + escapeHtml(m.phone.replace(/[^\d+]/g,'')) + '">' + escapeHtml(m.phone) + '</a></div>'
+      : '';
+    var email = m.email
+      ? '<div class="dir-meta">✉️ <a href="mailto:' + escapeHtml(m.email) + '">' + escapeHtml(m.email) + '</a></div>'
+      : '';
+    var address = m.address
+      ? '<div class="dir-meta">🏠 ' + escapeHtml(m.address) + '</div>'
+      : '';
+    var bday = m.birthday
+      ? '<div class="dir-meta">🎂 ' + escapeHtml(formatBirthday(m.birthday)) + ageHtml + '</div>'
+      : '';
+    var yearJoined = m.churchJoinedYear || (m.churchJoinedDate ? String(m.churchJoinedDate).slice(0,4) : '');
+    var memberYrs = yearsAsMember(yearJoined);
+    var memberYrsHtml = memberYrs !== null ? '<span class="dir-age">' + memberYrs + (memberYrs === 1 ? ' yr' : ' yrs') + '</span>' : '';
+    var joined = yearJoined
+      ? '<div class="dir-meta">⛪ Joined ' + escapeHtml(String(yearJoined)) + memberYrsHtml + '</div>'
+      : '';
+    return '<div class="dir-card">' + avatar + '<div class="dir-body"><p class="dir-name">' + escapeHtml(m.name || 'Member') + '</p>' + phone + email + address + bday + joined + '</div></div>';
+  }).join('');
+}
+
+requireApprovedUser().then(async function(profile){
+  if(!profile) return;
+  if (profile.role === 'admin') {
+    var adminLink = document.getElementById('drawer-admin');
+    if (adminLink) adminLink.style.display = 'block';
+  }
+  try{
+    var snap;
+    try{
+      snap = await db.collection('users').where('approved','==',true).get();
+    }catch(e){
+      snap = await db.collection('users').get();
+    }
+    allMembers = [];
+    snap.forEach(function(doc){
+      var d = doc.data();
+      if(d.approved === false) return;
+      allMembers.push({
+        uid: doc.id,
+        name: d.name || d.email || 'Member',
+        phone: d.phone || '',
+        email: d.email || '',
+        address: d.address || '',
+        birthday: d.birthday || '',
+        churchJoinedDate: d.churchJoinedDate || '',
+        churchJoinedYear: d.churchJoinedYear || (d.churchJoinedDate ? String(d.churchJoinedDate).slice(0,4) : ''),
+        photoURL: d.photoURL || ''
+      });
+    });
+    allMembers.sort(function(a,b){ return (a.name||'').localeCompare(b.name||''); });
+    renderList('');
+    document.getElementById('search').addEventListener('input', function(){
+      renderList(this.value);
+    });
+  }catch(err){
+    console.error(err);
+    document.getElementById('list').innerHTML = '<p class="empty">Could not load directory. Check Firestore rules allow approved users to read user profiles.</p>';
+  }
+});
+</script>
+</body>
+</html>
