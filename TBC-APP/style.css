@@ -582,3 +582,24 @@ button.option-tile.active,
   color: var(--muted);
   margin-top: 2px;
 }
+
+/* Song suggestion chips on calendar (override global white button text) */
+.song-chips button {
+  border: 1px solid var(--slate, #7a8fac) !important;
+  background: #eef8f8 !important;
+  background-image: none !important;
+  color: #404040 !important;
+  width: auto !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  border-radius: 999px !important;
+  padding: 6px 12px !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+}
+[data-theme="dark"] .song-chips button {
+  background: var(--input-bg, #2a2a2a) !important;
+  background-image: none !important;
+  color: var(--text, #eee) !important;
+  border-color: var(--border, #555) !important;
+}
