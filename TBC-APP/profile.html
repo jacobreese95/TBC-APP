@@ -133,6 +133,9 @@
             <label>Birthday</label>
             <input type="date" id="birthday">
 
+            <label>Date Joined Church</label>
+            <input type="date" id="churchJoinedDate">
+
             <label>Phone Number</label>
             <input type="tel" id="phone" placeholder="(316) 555-1234">
 
@@ -265,6 +268,7 @@
             if (currentProfile) {
                 document.getElementById('name').value = currentProfile.name || '';
                 document.getElementById('birthday').value = currentProfile.birthday || '';
+                document.getElementById('churchJoinedDate').value = currentProfile.churchJoinedDate || '';
                 document.getElementById('phone').value = currentProfile.phone || '';
                 document.getElementById('email').value = currentProfile.email || '';
                 document.getElementById('address').value = currentProfile.address || '';
@@ -387,6 +391,7 @@
             const updates = {
                 name: document.getElementById('name').value.trim(),
                 birthday: document.getElementById('birthday').value,
+                churchJoinedDate: document.getElementById('churchJoinedDate').value,
                 phone: document.getElementById('phone').value.trim(),
                 address: document.getElementById('address').value.trim(),
                 theme: (typeof getAppTheme === 'function' ? getAppTheme() : 'light')
