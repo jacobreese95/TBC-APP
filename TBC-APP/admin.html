@@ -108,7 +108,7 @@
         <button class="back-btn" onclick="window.location.href='index.html'">← Back to Home</button>
 
         <h2>Manage Users</h2>
-        <p class="hint">Set role to <strong>Leader</strong>, then check which ministries they lead. Leaders can create calendar events only for those ministries.</p>
+        <p class="hint">Set role to <strong>Leader</strong>, then check which ministries they lead. Leaders can create calendar events only for those ministries. You can also set each member’s join date and contact info below.</p>
         <div id="users-list">Loading users...</div>
     </div>
 
@@ -170,13 +170,24 @@
             });
             leaderHTML += '</div>';
 
+            const joinedVal = user.churchJoinedDate || '';
+            const birthdayVal = user.birthday || '';
+            const phoneVal = (user.phone || '').replace(/"/g, '"');
+            const addressVal = (user.address || '').replace(/"/g, '"');
+            const nameVal = (user.name || '').replace(/"/g, '"');
+
             let profileHTML = '<div class="profile-fields">';
-            const exclude = ['uid', 'name', 'email', 'role', 'ministries', 'leaderOf', 'approved'];
-            Object.keys(user).forEach(key => {
-                if (!exclude.includes(key) && user[key] != null && user[key] !== '') {
-                    profileHTML += `<div><strong>${key}:</strong> ${user[key]}</div>`;
-                }
-            });
+            profileHTML += '<label class="section-label" style="margin-top:0">Member info (admin can edit)</label>';
+            profileHTML += '<label class="section-label" for="name-' + user.uid + '" style="margin-top:6px;font-weight:500">Name</label>';
+            profileHTML += '<input class="role-select" type="text" id="name-' + user.uid + '" value="' + nameVal + '" placeholder="Full name">';
+            profileHTML += '<label class="section-label" for="birthday-' + user.uid + '" style="font-weight:500">Birthday</label>';
+            profileHTML += '<input class="role-select" type="date" id="birthday-' + user.uid + '" value="' + birthdayVal + '">';
+            profileHTML += '<label class="section-label" for="joined-' + user.uid + '" style="font-weight:500">Date Joined Church</label>';
+            profileHTML += '<input class="role-select" type="date" id="joined-' + user.uid + '" value="' + joinedVal + '">';
+            profileHTML += '<label class="section-label" for="phone-' + user.uid + '" style="font-weight:500">Phone</label>';
+            profileHTML += '<input class="role-select" type="tel" id="phone-' + user.uid + '" value="' + phoneVal + '" placeholder="Phone">';
+            profileHTML += '<label class="section-label" for="address-' + user.uid + '" style="font-weight:500">Address</label>';
+            profileHTML += '<input class="role-select" type="text" id="address-' + user.uid + '" value="' + addressVal + '" placeholder="Address">';
             profileHTML += '</div>';
 
             const roleBadge = user.role === 'admin'
@@ -249,12 +260,23 @@
                 if (cb.checked) leaderOf.push(cb.value);
             });
 
+            const nameEl = document.getElementById('name-' + uid);
+            const birthdayEl = document.getElementById('birthday-' + uid);
+            const joinedEl = document.getElementById('joined-' + uid);
+            const phoneEl = document.getElementById('phone-' + uid);
+            const addressEl = document.getElementById('address-' + uid);
+
             try {
                 await db.collection('users').doc(uid).update({
                     role: role,
                     ministries: ministries,
                     leaderOf: leaderOf,
-                    approved: approved
+                    approved: approved,
+                    name: nameEl ? nameEl.value.trim() : '',
+                    birthday: birthdayEl ? birthdayEl.value : '',
+                    churchJoinedDate: joinedEl ? joinedEl.value : '',
+                    phone: phoneEl ? phoneEl.value.trim() : '',
+                    address: addressEl ? addressEl.value.trim() : ''
                 });
                 alert('User updated successfully!');
                 loadUsers();
