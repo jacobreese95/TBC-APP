@@ -5,12 +5,19 @@ const songWrap=document.getElementById('songFieldWrap');
 const titleEl=document.getElementById('event-title');
 const descEl=document.getElementById('event-desc');
 const isMusic=ministry==='Music Ministry';
+const isMedia=ministry==='Media';
 const isSchedule=SCHEDULE_MINISTRIES.includes(ministry);
 if(isSchedule){extra.classList.add('visible');songWrap.style.display=isMusic?'block':'none';}
 else{extra.classList.remove('visible');clearSelectedPeople();document.getElementById('event-song').value='';}
-if(titleEl) titleEl.style.display=isMusic?'none':'block';
-if(descEl) descEl.style.display=isMusic?'none':'block';
-if(isMusic){titleEl.value='';descEl.value='';}else{titleEl.placeholder='Event Title';}
+// Hide title + description for Music and Media (roles/people carry the info)
+if(titleEl) titleEl.style.display=(isMusic||isMedia)?'none':'block';
+if(descEl) descEl.style.display=(isMusic||isMedia)?'none':'block';
+if(isMusic||isMedia){
+  if(titleEl) titleEl.value='';
+  if(descEl) descEl.value='';
+}else if(titleEl){
+  titleEl.placeholder='Event Title';
+}
 }
 function clearSelectedPeople(){
 selectedPeople=[];
