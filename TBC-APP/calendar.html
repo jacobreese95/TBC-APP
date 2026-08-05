@@ -162,6 +162,25 @@ input.form-input,textarea.form-input,select.form-input{width:100%;padding:12px;m
 <div class="media-role-chip-wrap" id="mediaRole5Chip"></div>
 </div>
 </div>
+<div id="nurseryRolesWrap" style="display:none">
+<p style="font-size:.85rem;color:#7a8fac;margin:0 0 10px">Assign nursery workers (leave blank if not needed). Each person gets a schedule request.</p>
+<div class="media-role-row" data-role="Worker One">
+<label class="form-label" for="nurseryRole0Search">Worker One</label>
+<div class="person-wrap" data-nursery-role="Worker One">
+<input type="text" id="nurseryRole0Search" class="form-input nursery-role-search" data-role="Worker One" placeholder="Type a name…" autocomplete="off" style="margin:0">
+<div class="person-results nursery-role-results" id="nurseryRole0Results" data-role="Worker One"></div>
+</div>
+<div class="media-role-chip-wrap" id="nurseryRole0Chip"></div>
+</div>
+<div class="media-role-row" data-role="Worker Two">
+<label class="form-label" for="nurseryRole1Search">Worker Two</label>
+<div class="person-wrap" data-nursery-role="Worker Two">
+<input type="text" id="nurseryRole1Search" class="form-input nursery-role-search" data-role="Worker Two" placeholder="Type a name…" autocomplete="off" style="margin:0">
+<div class="person-results nursery-role-results" id="nurseryRole1Results" data-role="Worker Two"></div>
+</div>
+<div class="media-role-chip-wrap" id="nurseryRole1Chip"></div>
+</div>
+</div>
 </div>
 <button onclick="addEvent()" class="menu-btn" style="margin-top:10px">Add Event</button>
 </div>
@@ -194,6 +213,7 @@ input.form-input,textarea.form-input,select.form-input{width:100%;padding:12px;m
 <script src="home-logo.js"></script>
 <script src="calendar-music-enhance.js"></script>
 <script src="calendar-media-roles.js"></script>
+<script src="calendar-nursery-roles.js"></script>
 <script src="calendar-app-part1a1.js"></script>
 <script src="calendar-app-part1a2.js"></script>
 <script src="calendar-app-part1b.js"></script>
