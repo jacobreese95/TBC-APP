@@ -7,12 +7,13 @@ const descEl=document.getElementById('event-desc');
 const isMusic=ministry==='Music Ministry';
 const isMedia=ministry==='Media';
 const isNursery=ministry==='Nursery';
+const isSentry=ministry==='Sentry';
 const isSchedule=SCHEDULE_MINISTRIES.includes(ministry);
 if(isSchedule){extra.classList.add('visible');songWrap.style.display=isMusic?'block':'none';}
 else{extra.classList.remove('visible');clearSelectedPeople();document.getElementById('event-song').value='';}
-if(titleEl) titleEl.style.display=(isMusic||isMedia||isNursery)?'none':'block';
-if(descEl) descEl.style.display=(isMusic||isMedia||isNursery)?'none':'block';
-if(isMusic||isMedia||isNursery){
+if(titleEl) titleEl.style.display=(isMusic||isMedia||isNursery||isSentry)?'none':'block';
+if(descEl) descEl.style.display=(isMusic||isMedia||isNursery||isSentry)?'none':'block';
+if(isMusic||isMedia||isNursery||isSentry){
   if(titleEl) titleEl.value='';
   if(descEl) descEl.value='';
 }else if(titleEl){
