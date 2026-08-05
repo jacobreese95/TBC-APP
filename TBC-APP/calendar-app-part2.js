@@ -35,8 +35,13 @@ if(selectedPeople.length>=2&&groupName)eventData.groupName=groupName;
 if(isMusic&&song)eventData.song=song;
 const eventRef=await db.collection('events').add(eventData);
 if(isMusic&&groupName&&selectedPeople.length>=2){
-const gid=await saveOrUpdateMusicGroup(groupName,selectedPeople,selectedPeople[0],song||null);
-if(gid){try{await eventRef.update({musicGroupId:gid})}catch(e){}}
+try{
+  const gid=await saveOrUpdateMusicGroup(groupName,selectedPeople,selectedPeople[0],song||null);
+  if(gid){try{await eventRef.update({musicGroupId:gid,groupName:groupName})}catch(e){}}
+  else{alert('Warning: group "'+groupName+'" could not be saved. Check Firestore rules for musicGroups.');}
+}catch(ge){
+  alert('Could not save music group "'+groupName+'": '+(ge.message||ge)+'\n\nMake sure Firestore allows read/write on musicGroups.');
+}
 }
 if(isSchedule&&selectedPeople.length){
 for(let pi=0;pi<selectedPeople.length;pi++){
@@ -46,7 +51,7 @@ await db.collection('scheduleRequests').add({eventId:eventRef.id,date,title,mini
 if(isMusic&&song&&isSongLead){try{await db.collection('users').doc(person.uid).update({songs:firebase.firestore.FieldValue.arrayUnion(song)})}catch(e){}}
 }
 }
-alert(isSchedule?'Event added. Group/people saved. Song lead: '+selectedPeople[0].name:'Event added!');
+alert(isMusic&&groupName?'Saved group "'+groupName+'" with '+selectedPeople.length+' people'+(song?' · song: '+song:'')+'. Song lead: '+selectedPeople[0].name:(isSchedule?'Event added. Song lead: '+selectedPeople[0].name:'Event added!'));
 document.getElementById('event-date').value='';
 document.getElementById('event-title').value='';
 document.getElementById('event-desc').value='';
