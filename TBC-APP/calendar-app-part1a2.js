@@ -44,8 +44,10 @@ function selectSavedGroup(groupId){
 const g=savedGroups.find(x=>x.id===groupId);
 if(!g)return;
 selectedGroupId=g.id;
-document.getElementById('event-group-name').value=g.name||'';
-document.getElementById('groupNameResults').classList.remove('open');
+var gn=document.getElementById('event-group-name');
+if(gn)gn.value=g.name||'';
+var gr=document.getElementById('groupNameResults');
+if(gr)gr.classList.remove('open');
 var pr=document.getElementById('personResults');if(pr)pr.classList.remove('open');
 var ps=document.getElementById('personSearch');if(ps)ps.value='';
 selectedPeople=[];
@@ -53,6 +55,19 @@ const members=(g.members&&g.members.length)?g.members.slice():(g.memberUids||[])
 if(g.songLeadUid){members.sort((a,b)=>a.uid===g.songLeadUid?-1:b.uid===g.songLeadUid?1:0);}
 members.forEach(m=>{const p=directory.find(d=>d.uid===m.uid)||{uid:m.uid,name:m.name,songs:[]};if(!selectedPeople.some(x=>x.uid===p.uid))selectedPeople.push(p);});
 renderSelectedPeople();
+var wrap=document.getElementById('knownSongsWrap');
+var chips=document.getElementById('knownSongs');
+if(wrap&&chips){
+  if(g.songs&&g.songs.length){
+    wrap.style.display='block';
+    chips.innerHTML=g.songs.map(function(s){
+      return '<button type="button" onclick="document.getElementById(\'event-song\').value=\''+String(s).replace(/'/g,"\\'")+'\'">'+escapeHtml(s)+'</button>';
+    }).join('');
+  }else{
+    wrap.style.display='none';
+    chips.innerHTML='';
+  }
+}
 }
 function bindGroupNameSearch(){
 const input=document.getElementById('event-group-name');
@@ -77,37 +92,61 @@ input.addEventListener('focus',function(){if(input.value.trim())showGroupMatches
 document.addEventListener('click',function(e){if(!e.target.closest('#groupNameInner'))results.classList.remove('open')});
 }
 async function saveOrUpdateMusicGroup(groupName,people,songLead,song){
+groupName=(groupName||'').trim();
 if(!groupName||!people||people.length<2)return null;
-const payload={name:groupName,memberUids:people.map(p=>p.uid),members:people.map(p=>({uid:p.uid,name:p.name})),songLeadUid:songLead?songLead.uid:people[0].uid,songLeadName:songLead?songLead.name:people[0].name,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
-let groupId=selectedGroupId;
+const payload={
+  name:groupName,
+  memberUids:people.map(function(p){return p.uid}),
+  members:people.map(function(p){return {uid:p.uid,name:p.name}}),
+  songLeadUid:songLead?songLead.uid:people[0].uid,
+  songLeadName:songLead?songLead.name:people[0].name,
+  updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+};
+let groupId=selectedGroupId||null;
 try{
-if(groupId){
-const existing=savedGroups.find(g=>g.id===groupId);
-const songs=existing&&Array.isArray(existing.songs)?existing.songs.slice():[];
-if(song&&!songs.includes(song))songs.push(song);
-payload.songs=songs;
-await db.collection('musicGroups').doc(groupId).set(payload,{merge:true});
-}else{
-const existingByName=savedGroups.find(g=>(g.name||'').toLowerCase()===groupName.toLowerCase());
-if(existingByName){
-groupId=existingByName.id;
-const songs=Array.isArray(existingByName.songs)?existingByName.songs.slice():[];
-if(song&&!songs.includes(song))songs.push(song);
-payload.songs=songs;
-await db.collection('musicGroups').doc(groupId).set(payload,{merge:true});
-}else{
-payload.songs=song?[song]:[];
-payload.createdAt=firebase.firestore.FieldValue.serverTimestamp();
-payload.createdByUid=auth.currentUser.uid;
-const ref=await db.collection('musicGroups').add(payload);
-groupId=ref.id;
+  let existing=null;
+  if(groupId){
+    existing=savedGroups.find(function(g){return g.id===groupId})||null;
+  }
+  if(!existing){
+    existing=savedGroups.find(function(g){return (g.name||'').toLowerCase()===groupName.toLowerCase()})||null;
+    if(existing) groupId=existing.id;
+  }
+  if(!existing){
+    try{
+      const qs=await db.collection('musicGroups').where('name','==',groupName).limit(1).get();
+      if(!qs.empty){
+        groupId=qs.docs[0].id;
+        const d=qs.docs[0].data()||{};
+        existing={id:groupId,name:d.name||groupName,songs:Array.isArray(d.songs)?d.songs:[]};
+      }
+    }catch(qe){console.warn(qe)}
+  }
+  const songs=(existing&&Array.isArray(existing.songs))?existing.songs.slice():[];
+  if(song&&songs.indexOf(song)===-1) songs.push(song);
+  payload.songs=songs;
+  if(groupId){
+    await db.collection('musicGroups').doc(groupId).set(payload,{merge:true});
+  }else{
+    payload.createdAt=firebase.firestore.FieldValue.serverTimestamp();
+    payload.createdByUid=auth.currentUser?auth.currentUser.uid:null;
+    const ref=await db.collection('musicGroups').add(payload);
+    groupId=ref.id;
+  }
+  for(var i=0;i<people.length;i++){
+    var person=people[i];
+    try{
+      await db.collection('users').doc(person.uid).set({
+        musicGroupIds:firebase.firestore.FieldValue.arrayUnion(groupId),
+        musicGroupNames:firebase.firestore.FieldValue.arrayUnion(groupName)
+      },{merge:true});
+    }catch(e){console.warn('profile group link',e)}
+  }
+  await loadSavedGroups();
+  selectedGroupId=groupId;
+  return groupId;
+}catch(e){
+  console.error('saveOrUpdateMusicGroup',e);
+  throw e;
 }
-}
-for(const person of people){
-try{await db.collection('users').doc(person.uid).set({musicGroupIds:firebase.firestore.FieldValue.arrayUnion(groupId),musicGroupNames:firebase.firestore.FieldValue.arrayUnion(groupName)},{merge:true});}catch(e){console.warn(e)}
-}
-await loadSavedGroups();
-selectedGroupId=groupId;
-return groupId;
-}catch(e){console.error(e);return null}
 }
