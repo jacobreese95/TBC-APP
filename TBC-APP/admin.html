@@ -180,7 +180,25 @@
 <body>
     <header>
         <h1>Admin Panel</h1>
+        <button class="hamburger" onclick="toggleMenu()" aria-label="Open menu"><span></span><span></span><span></span></button>
     </header>
+    <div class="nav-overlay" id="navOverlay" onclick="toggleMenu()"></div>
+    <div class="nav-drawer" id="navDrawer">
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="calendar.html">Calendar</a>
+        <a href="directory.html">Church Directory</a>
+        <a href="music-groups.html">Music Groups</a>
+        <a href="chat.html">Ministry Chats</a>
+        <a href="bible/index.html">Bible</a>
+        <a href="give.html">Give on Tithe.ly</a>
+        <a href="sermons.html">Sermons & Live Streams</a>
+        <a href="soul-winning.html">Soul Winning</a>
+        <a href="upload-photos.html">Upload Photos</a>
+        <a href="profile.html">Profile</a>
+        <a href="admin.html">Admin</a>
+        <a href="#" onclick="signOutUser().then(() => window.location.href='index.html')">Logout</a>
+    </div>
 
     <div class="container">
         <button class="back-btn" onclick="window.location.href='index.html'">← Back to Home</button>
@@ -198,5 +216,11 @@
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
     <script src="auth.js"></script>
     <script src="admin-app.js"></script>
+    <script>
+        function toggleMenu() {
+            document.getElementById('navDrawer').classList.toggle('open');
+            document.getElementById('navOverlay').classList.toggle('open');
+        }
+    </script>
 </body>
 </html>
