@@ -12,27 +12,47 @@
     .nav-row button { flex: 1; margin: 0; height: 44px; font-size: 0.95rem; }
     .nav-row button:disabled { opacity: 0.45; cursor: default; }
     .verse-list { margin: 0; padding: 0; list-style: none; }
-    .verse-item { display: flex; gap: 10px; padding: 10px 8px; border-radius: 10px; cursor: pointer; -webkit-tap-highlight-color: transparent; scroll-margin-top: 80px; }
+    .verse-item { display: flex; flex-wrap: wrap; gap: 10px; padding: 10px 8px; border-radius: 10px; cursor: pointer; -webkit-tap-highlight-color: transparent; scroll-margin-top: 80px; }
     .verse-item:hover, .verse-item:active { background: rgba(76, 184, 185, 0.12); }
     .verse-item.has-note { background: rgba(136, 69, 165, 0.08); }
     .verse-item.highlight { background: rgba(176, 220, 119, 0.25); outline: 2px solid var(--lime, #b0dc77); }
+    .verse-item.expanded { background: rgba(76, 184, 185, 0.1); outline: 1px solid rgba(76, 184, 185, 0.35); cursor: default; }
     .verse-num { flex-shrink: 0; min-width: 28px; font-weight: 700; color: var(--teal); font-size: 0.9rem; padding-top: 2px; }
-    .verse-text { flex: 1; line-height: 1.55; font-size: 1.05rem; color: var(--text); }
+    .verse-text { flex: 1; line-height: 1.55; font-size: 1.05rem; color: var(--text); min-width: 0; }
     .verse-note-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--purple, #8845a5); margin-top: 8px; flex-shrink: 0; }
+    .verse-body { flex: 1; min-width: 0; width: calc(100% - 40px); }
+    .strongs-panel { display: none; width: 100%; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border, #ddd); }
+    .verse-item.expanded .strongs-panel { display: block; }
+    .verse-item.expanded .verse-plain { display: none; }
+    .strongs-words { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: flex-end; line-height: 1.2; }
+    .sw { display: inline-flex; flex-direction: column; align-items: center; text-align: center; max-width: 7.5rem; cursor: pointer; padding: 4px 2px; border-radius: 8px; }
+    .sw:active, .sw:hover { background: rgba(76, 184, 185, 0.15); }
+    .sw-word { font-size: 0.98rem; color: var(--text); font-weight: 600; }
+    .sw-num { font-size: 0.68rem; color: var(--teal, #4cb8b9); font-weight: 700; margin-top: 2px; letter-spacing: 0.02em; }
+    .sw-num.empty { color: var(--muted); font-weight: 500; }
+    .strongs-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .strongs-actions button { flex: 1; margin: 0; height: 42px; font-size: 0.9rem; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; }
+    .btn-note { background: linear-gradient(135deg, #8845a5 0%, #4cb8b9 100%); color: #fff; }
+    .btn-collapse { background: var(--input-bg); color: var(--text); border: 2px solid var(--border) !important; }
+    .strongs-loading { font-size: 0.85rem; color: var(--muted); padding: 6px 0; }
     .status-msg { text-align: center; color: var(--muted); padding: 28px 12px; }
     .status-msg.error { color: #c62828; }
-    .note-sheet-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 4000; }
-    .note-sheet-bg.open { display: block; }
-    .note-sheet { position: fixed; left: 0; right: 0; bottom: 0; max-height: 70vh; background: var(--surface); border-radius: 18px 18px 0 0; box-shadow: 0 -8px 30px rgba(0,0,0,0.2); z-index: 4001; transform: translateY(110%); transition: transform 0.25s ease; padding: 16px 16px 28px; overflow-y: auto; }
-    .note-sheet.open { transform: translateY(0); }
-    .note-sheet h3 { margin: 0 0 4px; font-size: 1.1rem; color: var(--text); }
+    .note-sheet-bg, .lex-sheet-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 4000; }
+    .note-sheet-bg.open, .lex-sheet-bg.open { display: block; }
+    .note-sheet, .lex-sheet { display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 4001; background: var(--surface, #fff); border-radius: 18px 18px 0 0; padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); max-height: 75vh; overflow-y: auto; box-shadow: 0 -8px 30px rgba(0,0,0,0.18); }
+    .note-sheet.open, .lex-sheet.open { display: block; }
+    .note-sheet h3, .lex-sheet h3 { margin: 0 0 8px; color: var(--text); }
     .note-sheet .sheet-verse { font-size: 0.9rem; color: var(--muted); font-style: italic; margin: 0 0 12px; line-height: 1.4; }
     .note-sheet textarea { width: 100%; min-height: 110px; padding: 12px; border: 2px solid var(--border); border-radius: 12px; background: var(--input-bg); color: var(--text); font-size: 1rem; font-family: inherit; resize: vertical; box-sizing: border-box; }
-    .note-sheet .sheet-actions { display: flex; gap: 8px; margin-top: 12px; }
-    .note-sheet .sheet-actions button { flex: 1; margin: 0; height: 46px; }
+    .note-sheet .sheet-actions, .lex-sheet .sheet-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .note-sheet .sheet-actions button, .lex-sheet .sheet-actions button { flex: 1; margin: 0; height: 46px; }
     .btn-secondary { background: var(--input-bg) !important; color: var(--text) !important; border: 2px solid var(--border) !important; box-shadow: none !important; }
     .chapter-title { text-align: center; font-size: 1.15rem; font-weight: 700; margin: 4px 0 12px; color: var(--text); }
     .hint { text-align: center; font-size: 0.8rem; color: var(--muted); margin: 0 0 10px; }
+    .lex-lemma { font-size: 1.25rem; font-weight: 700; color: var(--teal); margin: 0 0 4px; }
+    .lex-meta { font-size: 0.85rem; color: var(--muted); margin: 0 0 10px; }
+    .lex-body { font-size: 1rem; line-height: 1.5; color: var(--text); }
+    .lex-body p { margin: 0 0 8px; }
   </style>
 </head>
 <body>
@@ -60,9 +80,10 @@
       <button type="button" id="nextBtn">Next →</button>
     </div>
     <p class="chapter-title" id="chapterTitle">Loading…</p>
-    <p class="hint">Tap a verse to add a personal note</p>
+    <p class="hint">Tap a verse for Strong’s · use Note on the expanded verse for personal notes</p>
     <div id="content"><p class="status-msg">Loading chapter…</p></div>
   </div>
+
   <div class="note-sheet-bg" id="noteBg"></div>
   <div class="note-sheet" id="noteSheet" role="dialog" aria-modal="true">
     <h3 id="noteRef">Verse</h3>
@@ -73,6 +94,18 @@
       <button type="button" id="noteSave">Save note</button>
     </div>
   </div>
+
+  <div class="lex-sheet-bg" id="lexBg"></div>
+  <div class="lex-sheet" id="lexSheet" role="dialog" aria-modal="true">
+    <h3 id="lexTitle">Strong’s</h3>
+    <p class="lex-lemma" id="lexLemma"></p>
+    <p class="lex-meta" id="lexMeta"></p>
+    <div class="lex-body" id="lexBody"></div>
+    <div class="sheet-actions">
+      <button type="button" class="btn-secondary" id="lexClose">Close</button>
+    </div>
+  </div>
+
   <script src="data/books.js"></script>
   <script src="bible-chrome.js"></script>
   <script>
@@ -80,11 +113,15 @@
       document.getElementById('navDrawer').classList.toggle('open');
       document.getElementById('navOverlay').classList.toggle('open');
     }
+
     var bookCache = {};
+    var strongsChapterCache = {};
     var currentBook = null;
     var currentChapter = 1;
     var activeRef = null;
     var activeVerseId = null;
+    var expandedVerseNum = null;
+    var dictLoaded = { greek: false, hebrew: false, loading: null };
 
     function qs(name) {
       return new URLSearchParams(window.location.search).get(name);
@@ -109,6 +146,12 @@
       for (var i = 1; i <= book.chapters; i++) html += '<option value="' + i + '">' + i + '</option>';
       sel.innerHTML = html;
     }
+    function bookNumber(book) {
+      for (var i = 0; i < KJV_BOOKS.length; i++) {
+        if (KJV_BOOKS[i].name === book.name) return i + 1;
+      }
+      return 1;
+    }
     async function loadBookData(book) {
       if (bookCache[book.file]) return bookCache[book.file];
       var res = await fetch(KJV_CDN + book.file + '.json');
@@ -117,6 +160,139 @@
       bookCache[book.file] = data;
       return data;
     }
+    async function loadStrongsChapter(book, chapter) {
+      var key = bookNumber(book) + ':' + chapter;
+      if (strongsChapterCache[key]) return strongsChapterCache[key];
+      var res = await fetch('https://bolls.life/get-text/KJV/' + bookNumber(book) + '/' + chapter + '/');
+      if (!res.ok) throw new Error('Strong’s data unavailable');
+      var data = await res.json();
+      var map = {};
+      (data || []).forEach(function (v) {
+        map[parseInt(v.verse, 10)] = v.text || '';
+      });
+      strongsChapterCache[key] = map;
+      return map;
+    }
+    function parseStrongsTagged(text) {
+      var tokens = [];
+      var re = /([^<]+)|<S>(\d+)<\/S>/g;
+      var m;
+      var current = null;
+      while ((m = re.exec(text))) {
+        if (m[1] !== undefined) {
+          var piece = m[1];
+          if (/^\s*$/.test(piece)) {
+            if (current) {
+              tokens.push(current);
+              current = null;
+            }
+            continue;
+          }
+          var rest = piece.replace(/^\s+/, '').replace(/\s+$/, '');
+          if (current) tokens.push(current);
+          if (!rest) {
+            current = null;
+            continue;
+          }
+          current = { word: rest, nums: [] };
+        } else {
+          if (!current) current = { word: '', nums: [] };
+          current.nums.push(m[2]);
+        }
+      }
+      if (current) tokens.push(current);
+      return tokens.filter(function (t) { return t.word || (t.nums && t.nums.length); });
+    }
+    function prefixForBook(book) {
+      return book.testament === 'OT' ? 'H' : 'G';
+    }
+    function loadDictionary(kind) {
+      if (dictLoaded.greek && dictLoaded.hebrew) return Promise.resolve();
+      if (dictLoaded.loading) return dictLoaded.loading;
+      dictLoaded.loading = new Promise(function (resolve, reject) {
+        var urls = {
+          greek: 'https://cdn.jsdelivr.net/gh/openscriptures/strongs@master/greek/strongs-greek-dictionary.js',
+          hebrew: 'https://cdn.jsdelivr.net/gh/openscriptures/strongs@master/hebrew/strongs-hebrew-dictionary.js'
+        };
+        var left = 2;
+        function doneOne(err) {
+          if (err) {
+            dictLoaded.loading = null;
+            reject(err);
+            return;
+          }
+          left--;
+          if (left <= 0) {
+            dictLoaded.greek = true;
+            dictLoaded.hebrew = true;
+            dictLoaded.loading = null;
+            resolve();
+          }
+        }
+        ['greek', 'hebrew'].forEach(function (k) {
+          if (window[k === 'greek' ? 'strongsGreekDictionary' : 'strongsHebrewDictionary']) {
+            doneOne();
+            return;
+          }
+          var s = document.createElement('script');
+          s.src = urls[k];
+          s.onload = function () { doneOne(); };
+          s.onerror = function () { doneOne(new Error('Could not load Strong’s dictionary')); };
+          document.head.appendChild(s);
+        });
+      });
+      return dictLoaded.loading;
+    }
+    function lookupStrongs(code) {
+      if (/^\d+$/.test(code)) {
+        var g = window.strongsGreekDictionary && window.strongsGreekDictionary['G' + code];
+        var h = window.strongsHebrewDictionary && window.strongsHebrewDictionary['H' + code];
+        return g ? { code: 'G' + code, entry: g } : h ? { code: 'H' + code, entry: h } : null;
+      }
+      if (code.charAt(0) === 'G' && window.strongsGreekDictionary) {
+        return window.strongsGreekDictionary[code] ? { code: code, entry: window.strongsGreekDictionary[code] } : null;
+      }
+      if (code.charAt(0) === 'H' && window.strongsHebrewDictionary) {
+        return window.strongsHebrewDictionary[code] ? { code: code, entry: window.strongsHebrewDictionary[code] } : null;
+      }
+      return null;
+    }
+    function openLexicon(rawNum, book) {
+      var prefix = prefixForBook(book);
+      var code = prefix + String(rawNum).replace(/^[HG]/i, '');
+      document.getElementById('lexTitle').textContent = 'Strong’s ' + code;
+      document.getElementById('lexLemma').textContent = 'Loading…';
+      document.getElementById('lexMeta').textContent = '';
+      document.getElementById('lexBody').innerHTML = '';
+      document.getElementById('lexBg').classList.add('open');
+      document.getElementById('lexSheet').classList.add('open');
+      loadDictionary(book.testament === 'OT' ? 'hebrew' : 'greek').then(function () {
+        var found = lookupStrongs(code) || lookupStrongs(String(rawNum));
+        if (!found || !found.entry) {
+          document.getElementById('lexLemma').textContent = code;
+          document.getElementById('lexBody').innerHTML = '<p>No lexicon entry found for this number.</p>';
+          return;
+        }
+        var e = found.entry;
+        document.getElementById('lexTitle').textContent = 'Strong’s ' + found.code;
+        document.getElementById('lexLemma').textContent = e.lemma || e.translit || found.code;
+        var meta = [];
+        if (e.translit) meta.push(e.translit);
+        if (e.kjv_def) meta.push('KJV: ' + e.kjv_def);
+        document.getElementById('lexMeta').textContent = meta.join(' · ');
+        var html = '';
+        if (e.strongs_def) html += '<p><strong>Definition:</strong> ' + escapeHtml(e.strongs_def) + '</p>';
+        if (e.derivation) html += '<p><strong>Derivation:</strong> ' + escapeHtml(e.derivation) + '</p>';
+        document.getElementById('lexBody').innerHTML = html || '<p>No further detail.</p>';
+      }).catch(function (err) {
+        document.getElementById('lexLemma').textContent = code;
+        document.getElementById('lexBody').innerHTML = '<p>' + escapeHtml(err.message || 'Lookup failed') + '</p>';
+      });
+    }
+    function closeLexicon() {
+      document.getElementById('lexBg').classList.remove('open');
+      document.getElementById('lexSheet').classList.remove('open');
+    }
     function hasNote(ref) {
       try {
         var t = localStorage.getItem(noteKey(ref));
@@ -124,7 +300,105 @@
       } catch (e) { return false; }
     }
     function escapeHtml(str) {
-      return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      return String(str || '').replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>').replace(/"/g, '"');
+    }
+    function renderStrongsTokens(tokens, book, panel) {
+      var words = document.createElement('div');
+      words.className = 'strongs-words';
+      tokens.forEach(function (t) {
+        var sw = document.createElement('span');
+        sw.className = 'sw';
+        var nums = (t.nums || []).map(function (n) { return prefixForBook(book) + n; });
+        sw.innerHTML =
+          '<span class="sw-word">' + escapeHtml(t.word || '—') + '</span>' +
+          '<span class="sw-num' + (nums.length ? '' : ' empty') + '">' +
+          escapeHtml(nums.length ? nums.join(' ') : '·') + '</span>';
+        if (t.nums && t.nums.length) {
+          sw.addEventListener('click', function (e) {
+            e.stopPropagation();
+            openLexicon(t.nums[0], book);
+          });
+        }
+        words.appendChild(sw);
+      });
+      panel.innerHTML = '';
+      panel.appendChild(words);
+      var actions = document.createElement('div');
+      actions.className = 'strongs-actions';
+      var noteBtn = document.createElement('button');
+      noteBtn.type = 'button';
+      noteBtn.className = 'btn-note';
+      noteBtn.textContent = 'Note';
+      noteBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var li = panel.closest('.verse-item');
+        if (!li) return;
+        openNote(li.getAttribute('data-ref'), li.getAttribute('data-vid'), li.getAttribute('data-text'));
+      });
+      var collapseBtn = document.createElement('button');
+      collapseBtn.type = 'button';
+      collapseBtn.className = 'btn-collapse';
+      collapseBtn.textContent = 'Close Strong’s';
+      collapseBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        collapseAll();
+      });
+      actions.appendChild(noteBtn);
+      actions.appendChild(collapseBtn);
+      panel.appendChild(actions);
+    }
+    function collapseAll() {
+      expandedVerseNum = null;
+      document.querySelectorAll('.verse-item.expanded').forEach(function (el) {
+        el.classList.remove('expanded');
+        var panel = el.querySelector('.strongs-panel');
+        if (panel) panel.innerHTML = '';
+      });
+    }
+    async function expandVerse(li, book, chapter, verseNum, plainText) {
+      if (expandedVerseNum === verseNum && li.classList.contains('expanded')) {
+        collapseAll();
+        return;
+      }
+      collapseAll();
+      expandedVerseNum = verseNum;
+      li.classList.add('expanded');
+      var panel = li.querySelector('.strongs-panel');
+      panel.innerHTML = '<p class="strongs-loading">Loading Strong’s…</p>';
+      try {
+        var map = await loadStrongsChapter(book, chapter);
+        var tagged = map[verseNum];
+        if (!tagged) {
+          panel.innerHTML = '<p class="strongs-loading">No Strong’s tags for this verse.</p>';
+          var actions = document.createElement('div');
+          actions.className = 'strongs-actions';
+          var noteBtn = document.createElement('button');
+          noteBtn.type = 'button';
+          noteBtn.className = 'btn-note';
+          noteBtn.textContent = 'Note';
+          noteBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            openNote(li.getAttribute('data-ref'), li.getAttribute('data-vid'), plainText);
+          });
+          var collapseBtn = document.createElement('button');
+          collapseBtn.type = 'button';
+          collapseBtn.className = 'btn-collapse';
+          collapseBtn.textContent = 'Close';
+          collapseBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            collapseAll();
+          });
+          actions.appendChild(noteBtn);
+          actions.appendChild(collapseBtn);
+          panel.appendChild(actions);
+          return;
+        }
+        var tokens = parseStrongsTagged(tagged);
+        renderStrongsTokens(tokens, book, panel);
+        loadDictionary(book.testament === 'OT' ? 'hebrew' : 'greek').catch(function () {});
+      } catch (err) {
+        panel.innerHTML = '<p class="strongs-loading">' + escapeHtml(err.message || 'Could not load Strong’s') + '</p>';
+      }
     }
     function renderVerses(book, chapter, verses, highlightVerse) {
       var list = document.createElement('ul');
@@ -136,9 +410,21 @@
         var li = document.createElement('li');
         li.className = 'verse-item' + (hasNote(ref) ? ' has-note' : '') + (highlightVerse && num === highlightVerse ? ' highlight' : '');
         li.id = 'v-' + num;
-        li.innerHTML = '<span class="verse-num">' + num + '</span><span class="verse-text">' + escapeHtml(v.text) + '</span>' +
+        li.setAttribute('data-ref', ref);
+        li.setAttribute('data-vid', vid);
+        li.setAttribute('data-text', v.text || '');
+        li.setAttribute('data-num', String(num));
+        li.innerHTML =
+          '<span class="verse-num">' + num + '</span>' +
+          '<div class="verse-body">' +
+            '<span class="verse-text verse-plain">' + escapeHtml(v.text) + '</span>' +
+            '<div class="strongs-panel"></div>' +
+          '</div>' +
           (hasNote(ref) ? '<span class="verse-note-dot" title="Has note"></span>' : '');
-        li.addEventListener('click', function () { openNote(ref, vid, v.text); });
+        li.addEventListener('click', function (e) {
+          if (e.target.closest('.strongs-panel')) return;
+          expandVerse(li, book, chapter, num, v.text || '');
+        });
         list.appendChild(li);
       });
       var content = document.getElementById('content');
@@ -154,6 +440,7 @@
     async function showChapter(book, chapter, highlightVerse) {
       currentBook = book;
       currentChapter = chapter;
+      expandedVerseNum = null;
       document.getElementById('bookSelect').value = book.name;
       fillChapterSelect(book);
       document.getElementById('chapterSelect').value = String(chapter);
@@ -237,6 +524,8 @@
       document.getElementById('noteCancel').addEventListener('click', closeNote);
       document.getElementById('noteBg').addEventListener('click', closeNote);
       document.getElementById('noteSave').addEventListener('click', saveNote);
+      document.getElementById('lexClose').addEventListener('click', closeLexicon);
+      document.getElementById('lexBg').addEventListener('click', closeLexicon);
       var bookName = qs('book') || 'Genesis';
       var chapter = parseInt(qs('chapter') || '1', 10) || 1;
       var verse = qs('verse') ? parseInt(qs('verse'), 10) : null;
