@@ -206,7 +206,7 @@ const MINISTRY_CHATS = ['Whole Church', 'Music Ministry', 'Sentry', 'Nursery', '
                     };
                     reader.readAsDataURL(file);
                 });
-                const path = 'profile-photos/' + uid + '/' + Date.now() + '.jpg';
+                const path = 'profile-pics/' + uid + '/avatar.jpg';
                 const ref = storage.ref(path);
                 await ref.put(blob, { contentType: 'image/jpeg' });
                 const url = await ref.getDownloadURL();
