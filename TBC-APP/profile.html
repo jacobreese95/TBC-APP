@@ -374,19 +374,17 @@
             const gBox = document.getElementById('musicGroupsBox');
             const sBox = document.getElementById('songsBox');
             if (!gBox) return;
-            const names = profile.musicGroupNames || [];
-            gBox.textContent = names.length ? names.join(', ') : 'None yet';
+            const names = Array.isArray(profile.musicGroupNames) ? profile.musicGroupNames.filter(Boolean).slice() : [];
             let songs = Array.isArray(profile.songs) ? profile.songs.slice() : [];
             try {
                 const snap = await db.collection('musicGroups').where('memberUids', 'array-contains', uid).get();
-                const gNames = [];
                 snap.forEach(doc => {
-                    const g = doc.data();
-                    if (g.name) gNames.push(g.name);
-                    (g.songs || []).forEach(s => { if (s && !songs.includes(s)) songs.push(s); });
+                    const g = doc.data() || {};
+                    if (g.name && names.indexOf(g.name) === -1) names.push(g.name);
+                    (g.songs || []).forEach(s => { if (s && songs.indexOf(s) === -1) songs.push(s); });
                 });
-                if (gNames.length) gBox.textContent = gNames.join(', ');
             } catch (e) { console.warn(e); }
+            gBox.textContent = names.length ? names.join(', ') : 'None yet';
             sBox.textContent = songs.length ? songs.join(', ') : 'None yet';
         }
 
