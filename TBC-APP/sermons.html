@@ -1,1 +1,362 @@
-PLACEHOLDER_WILL_FAIL
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Sermons & Live - TBC</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .stream-hero {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-bottom: 18px;
+        }
+        .stream-hero-player {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%;
+            background: #000;
+        }
+        .stream-hero-player iframe {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+        .stream-hero-meta { padding: 14px 16px 16px; }
+        .live-badge {
+            display: inline-block;
+            background: #c62828;
+            color: #fff;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            padding: 4px 10px;
+            border-radius: 999px;
+            margin-bottom: 8px;
+        }
+        .stream-title {
+            margin: 0 0 4px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.3;
+        }
+        .stream-sub { margin: 0; font-size: 0.85rem; color: var(--muted); }
+        .section-label {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text);
+            margin: 8px 0 10px;
+        }
+        .stream-list { display: flex; flex-direction: column; gap: 10px; }
+        .stream-card {
+            display: flex;
+            gap: 12px;
+            align-items: stretch;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .stream-card:active { transform: scale(0.99); }
+        .stream-card img {
+            width: 128px;
+            min-height: 72px;
+            object-fit: cover;
+            flex-shrink: 0;
+            background: #222;
+        }
+        .stream-card-body {
+            padding: 10px 12px 10px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-width: 0;
+        }
+        .stream-card-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            line-height: 1.3;
+            margin: 0 0 4px;
+            color: var(--text);
+        }
+        .stream-card-date { font-size: 0.75rem; color: var(--muted); margin: 0; }
+        .stream-status {
+            text-align: center;
+            padding: 28px 16px;
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+        .stream-error {
+            background: rgba(198, 40, 40, 0.08);
+            border: 1px solid rgba(198, 40, 40, 0.25);
+            color: var(--text);
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-size: 0.9rem;
+            margin-bottom: 14px;
+            line-height: 1.4;
+        }
+        .yt-link {
+            display: block;
+            text-align: center;
+            margin-top: 16px;
+            color: var(--teal);
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+    <button class="hamburger" onclick="toggleMenu()" aria-label="Open menu">
+        <span></span><span></span><span></span>
+    </button>
+    <div class="nav-overlay" id="navOverlay" onclick="toggleMenu()"></div>
+    <div class="nav-drawer" id="navDrawer">
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="calendar.html">Calendar</a>
+        <a href="chat.html">Ministry Chats</a>
+        <a href="bible/index.html">Bible</a>
+        <a href="give.html">Give on Tithe.ly</a>
+        <a href="soul-winning.html">Soul Winning</a>
+        <a href="profile.html">Profile</a>
+        <a href="#" onclick="signOutUser().then(() => window.location.href='index.html')">Logout</a>
+    </div>
+
+    <header><h1>Sermons & Live</h1></header>
+    <div class="container">
+        <div id="streamError" class="stream-error" style="display:none"></div>
+        <div id="featured" class="stream-status">Loading streams…</div>
+        <div class="section-label" id="recentLabel" style="display:none">Recent livestreams</div>
+        <div id="recentList" class="stream-list"></div>
+        <a class="yt-link" href="https://www.youtube.com/@TBCWichita1/streams" target="_blank" rel="noopener">Open on YouTube →</a>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+    <script src="auth.js"></script>
+    <script src="home-logo.js"></script>
+    <script>
+      var CHANNEL_ID = 'UCQqlzMIDobV23YjacOZysSg';
+
+      function toggleMenu() {
+        document.getElementById('navDrawer').classList.toggle('open');
+        document.getElementById('navOverlay').classList.toggle('open');
+      }
+
+      function showError(msg) {
+        var el = document.getElementById('streamError');
+        el.style.display = 'block';
+        el.textContent = msg;
+      }
+
+      function hideError() {
+        document.getElementById('streamError').style.display = 'none';
+      }
+
+      function escapeHtml(str) {
+        return String(str || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function formatDate(iso) {
+        if (!iso) return '';
+        var d = new Date(iso);
+        if (isNaN(d.getTime())) return '';
+        return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+      }
+
+      function embedUrl(videoId) {
+        return 'https://www.youtube.com/embed/' + encodeURIComponent(videoId) + '?rel=0&modestbranding=1';
+      }
+
+      function streamTime(v) {
+        var ls = v.liveStreamingDetails || {};
+        return ls.actualStartTime || ls.scheduledStartTime || (v.snippet && v.snippet.publishedAt) || '';
+      }
+
+      function thumbFromVideo(v) {
+        var s = (v.snippet && v.snippet.thumbnails) || {};
+        var t = s.medium || s.high || s.default || {};
+        return t.url || '';
+      }
+
+      function renderFeatured(video, isLive) {
+        var id = video.id;
+        var title = (video.snippet && video.snippet.title) || 'Service';
+        var when = streamTime(video);
+        var html =
+          '<div class="stream-hero">' +
+          '<div class="stream-hero-player">' +
+          '<iframe src="' + embedUrl(id) + '" title="' + title.replace(/"/g, '') + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>' +
+          '</div>' +
+          '<div class="stream-hero-meta">' +
+          (isLive ? '<span class="live-badge">LIVE NOW</span>' : '') +
+          '<h2 class="stream-title">' + escapeHtml(title) + '</h2>' +
+          '<p class="stream-sub">' + (isLive ? 'Streaming now on YouTube' : formatDate(when)) + '</p>' +
+          '</div></div>';
+        document.getElementById('featured').outerHTML = '<div id="featured">' + html + '</div>';
+      }
+
+      function renderRecent(videos, featuredId) {
+        var list = document.getElementById('recentList');
+        var label = document.getElementById('recentLabel');
+        var cards = [];
+        for (var i = 0; i < videos.length && cards.length < 10; i++) {
+          var v = videos[i];
+          if (!v || !v.id || v.id === featuredId) continue;
+          var title = (v.snippet && v.snippet.title) || 'Service';
+          var when = streamTime(v);
+          var thumb = thumbFromVideo(v);
+          cards.push(
+            '<a class="stream-card" href="#" data-vid="' + escapeHtml(v.id) + '">' +
+            (thumb ? '<img src="' + escapeHtml(thumb) + '" alt="">' : '<div style="width:128px;background:#333"></div>') +
+            '<div class="stream-card-body">' +
+            '<p class="stream-card-title">' + escapeHtml(title) + '</p>' +
+            '<p class="stream-card-date">' + escapeHtml(formatDate(when)) + '</p>' +
+            '</div></a>'
+          );
+        }
+        if (!cards.length) {
+          label.style.display = 'none';
+          list.innerHTML = '';
+          return;
+        }
+        label.style.display = 'block';
+        list.innerHTML = cards.join('');
+        list.querySelectorAll('.stream-card').forEach(function (el) {
+          el.addEventListener('click', function (e) {
+            e.preventDefault();
+            var vid = el.getAttribute('data-vid');
+            if (!vid) return;
+            renderFeatured({
+              id: vid,
+              snippet: {
+                title: el.querySelector('.stream-card-title').textContent,
+                publishedAt: el.querySelector('.stream-card-date').textContent
+              },
+              liveStreamingDetails: {}
+            }, false);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          });
+        });
+      }
+
+      async function ytGet(path, params) {
+        // Key stays on the server (Cloudflare Worker secret). Browser never sees it.
+        var q = new URLSearchParams(params || {});
+        var url = '/api/youtube/' + path + '?' + q.toString();
+        var res = await fetch(url);
+        var data = await res.json();
+        if (!res.ok) {
+          var msg = (data.error && data.error.message) || ('YouTube API error ' + res.status);
+          throw new Error(msg);
+        }
+        return data;
+      }
+
+      async function fetchCompletedLivestreams() {
+        var search = await ytGet('search', {
+          part: 'snippet',
+          channelId: CHANNEL_ID,
+          eventType: 'completed',
+          type: 'video',
+          order: 'date',
+          maxResults: '25'
+        });
+        var ids = [];
+        (search.items || []).forEach(function (item) {
+          var id = item.id && item.id.videoId;
+          if (id && ids.indexOf(id) === -1) ids.push(id);
+        });
+        if (!ids.length) return [];
+
+        var details = await ytGet('videos', {
+          part: 'snippet,liveStreamingDetails',
+          id: ids.join(',')
+        });
+        var videos = (details.items || []).filter(function (v) {
+          return !!(v.liveStreamingDetails && (v.liveStreamingDetails.actualStartTime || v.liveStreamingDetails.scheduledStartTime));
+        });
+
+        videos.sort(function (a, b) {
+          var ta = new Date(streamTime(a) || 0).getTime();
+          var tb = new Date(streamTime(b) || 0).getTime();
+          return tb - ta;
+        });
+        return videos;
+      }
+
+      async function fetchLiveNow() {
+        var live = await ytGet('search', {
+          part: 'snippet',
+          channelId: CHANNEL_ID,
+          eventType: 'live',
+          type: 'video',
+          maxResults: '1'
+        });
+        if (!live.items || !live.items.length) return null;
+        var id = live.items[0].id && live.items[0].id.videoId;
+        if (!id) return null;
+        var details = await ytGet('videos', {
+          part: 'snippet,liveStreamingDetails',
+          id: id
+        });
+        return (details.items && details.items[0]) || null;
+      }
+
+      async function loadStreams() {
+        hideError();
+        document.getElementById('featured').innerHTML = '<div class="stream-status">Loading streams…</div>';
+
+        try {
+          var liveVideo = await fetchLiveNow();
+          var streams = await fetchCompletedLivestreams();
+
+          var featured = null;
+          var isLive = false;
+          if (liveVideo) {
+            featured = liveVideo;
+            isLive = true;
+          } else if (streams.length) {
+            featured = streams[0];
+          }
+
+          if (!featured) {
+            document.getElementById('featured').innerHTML = '<div class="stream-status">No livestreams found yet. Check back on Sunday.</div>';
+            return;
+          }
+
+          renderFeatured(featured, isLive);
+          renderRecent(streams, featured.id);
+        } catch (e) {
+          console.error(e);
+          var msg = e.message || 'Could not load YouTube streams.';
+          if (/not configured|API key|keyInvalid|keyExpired|permission|forbidden|403|400/i.test(msg)) {
+            msg = 'Sermons could not load from YouTube. The server key may need to be set in Cloudflare. (' + msg + ')';
+          }
+          showError(msg);
+          document.getElementById('featured').innerHTML = '<div class="stream-status">Unable to load streams right now.</div>';
+        }
+      }
+
+      loadStreams();
+    </script>
+</body>
+</html>
