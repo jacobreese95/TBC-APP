@@ -6,13 +6,38 @@ const MINISTRY_CHATS = ['Whole Church', 'Music Ministry', 'Sentry', 'Nursery', '
             container.innerHTML = 'Loading users...';
             try {
                 const snapshot = await db.collection('users').get();
+                var groupsByUid = {};
+                try {
+                    const gsnap = await db.collection('musicGroups').get();
+                    gsnap.forEach(function(doc) {
+                        var d = doc.data() || {};
+                        var name = (d.name || '').trim();
+                        if (!name) return;
+                        var uids = d.memberUids || [];
+                        if ((!uids || !uids.length) && Array.isArray(d.members)) {
+                            uids = d.members.map(function(m){ return m.uid; }).filter(Boolean);
+                        }
+                        uids.forEach(function(uid) {
+                            if (!groupsByUid[uid]) groupsByUid[uid] = [];
+                            if (groupsByUid[uid].indexOf(name) === -1) groupsByUid[uid].push(name);
+                        });
+                    });
+                } catch (ge) { console.warn('musicGroups load for admin', ge); }
+
                 container.innerHTML = '';
                 if (snapshot.empty) {
                     container.innerHTML = 'No users found in the database.';
                     return;
                 }
-                snapshot.forEach(doc => {
+                snapshot.forEach(function(doc) {
                     const user = { uid: doc.id, ...doc.data() };
+                    var fromProfile = Array.isArray(user.musicGroupNames) ? user.musicGroupNames.filter(Boolean) : [];
+                    var fromGroups = groupsByUid[user.uid] || [];
+                    var merged = fromProfile.slice();
+                    fromGroups.forEach(function(n) {
+                        if (merged.indexOf(n) === -1) merged.push(n);
+                    });
+                    user.musicGroupNames = merged;
                     container.appendChild(createUserCard(user));
                 });
             } catch (err) {
@@ -54,9 +79,9 @@ const MINISTRY_CHATS = ['Whole Church', 'Music Ministry', 'Sentry', 'Nursery', '
 
             const joinedVal = user.churchJoinedYear || (user.churchJoinedDate ? String(user.churchJoinedDate).slice(0,4) : '');
             const birthdayVal = user.birthday || '';
-            const phoneVal = (user.phone || '').replace(/"/g, '&quot;');
-            const addressVal = (user.address || '').replace(/"/g, '&quot;');
-            const nameVal = (user.name || '').replace(/"/g, '&quot;');
+            const phoneVal = (user.phone || '').replace(/"/g, '"');
+            const addressVal = (user.address || '').replace(/"/g, '"');
+            const nameVal = (user.name || '').replace(/"/g, '"');
 
             let profileHTML = '<div class="profile-fields">';
             profileHTML += '<label class="section-label" style="margin-top:0">Member info (admin can edit)</label>';
@@ -78,7 +103,7 @@ const MINISTRY_CHATS = ['Whole Church', 'Music Ministry', 'Sentry', 'Nursery', '
             profileHTML += '<label class="section-label" style="margin-top:10px">Profile photo</label>';
             profileHTML += '<div class="admin-avatar-row">';
             if (photoURL) {
-                profileHTML += '<img class="admin-avatar" id="avatar-img-' + user.uid + '" src="' + photoURL.replace(/"/g, '&quot;') + '" alt="Photo">';
+                profileHTML += '<img class="admin-avatar" id="avatar-img-' + user.uid + '" src="' + photoURL.replace(/"/g, '"') + '" alt="Photo">';
             } else {
                 profileHTML += '<div class="admin-avatar-placeholder" id="avatar-ph-' + user.uid + '">No<br>photo</div>';
                 profileHTML += '<img class="admin-avatar" id="avatar-img-' + user.uid + '" src="" alt="Photo" style="display:none">';
@@ -86,16 +111,16 @@ const MINISTRY_CHATS = ['Whole Church', 'Music Ministry', 'Sentry', 'Nursery', '
             profileHTML += '<div style="flex:1">';
             profileHTML += '<input type="file" accept="image/*" id="photo-file-' + user.uid + '" onchange="adminUploadPhoto(\'' + user.uid + '\', this)">';
             profileHTML += '<div class="photo-status" id="photo-status-' + user.uid + '"></div>';
-            profileHTML += '<input type="hidden" id="photoURL-' + user.uid + '" value="' + photoURL.replace(/"/g, '&quot;') + '">';
+            profileHTML += '<input type="hidden" id="photoURL-' + user.uid + '" value="' + photoURL.replace(/"/g, '"') + '">';
             profileHTML += '</div></div>';
 
             profileHTML += '<label class="section-label" for="songs-' + user.uid + '">Songs (one per line)</label>';
-            profileHTML += '<p class="hint" style="margin-top:0">These are songs this person can sing. Edit freely.</p>';
-            profileHTML += '<textarea class="admin-edit-area" id="songs-' + user.uid + '" placeholder="Amazing Grace\nHow Great Thou Art">' + songs.map(function(s){ return String(s).replace(/</g,'&lt;'); }).join('\n') + '</textarea>';
+            profileHTML += '<p class="hint" style="margin-top:0">These are songs this person can sing. Edit freely — as many as you want.</p>';
+            profileHTML += '<textarea class="admin-edit-area" id="songs-' + user.uid + '" rows="5" placeholder="Amazing Grace\nHow Great Thou Art">' + songs.map(function(s){ return String(s).replace(/</g,'<'); }).join('\n') + '</textarea>';
 
-            profileHTML += '<label class="section-label" for="groups-' + user.uid + '">Music groups (one per line)</label>';
-            profileHTML += '<p class="hint" style="margin-top:0">Group names this person belongs to (e.g. Reese Family).</p>';
-            profileHTML += '<textarea class="admin-edit-area" id="groups-' + user.uid + '" placeholder="Reese Family">' + groupNames.map(function(s){ return String(s).replace(/</g,'&lt;'); }).join('\n') + '</textarea>';
+            profileHTML += '<label class="section-label" for="groups-' + user.uid + '">Music groups (unlimited — one per line)</label>';
+            profileHTML += '<p class="hint" style="margin-top:0">Add as many groups as needed, same as songs. Example: Reese Family, Youth Trio, Choir.</p>';
+            profileHTML += '<textarea class="admin-edit-area" id="groups-' + user.uid + '" rows="5" placeholder="Reese Family\nYouth Trio\nChoir">' + groupNames.map(function(s){ return String(s).replace(/</g,'<'); }).join('\n') + '</textarea>';
 
             profileHTML += '</div>';
 
@@ -259,7 +284,7 @@ const MINISTRY_CHATS = ['Whole Church', 'Music Ministry', 'Sentry', 'Nursery', '
                     musicGroupNames: musicGroupNames
                 };
                 if (photoURLEl && photoURLEl.value) payload.photoURL = photoURLEl.value;
-                await db.collection('users').doc(uid).update(payload);
+                await db.collection('users').doc(uid).set(payload, { merge: true });
                 alert('User updated successfully!');
                 loadUsers();
             } catch (err) {
