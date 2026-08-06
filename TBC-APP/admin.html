@@ -159,6 +159,22 @@
             text-align: center;
         }
         .photo-status { font-size: 0.8rem; color: var(--muted, #7a8fac); margin-top: 4px; }
+        .admin-search {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--slate, #7a8fac);
+            border-radius: 12px;
+            font-size: 16px;
+            box-sizing: border-box;
+            margin: 8px 0 12px;
+            background: var(--input-bg, #fff);
+            color: var(--text, #404040);
+        }
+        .admin-search-count {
+            font-size: 0.85rem;
+            color: var(--muted, #7a8fac);
+            margin: 0 0 8px;
+        }
     </style>
 </head>
 <body>
@@ -171,6 +187,8 @@
 
         <h2>Manage Users</h2>
         <p class="hint">Set role to <strong>Leader</strong>, then check which ministries they lead. Leaders can create calendar events only for those ministries. Edit profile info, photo, songs, and music groups below.</p>
+        <input type="search" id="adminSearch" class="admin-search" placeholder="Search by name, email, or phone…" autocomplete="off">
+        <p class="admin-search-count" id="adminSearchCount"></p>
         <div id="users-list">Loading users...</div>
     </div>
 
