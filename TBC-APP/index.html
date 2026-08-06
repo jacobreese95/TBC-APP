@@ -93,71 +93,6 @@
                 font-size: 0.72rem;
             }
         }
-        .home-photo-stage {
-            position: relative;
-            max-width: 420px;
-            margin: 0 auto 8px;
-            border-radius: 20px;
-            overflow: hidden;
-            border: 1px solid var(--border, rgba(122,143,172,.3));
-            box-shadow: var(--shadow, 0 2px 12px rgba(0,0,0,.08));
-            background: var(--cream, #dedcd0);
-            min-height: 120px;
-        }
-        .home-photo-layer {
-            position: absolute;
-            inset: 0;
-            background-size: cover;
-            background-position: center;
-            opacity: 0;
-            transition: opacity 1.1s ease;
-            pointer-events: none;
-        }
-        .home-photo-layer.show { opacity: 1; }
-        .home-photo-dim {
-            position: absolute;
-            inset: 0;
-            background: rgba(20, 28, 36, 0.42);
-            pointer-events: none;
-            z-index: 1;
-        }
-        [data-theme="dark"] .home-photo-dim {
-            background: rgba(10, 14, 20, 0.55);
-        }
-        .home-photo-stage .home-grid {
-            position: relative;
-            z-index: 2;
-            margin: 0;
-            max-width: none;
-            padding: 14px 12px 18px;
-        }
-        .home-photo-stage .home-tile,
-        .home-photo-stage button.home-tile {
-            background: rgba(255, 255, 255, 0.10) !important;
-            backdrop-filter: blur(3px);
-            -webkit-backdrop-filter: blur(3px);
-        }
-        .home-photo-stage .home-tile:hover,
-        .home-photo-stage button.home-tile:hover {
-            background: rgba(255, 255, 255, 0.22) !important;
-        }
-        [data-theme="dark"] .home-photo-stage .home-tile,
-        [data-theme="dark"] .home-photo-stage button.home-tile {
-            background: rgba(30, 36, 44, 0.10) !important;
-        }
-        [data-theme="dark"] .home-photo-stage .home-tile:hover,
-        [data-theme="dark"] .home-photo-stage button.home-tile:hover {
-            background: rgba(30, 36, 44, 0.22) !important;
-        }
-        .home-photo-hint {
-            position: relative;
-            z-index: 2;
-            text-align: center;
-            font-size: 0.72rem;
-            color: rgba(255,255,255,0.85);
-            margin: 0 0 10px;
-            pointer-events: none;
-        }
     </style>
 </head>
 <body>
@@ -186,11 +121,7 @@
     <h1 class="home-title">Temple <span>Baptist</span> Church</h1>
 
     <div class="container">
-        <div class="home-photo-stage" id="homePhotoStage" title="Tap empty area for next photo">
-            <div class="home-photo-layer" id="homePhotoA"></div>
-            <div class="home-photo-layer" id="homePhotoB"></div>
-            <div class="home-photo-dim"></div>
-            <div class="home-grid" id="homeGrid">
+        <div class="home-grid" id="homeGrid">
             <button type="button" class="home-tile" onclick="window.location.href='bible/index.html'">
                 <span class="tile-icon" aria-hidden="true">📖</span>
                 <span class="tile-label">Bible</span>
@@ -238,8 +169,6 @@
                 <span class="tile-icon" aria-hidden="true">⚙️</span>
                 <span class="tile-label">Admin</span>
             </button>
-            </div>
-            <p class="home-photo-hint" id="homePhotoHint" style="display:none">Tap background for next photo</p>
         </div>
     </div>
 
@@ -252,7 +181,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
     <script src="auth.js"></script>
-    <script src="home-photos.js"></script>
     <script>
         function toggleMenu() {
             document.getElementById('navDrawer').classList.toggle('open');
@@ -337,7 +265,6 @@
                     btnDirectory.style.display = 'none';
                     if (btnProfile) btnProfile.style.display = 'none';
                 }
-                if (profile && profile.approved) loadHomePhotos();
             } catch (e) {}
         });
     </script>
