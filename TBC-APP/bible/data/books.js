@@ -41,7 +41,7 @@ window.KJV_BOOKS = [
   { name: "Malachi", file: "Malachi", testament: "OT", abbr: "Mal", chapters: 4 },
   { name: "Matthew", file: "Matthew", testament: "NT", abbr: "Mat", chapters: 28 },
   { name: "Mark", file: "Mark", testament: "NT", abbr: "Mrk", chapters: 16 },
-  { name: "Luke", file: "Luke", testament: "OT", abbr: "Luk", chapters: 24 },
+  { name: "Luke", file: "Luke", testament: "NT", abbr: "Luk", chapters: 24 },
   { name: "John", file: "John", testament: "NT", abbr: "Jhn", chapters: 21 },
   { name: "Acts", file: "Acts", testament: "NT", abbr: "Act", chapters: 28 },
   { name: "Romans", file: "Romans", testament: "NT", abbr: "Rom", chapters: 16 },
