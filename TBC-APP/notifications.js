@@ -211,6 +211,28 @@
       }
     }
 
+    try {
+      var swSnap = await fdb.collection('soulWinningAssignments')
+        .where('assignedToUid', '==', uid)
+        .where('status', '==', 'pending')
+        .limit(30)
+        .get();
+      swSnap.forEach(function (doc) {
+        var d = doc.data() || {};
+        items.push({
+          id: 'sw-' + doc.id,
+          type: 'soul_winning',
+          title: 'Soul winning area assigned',
+          body: (d.territoryName || 'An area') + (d.notes ? ' — ' + d.notes : ''),
+          when: d.createdAt || null,
+          link: getPrefix() + 'soul-winning.html',
+          rawId: doc.id
+        });
+      });
+    } catch (e) {
+      console.warn('notif soul winning', e);
+    }
+
     for (var i = 0; i < rooms.length; i++) {
       var room = rooms[i];
       try {
@@ -260,7 +282,7 @@
       return;
     }
     list.innerHTML = lastItems.map(function (n) {
-      var icon = n.type === 'prayer' ? '🙏' : (n.type === 'schedule_response' ? (n.title.indexOf('Accepted') === 0 ? '✅' : '❌') : '📅');
+      var icon = n.type === 'prayer' ? '🙏' : (n.type === 'soul_winning' ? '🗺️' : (n.type === 'schedule_response' ? (n.title.indexOf('Accepted') === 0 ? '✅' : '❌') : '📅'));
       return (
         '<a class="notif-item" href="' + escapeHtml(n.link) + '" data-id="' + escapeHtml(n.id) + '">' +
         '<span class="notif-item-icon">' + icon + '</span>' +
