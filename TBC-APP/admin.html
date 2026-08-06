@@ -4,14 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - TBC Church App</title>
+    <script src="theme.js"></script>
     <link rel="stylesheet" href="style.css">
     <style>
         .user-card {
-            background: white;
+            background: var(--surface, #fff);
+            color: var(--text, #404040);
+            border: 1px solid var(--border, rgba(122,143,172,.35));
             border-radius: 12px;
             padding: 16px;
             margin: 12px 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow, 0 2px 8px rgba(0,0,0,0.1));
         }
         .user-header {
             display: flex;
@@ -19,33 +22,45 @@
             align-items: center;
             margin-bottom: 12px;
         }
-        .user-name { font-weight: bold; font-size: 1.1rem; }
-        .user-email { color: #666; font-size: 0.9rem; }
+        .user-name { font-weight: bold; font-size: 1.1rem; color: var(--text, #404040); }
+        .user-email { color: var(--muted, #666); font-size: 0.9rem; }
         .profile-fields {
-            background: #f8f9fa;
+            background: var(--input-bg, #f8f9fa);
+            color: var(--text, #404040);
             padding: 10px 12px;
             border-radius: 8px;
             margin: 10px 0;
             font-size: 0.9rem;
+            border: 1px solid var(--border, rgba(122,143,172,.25));
         }
         .profile-fields div { margin: 4px 0; }
-        .role-select {
+        .role-select,
+        .admin-edit-area {
             width: 100%;
             padding: 8px;
             margin: 6px 0 12px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border, #ddd);
             border-radius: 8px;
+            background: var(--input-bg, #fff);
+            color: var(--text, #404040);
+            box-sizing: border-box;
+            font-size: 0.9rem;
+            font-family: inherit;
+        }
+        .admin-edit-area {
+            min-height: 72px;
+            resize: vertical;
         }
         .section-label {
             display: block;
             font-weight: 600;
             font-size: 0.9rem;
-            color: #404040;
+            color: var(--text, #404040);
             margin: 12px 0 6px;
         }
         .hint {
             font-size: 0.8rem;
-            color: #7a8fac;
+            color: var(--muted, #7a8fac);
             margin: 0 0 8px;
         }
         .ministry-checkboxes {
@@ -58,20 +73,22 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            background: #f8f9fa;
+            background: var(--input-bg, #f8f9fa);
+            color: var(--text, #404040);
             padding: 6px 12px;
             border-radius: 8px;
             font-size: 0.9rem;
+            border: 1px solid var(--border, rgba(122,143,172,.25));
         }
         .leader-box {
-            background: #eef8f8;
+            background: var(--input-bg, #eef8f8);
             border: 1px solid #4cb8b9;
             border-radius: 10px;
             padding: 12px;
             margin: 10px 0 14px;
         }
         .leader-box .ministry-checkboxes label {
-            background: #fff;
+            background: var(--surface, #fff);
         }
         .save-btn {
             background: linear-gradient(135deg, #4cb8b9, #7bafdd);
@@ -83,8 +100,24 @@
             cursor: pointer;
             width: 100%;
         }
-        .pending { background: #fff3cd; }
-        .approved { background: #d4edda; }
+        .pending {
+            background: #fff3cd;
+            color: #404040;
+        }
+        .approved {
+            background: #d4edda;
+            color: #404040;
+        }
+        [data-theme="dark"] .pending {
+            background: #5c4b1a;
+            color: #ffe9a8;
+            border-color: #8a7020;
+        }
+        [data-theme="dark"] .approved {
+            background: #1e4d32;
+            color: #b8f0c8;
+            border-color: #2e7d4f;
+        }
         .badge {
             display: inline-block;
             font-size: 0.75rem;
@@ -109,34 +142,23 @@
             height: 72px;
             border-radius: 50%;
             object-fit: cover;
-            background: #e0e0e0;
+            background: var(--cream, #e0e0e0);
             border: 2px solid #4cb8b9;
         }
         .admin-avatar-placeholder {
             width: 72px;
             height: 72px;
             border-radius: 50%;
-            background: #eef8f8;
-            border: 2px dashed #7a8fac;
+            background: var(--input-bg, #eef8f8);
+            border: 2px dashed var(--muted, #7a8fac);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #7a8fac;
+            color: var(--muted, #7a8fac);
             font-size: 0.75rem;
             text-align: center;
         }
-        .admin-edit-area {
-            width: 100%;
-            min-height: 72px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            box-sizing: border-box;
-            resize: vertical;
-            font-family: inherit;
-        }
-        .photo-status { font-size: 0.8rem; color: #7a8fac; margin-top: 4px; }
+        .photo-status { font-size: 0.8rem; color: var(--muted, #7a8fac); margin-top: 4px; }
     </style>
 </head>
 <body>
