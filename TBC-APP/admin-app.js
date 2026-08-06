@@ -1,5 +1,34 @@
 const MINISTRY_CHATS = ['Whole Church', 'Music Ministry', 'Sentry', 'Nursery', 'Media'];
         const storage = firebase.storage();
+        var allAdminUsers = [];
+
+        function filterAdminUsers() {
+            const container = document.getElementById('users-list');
+            const countEl = document.getElementById('adminSearchCount');
+            const q = ((document.getElementById('adminSearch') || {}).value || '').trim().toLowerCase();
+            if (!container) return;
+            container.innerHTML = '';
+            var shown = 0;
+            allAdminUsers.forEach(function(user) {
+                var name = (user.name || '').toLowerCase();
+                var email = (user.email || '').toLowerCase();
+                var phone = (user.phone || '').toLowerCase();
+                if (!q || name.indexOf(q) !== -1 || email.indexOf(q) !== -1 || phone.indexOf(q) !== -1) {
+                    container.appendChild(createUserCard(user));
+                    shown++;
+                }
+            });
+            if (countEl) {
+                if (!allAdminUsers.length) countEl.textContent = '';
+                else if (!q) countEl.textContent = allAdminUsers.length + ' member' + (allAdminUsers.length === 1 ? '' : 's');
+                else countEl.textContent = shown + ' of ' + allAdminUsers.length + ' match' + (shown === 1 ? '' : 'es');
+            }
+            if (!shown) {
+                container.innerHTML = q
+                    ? '<p class="hint">No members match "' + q.replace(/</g,'&lt;') + '".</p>'
+                    : '<p class="hint">No users found.</p>';
+            }
+        }
 
         async function loadUsers() {
             const container = document.getElementById('users-list');
@@ -24,9 +53,11 @@ const MINISTRY_CHATS = ['Whole Church', 'Music Ministry', 'Sentry', 'Nursery', '
                     });
                 } catch (ge) { console.warn('musicGroups load for admin', ge); }
 
-                container.innerHTML = '';
+                allAdminUsers = [];
                 if (snapshot.empty) {
                     container.innerHTML = 'No users found in the database.';
+                    var countEl = document.getElementById('adminSearchCount');
+                    if (countEl) countEl.textContent = '';
                     return;
                 }
                 snapshot.forEach(function(doc) {
@@ -38,8 +69,12 @@ const MINISTRY_CHATS = ['Whole Church', 'Music Ministry', 'Sentry', 'Nursery', '
                         if (merged.indexOf(n) === -1) merged.push(n);
                     });
                     user.musicGroupNames = merged;
-                    container.appendChild(createUserCard(user));
+                    allAdminUsers.push(user);
                 });
+                allAdminUsers.sort(function(a, b) {
+                    return (a.name || a.email || '').localeCompare(b.name || b.email || '');
+                });
+                filterAdminUsers();
             } catch (err) {
                 console.error('loadUsers error', err);
                 container.innerHTML = 'Error loading users: ' + err.message;
@@ -79,9 +114,9 @@ const MINISTRY_CHATS = ['Whole Church', 'Music Ministry', 'Sentry', 'Nursery', '
 
             const joinedVal = user.churchJoinedYear || (user.churchJoinedDate ? String(user.churchJoinedDate).slice(0,4) : '');
             const birthdayVal = user.birthday || '';
-            const phoneVal = (user.phone || '').replace(/"/g, '"');
-            const addressVal = (user.address || '').replace(/"/g, '"');
-            const nameVal = (user.name || '').replace(/"/g, '"');
+            const phoneVal = (user.phone || '').replace(/"/g, '&quot;');
+            const addressVal = (user.address || '').replace(/"/g, '&quot;');
+            const nameVal = (user.name || '').replace(/"/g, '&quot;');
 
             let profileHTML = '<div class="profile-fields">';
             profileHTML += '<label class="section-label" style="margin-top:0">Member info (admin can edit)</label>';
@@ -103,7 +138,7 @@ const MINISTRY_CHATS = ['Whole Church', 'Music Ministry', 'Sentry', 'Nursery', '
             profileHTML += '<label class="section-label" style="margin-top:10px">Profile photo</label>';
             profileHTML += '<div class="admin-avatar-row">';
             if (photoURL) {
-                profileHTML += '<img class="admin-avatar" id="avatar-img-' + user.uid + '" src="' + photoURL.replace(/"/g, '"') + '" alt="Photo">';
+                profileHTML += '<img class="admin-avatar" id="avatar-img-' + user.uid + '" src="' + photoURL.replace(/"/g, '&quot;') + '" alt="Photo">';
             } else {
                 profileHTML += '<div class="admin-avatar-placeholder" id="avatar-ph-' + user.uid + '">No<br>photo</div>';
                 profileHTML += '<img class="admin-avatar" id="avatar-img-' + user.uid + '" src="" alt="Photo" style="display:none">';
@@ -111,16 +146,16 @@ const MINISTRY_CHATS = ['Whole Church', 'Music Ministry', 'Sentry', 'Nursery', '
             profileHTML += '<div style="flex:1">';
             profileHTML += '<input type="file" accept="image/*" id="photo-file-' + user.uid + '" onchange="adminUploadPhoto(\'' + user.uid + '\', this)">';
             profileHTML += '<div class="photo-status" id="photo-status-' + user.uid + '"></div>';
-            profileHTML += '<input type="hidden" id="photoURL-' + user.uid + '" value="' + photoURL.replace(/"/g, '"') + '">';
+            profileHTML += '<input type="hidden" id="photoURL-' + user.uid + '" value="' + photoURL.replace(/"/g, '&quot;') + '">';
             profileHTML += '</div></div>';
 
             profileHTML += '<label class="section-label" for="songs-' + user.uid + '">Songs (one per line)</label>';
             profileHTML += '<p class="hint" style="margin-top:0">These are songs this person can sing. Edit freely — as many as you want.</p>';
-            profileHTML += '<textarea class="admin-edit-area" id="songs-' + user.uid + '" rows="5" placeholder="Amazing Grace\nHow Great Thou Art">' + songs.map(function(s){ return String(s).replace(/</g,'<'); }).join('\n') + '</textarea>';
+            profileHTML += '<textarea class="admin-edit-area" id="songs-' + user.uid + '" rows="5" placeholder="Amazing Grace\nHow Great Thou Art">' + songs.map(function(s){ return String(s).replace(/</g,'&lt;'); }).join('\n') + '</textarea>';
 
             profileHTML += '<label class="section-label" for="groups-' + user.uid + '">Music groups (unlimited — one per line)</label>';
             profileHTML += '<p class="hint" style="margin-top:0">Add as many groups as needed, same as songs. Example: Reese Family, Youth Trio, Choir.</p>';
-            profileHTML += '<textarea class="admin-edit-area" id="groups-' + user.uid + '" rows="5" placeholder="Reese Family\nYouth Trio\nChoir">' + groupNames.map(function(s){ return String(s).replace(/</g,'<'); }).join('\n') + '</textarea>';
+            profileHTML += '<textarea class="admin-edit-area" id="groups-' + user.uid + '" rows="5" placeholder="Reese Family\nYouth Trio\nChoir">' + groupNames.map(function(s){ return String(s).replace(/</g,'&lt;'); }).join('\n') + '</textarea>';
 
             profileHTML += '</div>';
 
@@ -302,6 +337,11 @@ const MINISTRY_CHATS = ['Whole Church', 'Music Ministry', 'Sentry', 'Nursery', '
                 alert('Access denied. Admins only.');
                 window.location.href = 'index.html';
                 return;
+            }
+            var search = document.getElementById('adminSearch');
+            if (search && !search.dataset.bound) {
+                search.dataset.bound = '1';
+                search.addEventListener('input', filterAdminUsers);
             }
             loadUsers();
         });
