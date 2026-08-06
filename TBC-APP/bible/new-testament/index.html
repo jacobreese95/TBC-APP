@@ -1,105 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Testament - TBC Bible</title>
-    <link rel="stylesheet" href="../style.css">
-    <style>
-        .search-count { color: #666; margin: 10px 0; font-size: 0.9rem; }
-        .book-btn.hidden { display: none; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Testament - TBC Bible</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .book-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+    @media (min-width: 480px) {
+      .book-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    .book-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      min-height: 52px;
+      padding: 10px 8px;
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .book-btn:active { transform: scale(0.97); }
+  </style>
 </head>
 <body>
-    <a id="home-logo-btn" class="home-logo-btn" href="../../index.html" title="Home" aria-label="Go to home">
-        <img src="../../tbclogo.jpeg" alt="TBC Home">
-    </a>
-    <button class="hamburger" onclick="toggleMenu()" aria-label="Open menu">
-        <span></span><span></span><span></span>
-    </button>
-    <div class="nav-overlay" id="navOverlay" onclick="toggleMenu()"></div>
-    <div class="nav-drawer" id="navDrawer">
-        <a href="../../index.html">Home</a>
-        <a href="../../calendar.html">Calendar</a>
-        <a href="../../chat.html">Ministry Chats</a>
-        <a href="../index.html">Bible</a>
-        <a href="../../give.html">Give on Tithe.ly</a>
-        <a href="../../sermons.html">Sermons & Live Streams</a>
-        <a href="../../soul-winning.html">Soul Winning</a>
-    </div>
-
-    <header>
-        <h1>New Testament</h1>
-    </header>
-
-    <div class="container">
-        <button class="back-btn" onclick="window.location.href='../index.html'">← Back to Bible</button>
-
-        <input type="text" id="nt-search" class="search-bar" placeholder="Search New Testament books (e.g. John, Romans)..." oninput="searchNT()">
-
-        <div id="search-results"></div>
-
-        <div class="book-list" id="book-list"></div>
-    </div>
-
-    <script src="../bible-chrome.js"></script>
-    <script>
-        function toggleMenu() {
-            document.getElementById('navDrawer').classList.toggle('open');
-            document.getElementById('navOverlay').classList.toggle('open');
-        }
-
-        const newTestamentBooks = [
-            "Matthew", "Mark", "Luke", "John", "Acts",
-            "Romans", "1 Corinthians", "2 Corinthians", "Galatians", "Ephesians",
-            "Philippians", "Colossians", "1 Thessalonians", "2 Thessalonians", "1 Timothy",
-            "2 Timothy", "Titus", "Philemon", "Hebrews", "James",
-            "1 Peter", "2 Peter", "1 John", "2 John", "3 John",
-            "Jude", "Revelation"
-        ];
-
-        const bookList = document.getElementById('book-list');
-
-        newTestamentBooks.forEach(book => {
-            const btn = document.createElement('div');
-            btn.className = 'book-btn';
-            btn.textContent = book;
-            btn.dataset.book = book.toLowerCase();
-
-            btn.onclick = function() {
-                alert("Opening " + book + " (we will build the book pages next)");
-            };
-
-            bookList.appendChild(btn);
-        });
-
-        function searchNT() {
-            const query = document.getElementById('nt-search').value.trim().toLowerCase();
-            const resultsDiv = document.getElementById('search-results');
-            const bookButtons = document.querySelectorAll('.book-btn');
-
-            if (query.length < 1) {
-                resultsDiv.innerHTML = '';
-                bookButtons.forEach(btn => btn.classList.remove('hidden'));
-                return;
-            }
-
-            let visible = 0;
-            bookButtons.forEach(btn => {
-                if (btn.dataset.book.includes(query)) {
-                    btn.classList.remove('hidden');
-                    visible++;
-                } else {
-                    btn.classList.add('hidden');
-                }
-            });
-
-            if (visible === 0) {
-                resultsDiv.innerHTML = '<p class="search-count">No books found for "' + query + '".</p>';
-            } else {
-                resultsDiv.innerHTML = '<p class="search-count">Showing ' + visible + ' matching book' + (visible === 1 ? '' : 's') + '.</p>';
-            }
-        }
-    </script>
+  <a class="home-logo-btn" href="../../index.html" title="Home"><img src="../../tbclogo.jpeg" alt="TBC Home"></a>
+  <button class="hamburger" onclick="toggleMenu()" aria-label="Open menu"><span></span><span></span><span></span></button>
+  <div class="nav-overlay" id="navOverlay" onclick="toggleMenu()"></div>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="../../index.html">Home</a>
+    <a href="../index.html">Bible</a>
+    <a href="../my-notes.html">My Notes</a>
+    <a href="../../sermons.html">Sermons</a>
+  </div>
+  <header><h1>New Testament</h1></header>
+  <div class="container">
+    <button class="back-btn" onclick="window.location.href='../index.html'">← Back to Bible</button>
+    <div class="book-grid" id="bookGrid"></div>
+  </div>
+  <script src="../data/books.js"></script>
+  <script src="../bible-chrome.js"></script>
+  <script>
+    function toggleMenu() {
+      document.getElementById('navDrawer').classList.toggle('open');
+      document.getElementById('navOverlay').classList.toggle('open');
+    }
+    var grid = document.getElementById('bookGrid');
+    KJV_BOOKS.filter(function (b) { return b.testament === 'NT'; }).forEach(function (b) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'book-btn';
+      btn.textContent = b.name;
+      btn.onclick = function () {
+        window.location.href = '../reader.html?book=' + encodeURIComponent(b.name) + '&chapter=1';
+      };
+      grid.appendChild(btn);
+    });
+  </script>
 </body>
 </html>
