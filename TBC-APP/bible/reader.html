@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Bible Reader - TBC</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .reader-toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+    .reader-toolbar select { flex: 1; min-width: 120px; height: 44px; padding: 8px 10px; border: 2px solid var(--border); border-radius: 12px; background: var(--input-bg); color: var(--text); font-size: 0.95rem; }
+    .nav-row { display: flex; gap: 8px; margin: 12px 0 18px; }
+    .nav-row button { flex: 1; margin: 0; height: 44px; font-size: 0.95rem; }
+    .nav-row button:disabled { opacity: 0.45; cursor: default; }
+    .verse-list { margin: 0; padding: 0; list-style: none; }
+    .verse-item { display: flex; gap: 10px; padding: 10px 8px; border-radius: 10px; cursor: pointer; -webkit-tap-highlight-color: transparent; scroll-margin-top: 80px; }
+    .verse-item:hover, .verse-item:active { background: rgba(76, 184, 185, 0.12); }
+    .verse-item.has-note { background: rgba(136, 69, 165, 0.08); }
+    .verse-item.highlight { background: rgba(176, 220, 119, 0.25); outline: 2px solid var(--lime, #b0dc77); }
+    .verse-num { flex-shrink: 0; min-width: 28px; font-weight: 700; color: var(--teal); font-size: 0.9rem; padding-top: 2px; }
+    .verse-text { flex: 1; line-height: 1.55; font-size: 1.05rem; color: var(--text); }
+    .verse-note-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--purple, #8845a5); margin-top: 8px; flex-shrink: 0; }
+    .status-msg { text-align: center; color: var(--muted); padding: 28px 12px; }
+    .status-msg.error { color: #c62828; }
+    .note-sheet-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 4000; }
+    .note-sheet-bg.open { display: block; }
+    .note-sheet { position: fixed; left: 0; right: 0; bottom: 0; max-height: 70vh; background: var(--surface); border-radius: 18px 18px 0 0; box-shadow: 0 -8px 30px rgba(0,0,0,0.2); z-index: 4001; transform: translateY(110%); transition: transform 0.25s ease; padding: 16px 16px 28px; overflow-y: auto; }
+    .note-sheet.open { transform: translateY(0); }
+    .note-sheet h3 { margin: 0 0 4px; font-size: 1.1rem; color: var(--text); }
+    .note-sheet .sheet-verse { font-size: 0.9rem; color: var(--muted); font-style: italic; margin: 0 0 12px; line-height: 1.4; }
+    .note-sheet textarea { width: 100%; min-height: 110px; padding: 12px; border: 2px solid var(--border); border-radius: 12px; background: var(--input-bg); color: var(--text); font-size: 1rem; font-family: inherit; resize: vertical; box-sizing: border-box; }
+    .note-sheet .sheet-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .note-sheet .sheet-actions button { flex: 1; margin: 0; height: 46px; }
+    .btn-secondary { background: var(--input-bg) !important; color: var(--text) !important; border: 2px solid var(--border) !important; box-shadow: none !important; }
+    .chapter-title { text-align: center; font-size: 1.15rem; font-weight: 700; margin: 4px 0 12px; color: var(--text); }
+    .hint { text-align: center; font-size: 0.8rem; color: var(--muted); margin: 0 0 10px; }
+  </style>
+</head>
+<body>
+  <a id="home-logo-btn" class="home-logo-btn" href="../index.html" title="Home" aria-label="Go to home">
+    <img src="../tbclogo.jpeg" alt="TBC Home">
+  </a>
+  <button class="hamburger" onclick="toggleMenu()" aria-label="Open menu"><span></span><span></span><span></span></button>
+  <div class="nav-overlay" id="navOverlay" onclick="toggleMenu()"></div>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="../index.html">Home</a>
+    <a href="index.html">Bible</a>
+    <a href="my-notes.html">My Notes</a>
+    <a href="../calendar.html">Calendar</a>
+    <a href="../sermons.html">Sermons</a>
+  </div>
+  <header><h1 id="pageTitle">King James Bible</h1></header>
+  <div class="container">
+    <button class="back-btn" type="button" id="backBtn">← Books</button>
+    <div class="reader-toolbar">
+      <select id="bookSelect" aria-label="Book"></select>
+      <select id="chapterSelect" aria-label="Chapter"></select>
+    </div>
+    <div class="nav-row">
+      <button type="button" id="prevBtn">← Prev</button>
+      <button type="button" id="nextBtn">Next →</button>
+    </div>
+    <p class="chapter-title" id="chapterTitle">Loading…</p>
+    <p class="hint">Tap a verse to add a personal note</p>
+    <div id="content"><p class="status-msg">Loading chapter…</p></div>
+  </div>
+  <div class="note-sheet-bg" id="noteBg"></div>
+  <div class="note-sheet" id="noteSheet" role="dialog" aria-modal="true">
+    <h3 id="noteRef">Verse</h3>
+    <p class="sheet-verse" id="noteVerseText"></p>
+    <textarea id="noteText" placeholder="Write your personal note for this verse…"></textarea>
+    <div class="sheet-actions">
+      <button type="button" class="btn-secondary" id="noteCancel">Close</button>
+      <button type="button" id="noteSave">Save note</button>
+    </div>
+  </div>
+  <script src="data/books.js"></script>
+  <script src="bible-chrome.js"></script>
+  <script>
+    function toggleMenu() {
+      document.getElementById('navDrawer').classList.toggle('open');
+      document.getElementById('navOverlay').classList.toggle('open');
+    }
+    var bookCache = {};
+    var currentBook = null;
+    var currentChapter = 1;
+    var activeRef = null;
+    var activeVerseId = null;
+
+    function qs(name) {
+      return new URLSearchParams(window.location.search).get(name);
+    }
+    function setUrl(book, chapter, verse) {
+      var u = new URL(window.location.href);
+      u.searchParams.set('book', book.name);
+      u.searchParams.set('chapter', String(chapter));
+      if (verse) u.searchParams.set('verse', String(verse));
+      else u.searchParams.delete('verse');
+      history.replaceState(null, '', u.pathname + u.search);
+    }
+    function fillBookSelect() {
+      var sel = document.getElementById('bookSelect');
+      sel.innerHTML = KJV_BOOKS.map(function (b) {
+        return '<option value="' + b.name + '">' + b.name + '</option>';
+      }).join('');
+    }
+    function fillChapterSelect(book) {
+      var sel = document.getElementById('chapterSelect');
+      var html = '';
+      for (var i = 1; i <= book.chapters; i++) html += '<option value="' + i + '">' + i + '</option>';
+      sel.innerHTML = html;
+    }
+    async function loadBookData(book) {
+      if (bookCache[book.file]) return bookCache[book.file];
+      var res = await fetch(KJV_CDN + book.file + '.json');
+      if (!res.ok) throw new Error('Could not load ' + book.name);
+      var data = await res.json();
+      bookCache[book.file] = data;
+      return data;
+    }
+    function hasNote(ref) {
+      try {
+        var t = localStorage.getItem(noteKey(ref));
+        return !!(t && t.trim());
+      } catch (e) { return false; }
+    }
+    function escapeHtml(str) {
+      return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    function renderVerses(book, chapter, verses, highlightVerse) {
+      var list = document.createElement('ul');
+      list.className = 'verse-list';
+      verses.forEach(function (v) {
+        var num = parseInt(v.verse, 10);
+        var ref = verseRef(book, chapter, num);
+        var vid = verseId(book, chapter, num);
+        var li = document.createElement('li');
+        li.className = 'verse-item' + (hasNote(ref) ? ' has-note' : '') + (highlightVerse && num === highlightVerse ? ' highlight' : '');
+        li.id = 'v-' + num;
+        li.innerHTML = '<span class="verse-num">' + num + '</span><span class="verse-text">' + escapeHtml(v.text) + '</span>' +
+          (hasNote(ref) ? '<span class="verse-note-dot" title="Has note"></span>' : '');
+        li.addEventListener('click', function () { openNote(ref, vid, v.text); });
+        list.appendChild(li);
+      });
+      var content = document.getElementById('content');
+      content.innerHTML = '';
+      content.appendChild(list);
+      if (highlightVerse) {
+        setTimeout(function () {
+          var el = document.getElementById('v-' + highlightVerse);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 80);
+      }
+    }
+    async function showChapter(book, chapter, highlightVerse) {
+      currentBook = book;
+      currentChapter = chapter;
+      document.getElementById('bookSelect').value = book.name;
+      fillChapterSelect(book);
+      document.getElementById('chapterSelect').value = String(chapter);
+      document.getElementById('pageTitle').textContent = book.name;
+      document.getElementById('chapterTitle').textContent = book.name + ' ' + chapter;
+      document.getElementById('content').innerHTML = '<p class="status-msg">Loading…</p>';
+      document.getElementById('prevBtn').disabled = (chapter <= 1);
+      document.getElementById('nextBtn').disabled = (chapter >= book.chapters);
+      document.getElementById('backBtn').textContent = book.testament === 'OT' ? '← Old Testament' : '← New Testament';
+      document.getElementById('backBtn').onclick = function () {
+        window.location.href = book.testament === 'OT' ? 'old-testament/index.html' : 'new-testament/index.html';
+      };
+      try {
+        var data = await loadBookData(book);
+        var ch = (data.chapters || []).find(function (c) { return String(c.chapter) === String(chapter); });
+        if (!ch || !ch.verses || !ch.verses.length) {
+          document.getElementById('content').innerHTML = '<p class="status-msg error">Chapter not found.</p>';
+          return;
+        }
+        setUrl(book, chapter, highlightVerse || null);
+        renderVerses(book, chapter, ch.verses, highlightVerse || null);
+      } catch (e) {
+        console.error(e);
+        document.getElementById('content').innerHTML = '<p class="status-msg error">Could not load this book. Check your connection and try again.</p>';
+      }
+    }
+    function openNote(ref, vid, text) {
+      activeRef = ref;
+      activeVerseId = vid;
+      document.getElementById('noteRef').textContent = ref;
+      document.getElementById('noteVerseText').textContent = text || '';
+      var existing = '';
+      try { existing = localStorage.getItem(noteKey(ref)) || ''; } catch (e) {}
+      document.getElementById('noteText').value = existing;
+      document.getElementById('noteBg').classList.add('open');
+      document.getElementById('noteSheet').classList.add('open');
+      setTimeout(function () { document.getElementById('noteText').focus(); }, 200);
+    }
+    function closeNote() {
+      document.getElementById('noteBg').classList.remove('open');
+      document.getElementById('noteSheet').classList.remove('open');
+      activeRef = null;
+      activeVerseId = null;
+    }
+    function saveNote() {
+      if (!activeRef) return;
+      var text = document.getElementById('noteText').value || '';
+      try {
+        if (text.trim() === '') localStorage.removeItem(noteKey(activeRef));
+        else localStorage.setItem(noteKey(activeRef), text);
+        if (activeVerseId) {
+          if (text.trim() === '') localStorage.removeItem('noteid-' + activeVerseId);
+          else localStorage.setItem('noteid-' + activeVerseId, text);
+        }
+      } catch (e) {
+        alert('Could not save note on this device.');
+        return;
+      }
+      closeNote();
+      if (currentBook) showChapter(currentBook, currentChapter, null);
+    }
+    function goRelative(delta) {
+      if (!currentBook) return;
+      var next = currentChapter + delta;
+      if (next < 1 || next > currentBook.chapters) return;
+      showChapter(currentBook, next, null);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function init() {
+      fillBookSelect();
+      document.getElementById('bookSelect').addEventListener('change', function () {
+        var b = findKjvBook(this.value);
+        if (b) showChapter(b, 1, null);
+      });
+      document.getElementById('chapterSelect').addEventListener('change', function () {
+        if (!currentBook) return;
+        showChapter(currentBook, parseInt(this.value, 10) || 1, null);
+      });
+      document.getElementById('prevBtn').addEventListener('click', function () { goRelative(-1); });
+      document.getElementById('nextBtn').addEventListener('click', function () { goRelative(1); });
+      document.getElementById('noteCancel').addEventListener('click', closeNote);
+      document.getElementById('noteBg').addEventListener('click', closeNote);
+      document.getElementById('noteSave').addEventListener('click', saveNote);
+      var bookName = qs('book') || 'Genesis';
+      var chapter = parseInt(qs('chapter') || '1', 10) || 1;
+      var verse = qs('verse') ? parseInt(qs('verse'), 10) : null;
+      var book = findKjvBook(bookName) || KJV_BOOKS[0];
+      if (chapter < 1) chapter = 1;
+      if (chapter > book.chapters) chapter = book.chapters;
+      showChapter(book, chapter, verse);
+    }
+    init();
+  </script>
+</body>
+</html>
