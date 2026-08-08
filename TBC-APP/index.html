@@ -75,6 +75,52 @@
             color: var(--text);
             letter-spacing: 0.01em;
         }
+        .home-tile.events-tile {
+            grid-column: 1 / -1;
+            min-height: 96px;
+            flex-direction: row;
+            justify-content: flex-start;
+            gap: 14px;
+            padding: 14px 16px;
+            text-align: left;
+        }
+        .home-tile.events-tile .tile-icon {
+            flex-shrink: 0;
+        }
+        .events-tile-body {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: flex-start;
+        }
+        .events-tile-kicker {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--teal, #4cb8b9);
+        }
+        .events-tile-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.3;
+            width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            transition: opacity 0.35s ease;
+        }
+        .events-tile-title.fade {
+            opacity: 0;
+        }
+        .events-tile-date {
+            font-size: 0.8rem;
+            color: var(--muted, #7a8fac);
+            font-weight: 600;
+        }
         #bottomAuth {
             max-width: 420px;
             margin-left: auto;
@@ -122,6 +168,15 @@
 
     <div class="container">
         <div class="home-grid" id="homeGrid">
+            <button type="button" class="home-tile events-tile" id="btn-upcoming-events" onclick="goToProtected('calendar.html')" title="View calendar">
+                <span class="tile-icon" aria-hidden="true">🗓️</span>
+                <span class="events-tile-body">
+                    <span class="events-tile-kicker">Coming up</span>
+                    <span class="events-tile-title" id="upcomingEventTitle">Loading events…</span>
+                    <span class="events-tile-date" id="upcomingEventDate"></span>
+                </span>
+            </button>
+
             <button type="button" class="home-tile" onclick="window.location.href='bible/index.html'">
                 <span class="tile-icon" aria-hidden="true">📖</span>
                 <span class="tile-label">Bible</span>
@@ -194,6 +249,94 @@
             }
         }
 
+        var upcomingEvents = [];
+        var upcomingIndex = 0;
+        var upcomingTimer = null;
+
+        function formatEventDate(dateStr) {
+            if (!dateStr) return '';
+            var parts = String(dateStr).split('-');
+            if (parts.length < 3) return dateStr;
+            var d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+            if (isNaN(d.getTime())) return dateStr;
+            return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+        }
+
+        function showUpcomingSlide() {
+            var titleEl = document.getElementById('upcomingEventTitle');
+            var dateEl = document.getElementById('upcomingEventDate');
+            if (!titleEl || !dateEl) return;
+            if (!upcomingEvents.length) {
+                titleEl.textContent = 'No upcoming Whole Church events';
+                dateEl.textContent = 'Tap for calendar';
+                return;
+            }
+            var ev = upcomingEvents[upcomingIndex % upcomingEvents.length];
+            titleEl.classList.add('fade');
+            setTimeout(function () {
+                titleEl.textContent = ev.title || 'Event';
+                dateEl.textContent = formatEventDate(ev.date);
+                titleEl.classList.remove('fade');
+            }, 200);
+        }
+
+        function startUpcomingCycle() {
+            if (upcomingTimer) clearInterval(upcomingTimer);
+            showUpcomingSlide();
+            if (upcomingEvents.length < 2) return;
+            upcomingTimer = setInterval(function () {
+                upcomingIndex = (upcomingIndex + 1) % upcomingEvents.length;
+                showUpcomingSlide();
+            }, 4000);
+        }
+
+        async function loadUpcomingWholeChurchEvents() {
+            var titleEl = document.getElementById('upcomingEventTitle');
+            var dateEl = document.getElementById('upcomingEventDate');
+            try {
+                var today = new Date();
+                var todayStr = today.getFullYear() + '-' +
+                    String(today.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(today.getDate()).padStart(2, '0');
+
+                var snap;
+                try {
+                    snap = await db.collection('events')
+                        .where('ministry', '==', 'Whole Church')
+                        .where('date', '>=', todayStr)
+                        .orderBy('date', 'asc')
+                        .limit(12)
+                        .get();
+                } catch (qErr) {
+                    // Fallback if composite index is missing
+                    snap = await db.collection('events')
+                        .where('ministry', '==', 'Whole Church')
+                        .get();
+                }
+
+                upcomingEvents = [];
+                snap.forEach(function (doc) {
+                    var d = doc.data() || {};
+                    if (!d.date || d.date < todayStr) return;
+                    upcomingEvents.push({
+                        id: doc.id,
+                        title: d.title || d.groupName || 'Church event',
+                        date: d.date
+                    });
+                });
+                upcomingEvents.sort(function (a, b) {
+                    return String(a.date).localeCompare(String(b.date));
+                });
+                upcomingEvents = upcomingEvents.slice(0, 12);
+                upcomingIndex = 0;
+                startUpcomingCycle();
+            } catch (e) {
+                console.warn('upcoming events', e);
+                if (titleEl) titleEl.textContent = 'Upcoming events';
+                if (dateEl) dateEl.textContent = 'Open calendar to view';
+            }
+        }
+
         auth.onAuthStateChanged(async function (user) {
             const bottom = document.getElementById('bottomAuth');
             const drawerProfile = document.getElementById('drawer-profile');
@@ -229,6 +372,10 @@
                 btnUpload.style.display = 'none';
                 if (btnProfile) btnProfile.style.display = 'none';
                 if (btnAdmin) btnAdmin.style.display = 'none';
+                var t = document.getElementById('upcomingEventTitle');
+                var d = document.getElementById('upcomingEventDate');
+                if (t) t.textContent = 'Log in to see events';
+                if (d) d.textContent = 'Whole Church calendar';
                 return;
             }
 
@@ -264,6 +411,14 @@
                     drawerDirectory.style.display = 'none';
                     btnDirectory.style.display = 'none';
                     if (btnProfile) btnProfile.style.display = 'none';
+                }
+                if (profile && profile.approved) {
+                    loadUpcomingWholeChurchEvents();
+                } else {
+                    var t2 = document.getElementById('upcomingEventTitle');
+                    var d2 = document.getElementById('upcomingEventDate');
+                    if (t2) t2.textContent = 'Approval pending';
+                    if (d2) d2.textContent = 'Events unlock after approval';
                 }
             } catch (e) {}
         });
