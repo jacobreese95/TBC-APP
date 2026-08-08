@@ -14,10 +14,10 @@ input.form-input,textarea.form-input,select.form-input{width:100%;padding:12px;m
 .cal-nav{display:flex;gap:8px;align-items:center;justify-content:center;margin:12px 0}
 .cal-nav button{flex:1}
 #cal-month-year{text-align:center;margin:8px 0 4px}
-#calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+#calendar-grid,.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
 .day-header{text-align:center;font-size:.75rem;font-weight:700;color:#7a8fac;padding:6px 0}
-.day{min-height:72px;border:1px solid #eee;border-radius:8px;padding:4px;background:#fff;cursor:pointer}
-.day.empty{background:transparent;border:none;cursor:default}
+.day-cell,.day{min-height:72px;border:1px solid #eee;border-radius:8px;padding:4px;background:#fff;cursor:pointer}
+.day-cell.other-month,.day.empty{background:#f8f8f8;color:#aaa;border:1px solid #eee}
 .day-number{font-size:.8rem;font-weight:700;margin-bottom:2px}
 .event{font-size:.65rem;color:#fff;border-radius:4px;padding:2px 4px;margin:2px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .event .ev-name{display:block;font-weight:700}
@@ -59,19 +59,20 @@ input.form-input,textarea.form-input,select.form-input{width:100%;padding:12px;m
 <header><h1>Calendar</h1></header>
 <div class="container">
 <button class="back-btn" onclick="location.href='index.html'">← Back to Home</button>
-<div id="filter-bar" style="display:flex;flex-wrap:wrap;gap:8px;margin:12px 0"></div>
+<div id="filter-bar" class="filter-bar" style="display:flex;flex-wrap:wrap;gap:8px;margin:12px 0"></div>
 <div class="cal-nav">
 <button type="button" class="menu-btn" onclick="prevMonth()">Previous</button>
 <button type="button" class="menu-btn" onclick="nextMonth()">Next</button>
 </div>
-<div id="cal-month-year"><span id="cal-month"></span> <span id="cal-year"></span></div>
-<div id="calendar-grid"></div>
+<div id="cal-month-year" style="text-align:center;margin:8px 0"><span id="cal-month"></span> <span id="cal-year"></span></div>
+<div id="calendar-grid" class="calendar-grid"></div>
 <div id="my-requests-section" style="display:none;margin-top:20px">
 <h3>Your schedule requests</h3>
 <div id="my-requests-list"></div>
 </div>
-<div id="add-event-section" style="margin-top:24px">
+<div id="add-event-section" style="display:none;margin-top:24px">
 <h3>Add Event</h3>
+<p id="add-event-hint" style="font-size:.85rem;color:#7a8fac;margin:0 0 8px"></p>
 <label class="form-label" for="event-date">Date *</label>
 <input type="date" id="event-date" class="form-input">
 <div id="eventTimeWrap">
@@ -91,7 +92,10 @@ input.form-input,textarea.form-input,select.form-input{width:100%;padding:12px;m
 <p id="peopleCount" style="font-size:.8rem;color:#7a8fac"></p>
 <div id="groupNameWrap" style="display:none">
 <label class="form-label" for="event-group-name">Group name *</label>
+<div id="groupNameInner" class="person-wrap">
 <input type="text" id="event-group-name" class="form-input" placeholder="Type a group name or pick a saved group…" autocomplete="off" style="margin:0">
+<div id="groupNameResults" class="person-results"></div>
+</div>
 </div>
 <div id="songFieldWrap" style="display:none">
 <label class="form-label" for="event-song">Song (optional for leader)</label>
@@ -99,9 +103,9 @@ input.form-input,textarea.form-input,select.form-input{width:100%;padding:12px;m
 </div>
 <div id="knownSongsWrap" style="display:none"><div id="knownSongs" class="song-chips"></div></div>
 </div>
-<div id="media-roles" style="display:none"></div>
-<div id="nursery-roles" style="display:none"></div>
-<div id="sentry-roles" style="display:none"></div>
+<div id="mediaRolesWrap" style="display:none"></div>
+<div id="nurseryRolesWrap" style="display:none"></div>
+<div id="sentryRolesWrap" style="display:none"></div>
 <button onclick="addEvent()" class="menu-btn" style="margin-top:10px">Add Event</button>
 </div>
 </div>
