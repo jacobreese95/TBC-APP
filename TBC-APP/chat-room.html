@@ -1,1 +1,289 @@
-PLACEHOLDER
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Chat Room - TBC Church App</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        html, body {
+            height: 100%;
+            height: 100dvh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            overscroll-behavior: none;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            right: 0;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 100%;
+        }
+        header {
+            flex-shrink: 0;
+            width: 100%;
+            box-sizing: border-box;
+            padding-left: 56px !important;
+            padding-right: 56px !important;
+            position: relative;
+            z-index: 10;
+        }
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 10px 16px !important;
+            margin: 0 !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            box-sizing: border-box;
+            overflow: hidden;
+            min-height: 0;
+            position: relative;
+            z-index: 1;
+        }
+        .week-header {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 10px;
+            overflow-x: auto;
+            flex-shrink: 0;
+            width: 100%;
+            padding-bottom: 4px;
+        }
+        .week-day {
+            flex: 1;
+            min-width: 72px;
+            text-align: center;
+            padding: 8px 4px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            min-height: 90px;
+        }
+        .week-day.today {
+            border-color: #7bafdd;
+            border-width: 2px;
+            background: #f0f7fc;
+        }
+        .week-day-name {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .week-day-num {
+            font-weight: bold;
+            font-size: 1.05rem;
+            margin: 2px 0 6px;
+            color: #404040;
+        }
+        .week-day-events {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            overflow: hidden;
+        }
+        .week-event {
+            font-size: 0.65rem;
+            background: #4cb8b9;
+            color: white;
+            padding: 2px 4px;
+            border-radius: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.2;
+        }
+        .week-event.church { background: #7bafdd; }
+        .week-event-more { font-size: 0.6rem; color: #666; margin-top: 1px; }
+        .chat-messages {
+            flex: 1 1 auto;
+            height: 0;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: contain;
+            padding: 12px;
+            background: #f9f9f9;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            position: relative;
+            z-index: 1;
+        }
+        .message {
+            margin: 8px 0;
+            padding: 10px 14px;
+            border-radius: 18px;
+            max-width: 85%;
+            word-wrap: break-word;
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            align-items: flex-start;
+        }
+        .message.sent { background: #4cb8b9; color: white; margin-left: auto; }
+        .message.received { background: white; border: 1px solid #ddd; }
+        .message.prayer { background: #f3e8ff; border: 2px solid #8845a5; color: #404040; }
+        .message.prayer strong { color: #8845a5; }
+        .msg-avatar {
+            width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0;
+            background: #dedcd0; border: 2px solid rgba(255,255,255,0.5);
+        }
+        .message.received .msg-avatar { border-color: #4cb8b9; }
+        .message.prayer .msg-avatar { border-color: #8845a5; }
+        .msg-avatar-ph {
+            width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; background: #dedcd0;
+            display: flex; align-items: center; justify-content: center; font-size: 1rem; color: #7a8fac; border: 2px solid #ccc;
+        }
+        .message.sent .msg-avatar-ph { border-color: rgba(255,255,255,0.6); color: #fff; background: rgba(255,255,255,0.25); }
+        .msg-content { flex: 1; min-width: 0; }
+        .msg-content strong { display: block; margin-bottom: 2px; }
+        .prayer-tag { display: inline-block; margin-top: 4px; font-size: 0.8rem; color: #8845a5; font-weight: bold; }
+        .composer {
+            flex-shrink: 0;
+            background: #fff;
+            padding: 10px 0 14px;
+            display: flex;
+            flex-direction: row;
+            align-items: flex-end;
+            gap: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            position: relative;
+            z-index: 50;
+            pointer-events: auto;
+        }
+        .composer textarea {
+            flex: 1;
+            min-width: 0;
+            width: auto;
+            padding: 12px 14px;
+            border: 1px solid #ddd;
+            border-radius: 16px;
+            font-size: 16px;
+            resize: none;
+            min-height: 44px;
+            height: 44px;
+            max-height: 120px;
+            line-height: 1.35;
+            box-sizing: border-box;
+            pointer-events: auto !important;
+            -webkit-user-select: text;
+            user-select: text;
+            position: relative;
+            z-index: 51;
+            background: #fff;
+        }
+        .composer-actions {
+            display: flex;
+            flex-direction: row;
+            gap: 6px;
+            flex-shrink: 0;
+            align-items: center;
+        }
+        .composer button {
+            width: auto !important;
+            min-width: 44px;
+            height: 44px;
+            padding: 0 12px !important;
+            border-radius: 12px !important;
+            background: #4cb8b9 !important;
+            color: white !important;
+            border: none !important;
+            font-weight: 700 !important;
+            font-size: 0.85rem !important;
+            margin: 0 !important;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            pointer-events: auto !important;
+            position: relative;
+            z-index: 51;
+            white-space: nowrap;
+        }
+        .composer .prayer-btn {
+            background: #8845a5 !important;
+            min-width: 44px;
+            padding: 0 10px !important;
+            font-size: 1.15rem !important;
+        }
+        .day-modal {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 100;
+        }
+        .day-modal.open { display: flex; }
+        .day-modal-content {
+            background: white; border-radius: 16px; padding: 20px; width: 90%; max-width: 400px; max-height: 70vh; overflow-y: auto;
+        }
+        .day-modal h3 { margin-top: 0; color: #404040; }
+        .day-event { padding: 12px; border: 1px solid #ddd; border-radius: 12px; margin-bottom: 10px; }
+        .day-event .ministry-tag {
+            display: inline-block; font-size: 0.75rem; background: #e8f4f4; color: #2a7a7b; padding: 2px 8px; border-radius: 10px; margin-top: 6px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <button onclick="history.back()" class="back-btn">← Back</button>
+        <h1 id="room-title">Chat</h1>
+        <button class="hamburger" onclick="toggleDrawer()" aria-label="Open menu">
+            <span></span><span></span><span></span>
+        </button>
+    </header>
+
+    <div class="container">
+        <div class="week-header" id="week-header"></div>
+        <div class="chat-messages" id="chat-messages"></div>
+
+        <div class="composer" id="composer">
+            <textarea id="message-input" placeholder="Type a message..." rows="1"></textarea>
+            <div class="composer-actions">
+                <button type="button" id="sendBtn" title="Send">Send</button>
+                <button type="button" id="prayerBtn" class="prayer-btn" style="display:none;" title="Prayer request">🙏</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-overlay" id="overlay" onclick="toggleDrawer()"></div>
+    <div class="nav-drawer" id="drawer">
+        <h3 style="margin-top:0; color:#404040;">Menu</h3>
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="chat.html">Ministry Chats</a>
+        <a href="bible/index.html">Bible</a>
+        <a href="sermons.html">Sermons</a>
+        <a href="give.html">Give</a>
+        <a href="profile.html">Profile</a>
+        <a href="#" onclick="logoutUser(); return false;" style="color:#8845a5; font-weight:bold; margin-top:20px;">Logout</a>
+    </div>
+
+    <div class="day-modal" id="day-modal" onclick="if (event.target.id === 'day-modal') closeDayModal()">
+        <div class="day-modal-content">
+            <h3 id="day-modal-title"></h3>
+            <div id="day-modal-events"></div>
+            <button onclick="closeDayModal()" style="width:100%; margin-top:10px; background:#7a8fac; color:white; border:none; padding:12px; border-radius:12px; font-weight:bold;">Close</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+    <script src="auth.js"></script>
+    <script src="home-logo.js"></script>
+    <script src="chat-room-app.js"></script>
+</body>
+</html>
