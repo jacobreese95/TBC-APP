@@ -27,12 +27,14 @@
 
     <div class="container" style="max-width:360px; margin-top:60px;">
         <h2 style="text-align:center;">Create an Account</h2>
-        <input type="text" id="name" placeholder="Full Name">
-        <input type="date" id="birthday">
-        <input type="tel" id="phone" placeholder="Phone Number">
-        <input type="email" id="email" placeholder="Email">
-        <input type="text" id="address" placeholder="Address">
-        <input type="password" id="password" placeholder="Password (min 6 characters)">
+        <p style="text-align:center;font-size:0.9rem;color:#7a8fac;margin:0 0 12px;">All fields are required.</p>
+        <input type="text" id="name" placeholder="Full Name *" required autocomplete="name">
+        <label for="birthday" style="display:block;font-size:0.85rem;color:#7a8fac;margin:8px 0 4px;">Birthday *</label>
+        <input type="date" id="birthday" required>
+        <input type="tel" id="phone" placeholder="Phone Number *" required autocomplete="tel">
+        <input type="email" id="email" placeholder="Email *" required autocomplete="email">
+        <input type="text" id="address" placeholder="Address *" required autocomplete="street-address">
+        <input type="password" id="password" placeholder="Password (min 6 characters) *" required minlength="6" autocomplete="new-password">
         <button class="menu-btn" onclick="createAccount()">Create Account</button>
         <p style="text-align:center; margin-top:12px;"><a href="login.html">Already have an account? Login</a></p>
         <p id="error" style="color:#c0392b; text-align:center; display:none;"></p>
@@ -50,14 +52,33 @@
       async function createAccount() {
         const errEl = document.getElementById('error');
         errEl.style.display = 'none';
+
+        const name = document.getElementById('name').value.trim();
+        const birthday = document.getElementById('birthday').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const address = document.getElementById('address').value.trim();
+        const password = document.getElementById('password').value;
+
+        if (!name) { errEl.textContent = 'Full name is required.'; errEl.style.display = 'block'; return; }
+        if (!birthday) { errEl.textContent = 'Birthday is required.'; errEl.style.display = 'block'; return; }
+        if (!phone) { errEl.textContent = 'Phone number is required.'; errEl.style.display = 'block'; return; }
+        if (!email) { errEl.textContent = 'Email is required.'; errEl.style.display = 'block'; return; }
+        if (!address) { errEl.textContent = 'Address is required.'; errEl.style.display = 'block'; return; }
+        if (!password || password.length < 6) {
+          errEl.textContent = 'Password is required (at least 6 characters).';
+          errEl.style.display = 'block';
+          return;
+        }
+
         try {
           await signUpUser({
-            name: document.getElementById('name').value,
-            birthday: document.getElementById('birthday').value,
-            phone: document.getElementById('phone').value,
-            email: document.getElementById('email').value,
-            address: document.getElementById('address').value,
-            password: document.getElementById('password').value
+            name: name,
+            birthday: birthday,
+            phone: phone,
+            email: email,
+            address: address,
+            password: password
           });
           window.location.href = 'pending.html';
         } catch (e) {
