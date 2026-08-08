@@ -17,11 +17,13 @@ if(selectedPeople.length>=2&&!groupName){alert('Please enter a group name for th
 if(selectedPeople.length>=2){title=groupName+(song?' — '+song:'');}
 else{title=selectedPeople.map(p=>p.name).join(', ')+(song?' — '+song:'');}
 }else if(ministry==='Media'||ministry==='Nursery'||ministry==='Sentry'){
-// Handled by calendar-media-roles.js / calendar-nursery-roles.js / calendar-sentry-roles.js
 }else if(!title){alert('Please enter a date and title');return}
 const isAdmin=currentProfile.role==='admin';
 const leaderOf=currentProfile.leaderOf||[];
-if(!isAdmin&&!leaderOf.includes(ministry)){alert('You can only create events for ministries you lead.');return}
+if(editingEventId){
+var existing=allEvents.find(function(e){return e.id===editingEventId});
+if(!existing||!canEditEvent(existing)){alert('You cannot edit this event.');return}
+}else if(!isAdmin&&!leaderOf.includes(ministry)){alert('You can only create events for ministries you lead.');return}
 if(isSchedule&&ministry!=='Media'&&ministry!=='Nursery'&&ministry!=='Sentry'&&!selectedPeople.length){alert('Please assign at least one person for this schedule.');return}
 try{
 const eventData={date,title,description:isMusic?'':desc,ministry,time:time||null,createdByUid:auth.currentUser.uid,createdByName:currentProfile.name||currentProfile.email||'Leader',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
@@ -36,17 +38,28 @@ if(selectedPeople.length>=2&&groupName)eventData.groupName=groupName;
 }
 if(isMusic&&groupName)eventData.groupName=groupName;
 if(isMusic&&song)eventData.song=song;
-const eventRef=await db.collection('events').add(eventData);
-if(isMusic&&groupName&&selectedPeople.length>=2){
+var eventRef;
+if(editingEventId){
+var updates={date:eventData.date,title:eventData.title,description:eventData.description,ministry:eventData.ministry,time:eventData.time||null,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedByUid:auth.currentUser.uid};
+if(eventData.assignedToUid)updates.assignedToUid=eventData.assignedToUid;
+if(eventData.assignedToName)updates.assignedToName=eventData.assignedToName;
+if(eventData.assignedPeople)updates.assignedPeople=eventData.assignedPeople;
+if(eventData.groupName)updates.groupName=eventData.groupName;
+if(eventData.song)updates.song=eventData.song;
+if(eventData.songLeadUid)updates.songLeadUid=eventData.songLeadUid;
+if(eventData.songLeadName)updates.songLeadName=eventData.songLeadName;
+await db.collection('events').doc(editingEventId).update(updates);
+eventRef={id:editingEventId};
+}else{
+eventRef=await db.collection('events').add(eventData);
+}
+if(!editingEventId&&isMusic&&groupName&&selectedPeople.length>=2){
 try{
   const gid=await saveOrUpdateMusicGroup(groupName,selectedPeople,selectedPeople[0],song||null);
   if(gid){try{await eventRef.update({musicGroupId:gid,groupName:groupName})}catch(e){}}
-  else{alert('Warning: group "'+groupName+'" could not be saved. Check Firestore rules for musicGroups.');}
-}catch(ge){
-  alert('Could not save music group "'+groupName+'": '+(ge.message||ge)+'\n\nMake sure Firestore allows read/write on musicGroups.');
+}catch(ge){console.warn(ge)}
 }
-}
-if(isSchedule&&selectedPeople.length){
+if(!editingEventId&&isSchedule&&selectedPeople.length){
 for(let pi=0;pi<selectedPeople.length;pi++){
 const person=selectedPeople[pi];
 const isSongLead=isMusic&&(pi===0);
@@ -54,13 +67,17 @@ await db.collection('scheduleRequests').add({eventId:eventRef.id,date,title,mini
 if(isMusic&&song&&isSongLead){try{await db.collection('users').doc(person.uid).update({songs:firebase.firestore.FieldValue.arrayUnion(song)})}catch(e){}}
 }
 }
-alert(isMusic&&groupName?'Saved group "'+groupName+'" with '+selectedPeople.length+' people'+(song?' · song: '+song:'')+'. Song lead: '+selectedPeople[0].name:(isSchedule?'Event added. Song lead: '+selectedPeople[0].name:'Event added!'));
+var wasEdit=!!editingEventId;
+alert(wasEdit?'Event updated.':(isMusic&&groupName?'Saved group "'+groupName+'" with '+selectedPeople.length+' people.':'Event added!'));
+if(typeof cancelEditEvent==='function'){cancelEditEvent();}
+else{
 document.getElementById('event-date').value='';
 if(document.getElementById('event-time'))document.getElementById('event-time').value='';
 document.getElementById('event-title').value='';
 document.getElementById('event-desc').value='';
 if(document.getElementById('event-song'))document.getElementById('event-song').value='';
 clearSelectedPeople();
+}
 await loadEvents();
 }catch(err){alert('Error: '+err.message)}
 }
@@ -79,7 +96,7 @@ var isMusic=r.ministry==='Music Ministry';
 var isSongLead=!!r.isSongLead||(isMusic&&!r.groupName);
 var songBlock='';
 if(isMusic&&isSongLead){
-songBlock='<label class="form-label" for="req-song-'+r.id+'">Song for this assignment *</label><input type="text" id="req-song-'+r.id+'" class="form-input" placeholder="Enter the song" value="'+escapeHtml(r.song||'')+'"><p style="font-size:.8rem;color:#7a8fac;margin:0 0 8px">You are the song lead (not an app leader). Enter the song when you accept.</p>';
+songBlock='<label class="form-label" for="req-song-'+r.id+'">Song for this assignment *</label><input type="text" id="req-song-'+r.id+'" class="form-input" placeholder="Enter the song" value="'+escapeHtml(r.song||'')+'"><p style="font-size:.8rem;color:#7a8fac;margin:0 0 8px">You are the song lead. Enter the song when you accept.</p>';
 }else if(isMusic&&r.groupName){
 songBlock='<p style="font-size:.85rem;color:#7a8fac;margin:0 0 8px">The song lead will choose the song. You only need to confirm availability.</p>';
 }
@@ -104,16 +121,6 @@ if(song){eventUpdates.song=song;var ed=(await db.collection('events').doc(eventI
 try{await db.collection('events').doc(eventId).update(eventUpdates)}catch(e){}
 }
 if(song&&auth.currentUser){try{await db.collection('users').doc(auth.currentUser.uid).update({songs:firebase.firestore.FieldValue.arrayUnion(song)})}catch(e){}}
-if(song&&eventId){
-try{
-var ed2=(await db.collection('events').doc(eventId).get()).data()||{};
-if(ed2.musicGroupId){await db.collection('musicGroups').doc(ed2.musicGroupId).update({songs:firebase.firestore.FieldValue.arrayUnion(song)})}
-else if(ed2.groupName){
-var gs=await db.collection('musicGroups').where('name','==',ed2.groupName).limit(1).get();
-if(!gs.empty){await gs.docs[0].ref.update({songs:firebase.firestore.FieldValue.arrayUnion(song)})}
-}
-}catch(e){console.warn(e)}
-}
 alert(status==='available'?'Marked available. Thank you!':'Marked not available.');
 }catch(err){alert('Error: '+err.message)}
 }
