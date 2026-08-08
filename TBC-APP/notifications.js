@@ -219,8 +219,10 @@
         .get();
       swSnap.forEach(function (doc) {
         var d = doc.data() || {};
+        var id = 'sw-' + doc.id;
+        if (isSeen(id)) return;
         items.push({
-          id: 'sw-' + doc.id,
+          id: id,
           type: 'soul_winning',
           title: 'Soul winning area assigned',
           body: (d.territoryName || 'An area') + (d.notes ? ' — ' + d.notes : ''),
