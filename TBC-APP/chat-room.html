@@ -158,7 +158,7 @@
             padding: 10px 0 14px;
             display: flex;
             flex-direction: row;
-            align-items: flex-end;
+            align-items: center;
             gap: 8px;
             width: 100%;
             box-sizing: border-box;
@@ -167,18 +167,19 @@
             pointer-events: auto;
         }
         .composer textarea {
-            flex: 1;
+            flex: 1 1 auto;
             min-width: 0;
-            width: auto;
-            padding: 12px 14px;
+            width: 0;
+            height: 44px !important;
+            min-height: 44px !important;
+            max-height: 44px !important;
+            padding: 0 14px !important;
+            margin: 0 !important;
             border: 1px solid #ddd;
-            border-radius: 16px;
+            border-radius: 22px;
             font-size: 16px;
+            line-height: 44px;
             resize: none;
-            min-height: 44px;
-            height: 44px;
-            max-height: 120px;
-            line-height: 1.35;
             box-sizing: border-box;
             pointer-events: auto !important;
             -webkit-user-select: text;
@@ -186,6 +187,7 @@
             position: relative;
             z-index: 51;
             background: #fff;
+            vertical-align: middle;
         }
         .composer-actions {
             display: flex;
@@ -193,33 +195,37 @@
             gap: 6px;
             flex-shrink: 0;
             align-items: center;
+            height: 44px;
         }
         .composer button {
             width: auto !important;
-            min-width: 44px;
-            height: 44px;
-            padding: 0 12px !important;
-            border-radius: 12px !important;
+            min-width: 44px !important;
+            height: 44px !important;
+            padding: 0 14px !important;
+            margin: 0 !important;
+            border-radius: 22px !important;
             background: #4cb8b9 !important;
             color: white !important;
             border: none !important;
             font-weight: 700 !important;
             font-size: 0.85rem !important;
-            margin: 0 !important;
+            line-height: 1 !important;
             display: inline-flex !important;
-            align-items: center;
-            justify-content: center;
-            box-sizing: border-box;
+            align-items: center !important;
+            justify-content: center !important;
+            box-sizing: border-box !important;
             pointer-events: auto !important;
             position: relative;
             z-index: 51;
             white-space: nowrap;
+            flex-shrink: 0;
         }
         .composer .prayer-btn {
             background: #8845a5 !important;
-            min-width: 44px;
-            padding: 0 10px !important;
-            font-size: 1.15rem !important;
+            min-width: 44px !important;
+            width: 44px !important;
+            padding: 0 !important;
+            font-size: 1.2rem !important;
         }
         .day-modal {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
