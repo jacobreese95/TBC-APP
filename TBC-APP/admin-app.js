@@ -1,4 +1,6 @@
 const MINISTRY_CHATS = ['Whole Church', 'Music Ministry', 'Sentry', 'Nursery', 'Media'];
+        // Ministries a person can lead (calendar + Soul Winning map areas)
+        const LEADER_MINISTRIES = ['Whole Church', 'Music Ministry', 'Sentry', 'Nursery', 'Media', 'Soul Winning'];
         const storage = firebase.storage();
         var allAdminUsers = [];
 
@@ -25,7 +27,7 @@ const MINISTRY_CHATS = ['Whole Church', 'Music Ministry', 'Sentry', 'Nursery', '
             }
             if (!shown) {
                 container.innerHTML = q
-                    ? '<p class="hint">No members match "' + q.replace(/</g,'&lt;') + '".</p>'
+                    ? '<p class="hint">No members match "' + q.replace(/</g,'<') + '".</p>'
                     : '<p class="hint">No users found.</p>';
             }
         }
@@ -102,7 +104,7 @@ const MINISTRY_CHATS = ['Whole Church', 'Music Ministry', 'Sentry', 'Nursery', '
             ministryHTML += '</div>';
 
             let leaderHTML = '<div class="ministry-checkboxes">';
-            MINISTRY_CHATS.forEach(chat => {
+            LEADER_MINISTRIES.forEach(chat => {
                 const checked = leaderOf.includes(chat) ? 'checked' : '';
                 leaderHTML += `
                     <label>
@@ -114,9 +116,9 @@ const MINISTRY_CHATS = ['Whole Church', 'Music Ministry', 'Sentry', 'Nursery', '
 
             const joinedVal = user.churchJoinedYear || (user.churchJoinedDate ? String(user.churchJoinedDate).slice(0,4) : '');
             const birthdayVal = user.birthday || '';
-            const phoneVal = (user.phone || '').replace(/"/g, '&quot;');
-            const addressVal = (user.address || '').replace(/"/g, '&quot;');
-            const nameVal = (user.name || '').replace(/"/g, '&quot;');
+            const phoneVal = (user.phone || '').replace(/"/g, '"');
+            const addressVal = (user.address || '').replace(/"/g, '"');
+            const nameVal = (user.name || '').replace(/"/g, '"');
 
             let profileHTML = '<div class="profile-fields">';
             profileHTML += '<label class="section-label" style="margin-top:0">Member info (admin can edit)</label>';
@@ -138,7 +140,7 @@ const MINISTRY_CHATS = ['Whole Church', 'Music Ministry', 'Sentry', 'Nursery', '
             profileHTML += '<label class="section-label" style="margin-top:10px">Profile photo</label>';
             profileHTML += '<div class="admin-avatar-row">';
             if (photoURL) {
-                profileHTML += '<img class="admin-avatar" id="avatar-img-' + user.uid + '" src="' + photoURL.replace(/"/g, '&quot;') + '" alt="Photo">';
+                profileHTML += '<img class="admin-avatar" id="avatar-img-' + user.uid + '" src="' + photoURL.replace(/"/g, '"') + '" alt="Photo">';
             } else {
                 profileHTML += '<div class="admin-avatar-placeholder" id="avatar-ph-' + user.uid + '">No<br>photo</div>';
                 profileHTML += '<img class="admin-avatar" id="avatar-img-' + user.uid + '" src="" alt="Photo" style="display:none">';
@@ -146,16 +148,16 @@ const MINISTRY_CHATS = ['Whole Church', 'Music Ministry', 'Sentry', 'Nursery', '
             profileHTML += '<div style="flex:1">';
             profileHTML += '<input type="file" accept="image/*" id="photo-file-' + user.uid + '" onchange="adminUploadPhoto(\'' + user.uid + '\', this)">';
             profileHTML += '<div class="photo-status" id="photo-status-' + user.uid + '"></div>';
-            profileHTML += '<input type="hidden" id="photoURL-' + user.uid + '" value="' + photoURL.replace(/"/g, '&quot;') + '">';
+            profileHTML += '<input type="hidden" id="photoURL-' + user.uid + '" value="' + photoURL.replace(/"/g, '"') + '">';
             profileHTML += '</div></div>';
 
             profileHTML += '<label class="section-label" for="songs-' + user.uid + '">Songs (one per line)</label>';
             profileHTML += '<p class="hint" style="margin-top:0">These are songs this person can sing. Edit freely — as many as you want.</p>';
-            profileHTML += '<textarea class="admin-edit-area" id="songs-' + user.uid + '" rows="5" placeholder="Amazing Grace\nHow Great Thou Art">' + songs.map(function(s){ return String(s).replace(/</g,'&lt;'); }).join('\n') + '</textarea>';
+            profileHTML += '<textarea class="admin-edit-area" id="songs-' + user.uid + '" rows="5" placeholder="Amazing Grace\nHow Great Thou Art">' + songs.map(function(s){ return String(s).replace(/</g,'<'); }).join('\n') + '</textarea>';
 
             profileHTML += '<label class="section-label" for="groups-' + user.uid + '">Music groups (unlimited — one per line)</label>';
             profileHTML += '<p class="hint" style="margin-top:0">Add as many groups as needed, same as songs. Example: Reese Family, Youth Trio, Choir.</p>';
-            profileHTML += '<textarea class="admin-edit-area" id="groups-' + user.uid + '" rows="5" placeholder="Reese Family\nYouth Trio\nChoir">' + groupNames.map(function(s){ return String(s).replace(/</g,'&lt;'); }).join('\n') + '</textarea>';
+            profileHTML += '<textarea class="admin-edit-area" id="groups-' + user.uid + '" rows="5" placeholder="Reese Family\nYouth Trio\nChoir">' + groupNames.map(function(s){ return String(s).replace(/</g,'<'); }).join('\n') + '</textarea>';
 
             profileHTML += '</div>';
 
@@ -189,8 +191,8 @@ const MINISTRY_CHATS = ['Whole Church', 'Music Ministry', 'Sentry', 'Nursery', '
                 ${ministryHTML}
 
                 <div class="leader-box" id="leader-section-${user.uid}" style="display:${user.role === 'leader' || user.role === 'admin' || leaderOf.length ? 'block' : 'none'};">
-                    <label class="section-label" style="margin-top:0;">Leader of (calendar events)</label>
-                    <p class="hint">Leaders can create calendar events only for the ministries checked here. Admins can always create for any ministry.</p>
+                    <label class="section-label" style="margin-top:0;">Leader of</label>
+                    <p class="hint">Check ministries they lead. Calendar ministries can create events. <strong>Soul Winning</strong> lets them draw and assign map areas.</p>
                     ${leaderHTML}
                 </div>
 
