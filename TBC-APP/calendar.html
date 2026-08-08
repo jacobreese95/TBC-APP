@@ -11,9 +11,6 @@ label.form-label{display:block;font-weight:600;margin:10px 0 4px;color:#404040}
 .media-role-row .form-label{margin:8px 0 4px}
 input.form-input,textarea.form-input,select.form-input{width:100%;padding:12px;margin:8px 0;border:1px solid #ddd;border-radius:8px;box-sizing:border-box}
 .ministry-tag{display:inline-block;font-size:.75rem;color:#fff;padding:2px 8px;border-radius:10px;margin-top:6px}
-.cal-nav{display:flex;gap:8px;align-items:center;justify-content:center;margin:12px 0}
-.cal-nav button{flex:1}
-#cal-month-year{text-align:center;margin:8px 0 4px}
 #calendar-grid,.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
 .day-header{text-align:center;font-size:.75rem;font-weight:700;color:#7a8fac;padding:6px 0}
 .day-cell,.day{min-height:72px;border:1px solid #eee;border-radius:8px;padding:4px;background:#fff;cursor:pointer}
@@ -38,6 +35,47 @@ input.form-input,textarea.form-input,select.form-input{width:100%;padding:12px;m
 .req-actions{display:flex;gap:8px}
 .btn-available{background:#27ae60;color:#fff;border:none;padding:10px 14px;border-radius:10px;font-weight:700}
 .btn-unavailable{background:#c0392b;color:#fff;border:none;padding:10px 14px;border-radius:10px;font-weight:700}
+/* Small ministry filter buttons */
+.option-grid.compact.filter-bar{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin:12px 0 16px;
+  padding:0;
+}
+.option-grid.compact.filter-bar .option-tile{
+  min-height:72px !important;
+  padding:10px 4px 8px !important;
+  gap:6px !important;
+  border-radius:12px !important;
+}
+.option-grid.compact.filter-bar .option-tile .tile-icon{
+  width:32px !important;
+  height:32px !important;
+  font-size:1.1rem !important;
+  border-radius:10px !important;
+}
+.option-grid.compact.filter-bar .option-tile .tile-label{
+  font-size:0.68rem !important;
+  line-height:1.15 !important;
+}
+/* Month nav: small equal buttons, month/year below */
+.cal-nav{margin:12px 0 16px;text-align:center}
+.cal-nav-btns{display:flex;gap:10px;width:100%;margin-bottom:10px}
+.cal-nav-btn{
+  flex:1;
+  padding:10px 8px;
+  border-radius:12px;
+  border:2px solid #4cb8b9;
+  background:#fff;
+  color:#4cb8b9;
+  font-weight:700;
+  cursor:pointer;
+  font-size:0.9rem;
+}
+.cal-nav-label{text-align:center}
+.cal-nav-label #cal-month{display:block;font-size:1.25rem;font-weight:700;color:var(--text,#404040)}
+.cal-nav-label #cal-year{display:block;font-size:0.95rem;font-weight:600;color:#7a8fac}
 </style>
 </head>
 <body>
@@ -59,12 +97,17 @@ input.form-input,textarea.form-input,select.form-input{width:100%;padding:12px;m
 <header><h1>Calendar</h1></header>
 <div class="container">
 <button class="back-btn" onclick="location.href='index.html'">← Back to Home</button>
-<div id="filter-bar" class="filter-bar" style="display:flex;flex-wrap:wrap;gap:8px;margin:12px 0"></div>
+<div class="option-grid compact filter-bar" id="filter-bar"></div>
 <div class="cal-nav">
-<button type="button" class="menu-btn" onclick="prevMonth()">Previous</button>
-<button type="button" class="menu-btn" onclick="nextMonth()">Next</button>
+<div class="cal-nav-btns">
+<button type="button" class="cal-nav-btn" onclick="prevMonth()">< Prev</button>
+<button type="button" class="cal-nav-btn" onclick="nextMonth()">Next ></button>
 </div>
-<div id="cal-month-year" style="text-align:center;margin:8px 0"><span id="cal-month"></span> <span id="cal-year"></span></div>
+<div class="cal-nav-label">
+<span id="cal-month"></span>
+<span id="cal-year"></span>
+</div>
+</div>
 <div id="calendar-grid" class="calendar-grid"></div>
 <div id="my-requests-section" style="display:none;margin-top:20px">
 <h3>Your schedule requests</h3>
