@@ -1,1 +1,146 @@
-PLACEHOLDER_DO_NOT
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendar - TBC</title>
+<script src="theme.js"></script>
+<link rel="stylesheet" href="style.css">
+<style>
+label.form-label{display:block;font-weight:600;margin:10px 0 4px;color:#404040}
+.media-role-row .form-label{margin:8px 0 4px}
+input.form-input,textarea.form-input,select.form-input{width:100%;padding:12px;margin:8px 0;border:1px solid #ddd;border-radius:8px;box-sizing:border-box}
+.ministry-tag{display:inline-block;font-size:.75rem;color:#fff;padding:2px 8px;border-radius:10px;margin-top:6px}
+#calendar-grid,.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.day-header{text-align:center;font-size:.75rem;font-weight:700;color:#7a8fac;padding:6px 0}
+.day-cell,.day{min-height:72px;border:1px solid #eee;border-radius:8px;padding:4px;background:#fff;cursor:pointer}
+.day-cell.other-month,.day.empty{background:#f8f8f8;color:#aaa;border:1px solid #eee}
+.day-number{font-size:.8rem;font-weight:700;margin-bottom:2px}
+.event{font-size:.65rem;color:#fff;border-radius:4px;padding:2px 4px;margin:2px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.event .ev-name{display:block;font-weight:700}
+.event .ev-song{display:block;opacity:.9;font-size:.6rem}
+.event-more{font-size:.6rem;color:#7a8fac}
+.day-modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:100}
+.day-modal.open{display:flex}
+.day-modal-content{background:#fff;border-radius:16px;padding:20px;width:90%;max-width:400px;max-height:70vh;overflow:auto}
+.schedule-extra{display:none}.schedule-extra.visible{display:block}
+.person-chip{display:inline-flex;align-items:center;gap:6px;background:#eef8f8;border-radius:20px;padding:4px 10px;margin:4px 4px 0 0}
+.person-chip button{border:none;background:transparent;cursor:pointer;font-size:1rem}
+.person-results{display:none;position:absolute;left:0;right:0;background:#fff;border:1px solid #ddd;border-radius:8px;max-height:180px;overflow:auto;z-index:20}
+.person-results.open{display:block}
+.person-results div{padding:10px;cursor:pointer}
+.person-results div:hover{background:#f5f5f5}
+.person-wrap{position:relative}
+.req-card{border:1px solid #ddd;border-radius:12px;padding:12px;margin:10px 0}
+.req-actions{display:flex;gap:8px}
+.btn-available{background:#27ae60;color:#fff;border:none;padding:10px 14px;border-radius:10px;font-weight:700}
+.btn-unavailable{background:#c0392b;color:#fff;border:none;padding:10px 14px;border-radius:10px;font-weight:700}
+.option-grid.compact.filter-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 16px;padding:0}
+.option-grid.compact.filter-bar .option-tile{min-height:72px !important;padding:10px 4px 8px !important;gap:6px !important;border-radius:12px !important}
+.option-grid.compact.filter-bar .option-tile .tile-icon{width:32px !important;height:32px !important;font-size:1.1rem !important;border-radius:10px !important}
+.option-grid.compact.filter-bar .option-tile .tile-label{font-size:0.68rem !important;line-height:1.15 !important}
+.cal-nav{margin:12px 0 16px;text-align:center}
+.cal-nav-btns{display:flex;gap:10px;width:100%;margin-bottom:10px}
+.cal-nav-btn{flex:1;padding:10px 8px;border-radius:12px;border:2px solid #4cb8b9;background:#fff;color:#4cb8b9;font-weight:700;cursor:pointer;font-size:0.9rem}
+.cal-nav-label{text-align:center}
+.cal-nav-label #cal-month{display:block;font-size:1.25rem;font-weight:700;color:var(--text,#404040)}
+.cal-nav-label #cal-year{display:block;font-size:0.95rem;font-weight:600;color:#7a8fac}
+</style>
+</head>
+<body>
+<button class="hamburger" onclick="toggleDrawer()" aria-label="Open menu"><span></span><span></span><span></span></button>
+<div class="nav-overlay" id="overlay" onclick="toggleDrawer()"></div>
+<div class="nav-drawer" id="drawer">
+<a href="index.html">Home</a>
+<a href="about.html">About Us</a>
+<a href="calendar.html">Calendar</a>
+<a href="directory.html">Church Directory</a>
+<a href="chat.html">Ministry Chats</a>
+<a href="bible/index.html">Bible</a>
+<a href="give.html">Give on Tithe.ly</a>
+<a href="sermons.html">Sermons & Live Streams</a>
+<a href="soul-winning.html">Soul Winning</a>
+<a href="profile.html">Profile</a>
+<a href="#" onclick="signOutUser().then(()=>location.href='index.html')">Logout</a>
+</div>
+<header><h1>Calendar</h1></header>
+<div class="container">
+<button class="back-btn" onclick="location.href='index.html'">← Back to Home</button>
+<div class="option-grid compact filter-bar" id="filter-bar"></div>
+<div class="cal-nav">
+<div class="cal-nav-btns">
+<button type="button" class="cal-nav-btn" onclick="prevMonth()">< Prev</button>
+<button type="button" class="cal-nav-btn" onclick="nextMonth()">Next ></button>
+</div>
+<div class="cal-nav-label">
+<span id="cal-month"></span>
+<span id="cal-year"></span>
+</div>
+</div>
+<div id="calendar-grid" class="calendar-grid"></div>
+<div id="my-requests-section" style="display:none;margin-top:20px">
+<h3>Your schedule requests</h3>
+<div id="my-requests-list"></div>
+</div>
+<div id="add-event-section" style="display:none;margin-top:24px">
+<h3>Add Event</h3>
+<p id="add-event-hint" style="font-size:.85rem;color:#7a8fac;margin:0 0 8px"></p>
+<label class="form-label" for="event-date">Date *</label>
+<input type="date" id="event-date" class="form-input">
+<div id="eventTimeWrap">
+<label class="form-label" for="event-time">Time</label>
+<input type="time" id="event-time" class="form-input">
+</div>
+<input type="text" id="event-title" class="form-input" placeholder="Event Title">
+<textarea id="event-desc" class="form-input" placeholder="Description (optional)" style="height:80px"></textarea>
+<select id="event-ministry" class="form-input" onchange="onMinistryChange()"></select>
+<div id="schedule-extra" class="schedule-extra">
+<label class="form-label" for="personSearch">Assign people *</label>
+<div class="person-wrap">
+<input type="text" id="personSearch" class="form-input" placeholder="Type a name or group…" autocomplete="off" style="margin:0">
+<div id="personResults" class="person-results"></div>
+</div>
+<div id="selectedPersonChip"></div>
+<p id="peopleCount" style="font-size:.8rem;color:#7a8fac"></p>
+<div id="groupNameWrap" style="display:none">
+<label class="form-label" for="event-group-name">Group name *</label>
+<div id="groupNameInner" class="person-wrap">
+<input type="text" id="event-group-name" class="form-input" placeholder="Type a group name or pick a saved group…" autocomplete="off" style="margin:0">
+<div id="groupNameResults" class="person-results"></div>
+</div>
+</div>
+<div id="songFieldWrap" style="display:none">
+<label class="form-label" for="event-song">Song (optional for leader)</label>
+<input type="text" id="event-song" class="form-input" placeholder="Optional — song lead can set this when they accept">
+</div>
+<div id="knownSongsWrap" style="display:none"><div id="knownSongs" class="song-chips"></div></div>
+</div>
+<div id="mediaRolesWrap" style="display:none"></div>
+<div id="nurseryRolesWrap" style="display:none"></div>
+<div id="sentryRolesWrap" style="display:none"></div>
+<button id="saveEventBtn" onclick="addEvent()" class="menu-btn" style="margin-top:10px">Add Event</button>
+<button id="cancelEditBtn" type="button" onclick="cancelEditEvent()" class="menu-btn" style="margin-top:8px;display:none;background:#7a8fac">Cancel Edit</button>
+</div>
+</div>
+<div class="day-modal" id="day-modal" onclick="if(event.target.id==='day-modal')closeDayModal()">
+<div class="day-modal-content">
+<h3 id="day-modal-title"></h3>
+<div id="day-modal-events"></div>
+<button onclick="closeDayModal()" style="width:100%;margin-top:10px;background:#7a8fac;color:#fff;border:none;padding:12px;border-radius:12px;font-weight:bold">Close</button>
+</div>
+</div>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="auth.js"></script>
+<script src="home-logo.js"></script>
+<script src="calendar-music-enhance.js"></script>
+<script src="calendar-media-roles.js"></script>
+<script src="calendar-nursery-roles.js"></script>
+<script src="calendar-sentry-roles.js"></script>
+<script src="calendar-app-part1a1.js"></script>
+<script src="calendar-app-part1a2.js"></script>
+<script src="calendar-app-part1b.js"></script>
+<script src="calendar-app-part2.js"></script>
+</body>
+</html>
