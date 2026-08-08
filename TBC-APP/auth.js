@@ -98,7 +98,7 @@ async function isCurrentUserAdmin() {
   const user = auth.currentUser;
   if (!user) return false;
   const profile = await getUserProfile(user.uid);
-  return !!(profile && profile.role === 'admin');
+  return !!(profile && String(profile.role || '').toLowerCase() === 'admin');
 }
 
 function authErrorMessage(err) {
@@ -165,32 +165,55 @@ function getAssetPrefixForPage() {
 })();
 
 (function injectAdminMenuLink() {
+  function isAdminRole(profile) {
+    return !!(profile && String(profile.role || '').toLowerCase() === 'admin');
+  }
+
+  function hideAdminLink() {
+    document.querySelectorAll('#drawer-admin, #btn-admin, a[href="admin.html"], a[href$="/admin.html"], a[href*="admin.html"]').forEach(function (el) {
+      el.classList.remove('is-admin-visible');
+      el.style.setProperty('display', 'none', 'important');
+      el.setAttribute('data-admin-only', '1');
+      el.hidden = true;
+    });
+  }
+
   function showAdminLink() {
     var prefix = getAssetPrefixForPage();
     var adminHref = prefix + 'admin.html';
 
+    var btnAdmin = document.getElementById('btn-admin');
+    if (btnAdmin) {
+      btnAdmin.hidden = false;
+      btnAdmin.classList.add('is-admin-visible');
+      btnAdmin.style.setProperty('display', 'flex', 'important');
+    }
+
     document.querySelectorAll('#drawer-admin, a[href="admin.html"], a[href$="/admin.html"]').forEach(function (el) {
-      el.style.display = 'block';
+      el.hidden = false;
+      el.classList.add('is-admin-visible');
+      el.style.setProperty('display', 'block', 'important');
       if (!el.getAttribute('href') || el.getAttribute('href') === '#') {
         el.setAttribute('href', adminHref);
       }
     });
 
-    var btnAdmin = document.getElementById('btn-admin');
-    if (btnAdmin) btnAdmin.style.display = 'flex';
-
     var drawers = document.querySelectorAll('.nav-drawer, #drawer, #navDrawer');
     drawers.forEach(function (drawer) {
       if (!drawer) return;
-      if (drawer.querySelector('a[href*="admin.html"], #drawer-admin')) {
-        var existing = drawer.querySelector('a[href*="admin.html"], #drawer-admin');
-        if (existing) existing.style.display = 'block';
+      var existing = drawer.querySelector('#drawer-admin, a[href*="admin.html"]');
+      if (existing) {
+        existing.hidden = false;
+        existing.classList.add('is-admin-visible');
+        existing.style.setProperty('display', 'block', 'important');
         return;
       }
       var a = document.createElement('a');
       a.id = 'drawer-admin';
       a.href = adminHref;
       a.textContent = 'Admin';
+      a.setAttribute('data-admin-only', '1');
+      a.classList.add('is-admin-visible');
       var logout = null;
       drawer.querySelectorAll('a').forEach(function (link) {
         var t = (link.textContent || '').toLowerCase();
@@ -204,28 +227,26 @@ function getAssetPrefixForPage() {
     });
   }
 
-  function hideAdminLink() {
-    document.querySelectorAll('#drawer-admin, a[href="admin.html"], a[href$="/admin.html"], #btn-admin').forEach(function (el) {
-      el.style.display = 'none';
-    });
-  }
-
-  // Always hide first so non-admins never see Admin
   hideAdminLink();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', hideAdminLink);
+  }
   setTimeout(hideAdminLink, 50);
+  setTimeout(hideAdminLink, 400);
 
   auth.onAuthStateChanged(async function (user) {
     hideAdminLink();
     if (!user) return;
     try {
       var profile = await ensureUserProfile(user);
-      if (profile && profile.role === 'admin') {
+      if (isAdminRole(profile)) {
         showAdminLink();
         setTimeout(showAdminLink, 200);
         setTimeout(showAdminLink, 800);
       } else {
         hideAdminLink();
-        setTimeout(hideAdminLink, 300);
+        setTimeout(hideAdminLink, 200);
+        setTimeout(hideAdminLink, 900);
       }
     } catch (e) {
       console.warn(e);
