@@ -176,6 +176,9 @@ function getAssetPrefixForPage() {
       }
     });
 
+    var btnAdmin = document.getElementById('btn-admin');
+    if (btnAdmin) btnAdmin.style.display = 'flex';
+
     var drawers = document.querySelectorAll('.nav-drawer, #drawer, #navDrawer');
     drawers.forEach(function (drawer) {
       if (!drawer) return;
@@ -202,16 +205,18 @@ function getAssetPrefixForPage() {
   }
 
   function hideAdminLink() {
-    document.querySelectorAll('#drawer-admin').forEach(function (el) {
+    document.querySelectorAll('#drawer-admin, a[href="admin.html"], a[href$="/admin.html"], #btn-admin').forEach(function (el) {
       el.style.display = 'none';
     });
   }
 
+  // Always hide first so non-admins never see Admin
+  hideAdminLink();
+  setTimeout(hideAdminLink, 50);
+
   auth.onAuthStateChanged(async function (user) {
-    if (!user) {
-      hideAdminLink();
-      return;
-    }
+    hideAdminLink();
+    if (!user) return;
     try {
       var profile = await ensureUserProfile(user);
       if (profile && profile.role === 'admin') {
@@ -220,9 +225,11 @@ function getAssetPrefixForPage() {
         setTimeout(showAdminLink, 800);
       } else {
         hideAdminLink();
+        setTimeout(hideAdminLink, 300);
       }
     } catch (e) {
       console.warn(e);
+      hideAdminLink();
     }
   });
 })();
