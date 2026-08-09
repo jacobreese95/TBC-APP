@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Upload Photos - TBC Church App</title>
+<title>Church Photos - TBC Church App</title>
 <link rel="stylesheet" href="style.css">
 <style>
 .tabs{display:flex;gap:6px;margin:12px 0 18px}
@@ -37,6 +37,9 @@ select{width:100%;height:48px;padding:12px 14px;margin:0 0 10px;border:2px solid
 #lightbox .lb-caption{color:#fff;margin-top:14px;text-align:center;max-width:500px}
 #lightbox .lb-actions{display:flex;gap:10px;margin-top:16px;width:100%;max-width:360px}
 #lightbox .lb-actions button{flex:1;margin:0}
+#lightbox .lb-nav{display:flex;gap:10px;margin-top:12px;width:100%;max-width:360px}
+#lightbox .lb-nav button{flex:1;margin:0;background:#fff;color:#404040;border:none;padding:12px;border-radius:12px;font-weight:700;cursor:pointer}
+#lightbox .lb-counter{color:rgba(255,255,255,.85);font-size:.85rem;margin-top:8px}
 .btn-danger{background:linear-gradient(135deg,#c62828 0%,#e57373 100%)!important}
 .btn-secondary{background:linear-gradient(135deg,#7a8fac 0%,#7bafdd 100%)!important}
 .filter-row{margin-bottom:12px}.filter-row select{margin:0}
@@ -47,10 +50,10 @@ select{width:100%;height:48px;padding:12px 14px;margin:0 0 10px;border:2px solid
 <div class="container">
 <button class="back-btn" onclick="window.location.href='index.html'">← Back to Home</button>
 <div class="tabs">
-<button class="tab-btn active" data-tab="upload" onclick="switchTab('upload')">Upload</button>
-<button class="tab-btn" data-tab="gallery" onclick="switchTab('gallery')">Gallery <span id="photoCount" style="opacity:.85"></span></button>
+<button class="tab-btn" data-tab="upload" onclick="switchTab('upload')">Upload</button>
+<button class="tab-btn active" data-tab="gallery" onclick="switchTab('gallery')">Gallery <span id="photoCount" style="opacity:.85"></span></button>
 </div>
-<div id="panel-upload" class="panel active">
+<div id="panel-upload" class="panel">
 <div class="upload-card">
 <div class="drop-zone" id="dropZone">
 <div class="drop-icon">📷</div>
@@ -86,7 +89,7 @@ select{width:100%;height:48px;padding:12px 14px;margin:0 0 10px;border:2px solid
 </div>
 <p style="text-align:center;font-size:.85rem;color:#7a8fac;margin-top:8px">Photos are shared with the church family. A date and time is recorded automatically when you submit.</p>
 </div>
-<div id="panel-gallery" class="panel">
+<div id="panel-gallery" class="panel active">
 <div class="filter-row">
 <select id="eventFilter" onchange="renderGallery()">
 <option value="all">All events</option>
@@ -108,6 +111,11 @@ select{width:100%;height:48px;padding:12px 14px;margin:0 0 10px;border:2px solid
 <div id="lightbox">
 <img id="lbImage" src="" alt="">
 <div class="lb-caption" id="lbCaption"></div>
+<div class="lb-counter" id="lbCounter"></div>
+<div class="lb-nav">
+<button type="button" onclick="lightboxPrev()">‹ Previous</button>
+<button type="button" onclick="lightboxNext()">Next ›</button>
+</div>
 <div class="lb-actions">
 <button class="btn-secondary" onclick="closeLightbox()">Close</button>
 <button class="btn-danger" id="lbDeleteBtn" onclick="deleteCurrentPhoto()" style="display:none">Delete</button>
@@ -146,6 +154,14 @@ requireApprovedUser().then(function (profile) {
   if (!profile) return;
   currentProfile = profile;
   loadPhotos();
+  try {
+    var params = new URLSearchParams(window.location.search || '');
+    var tab = params.get('tab') || (window.location.hash || '').replace('#','');
+    if (tab === 'gallery' || tab === 'upload') switchTab(tab);
+    else switchTab('gallery');
+  } catch (e) {
+    switchTab('gallery');
+  }
 });
 const fileInputLibrary = document.getElementById('fileInputLibrary');
 const fileInputCamera = document.getElementById('fileInputCamera');
@@ -292,19 +308,37 @@ function renderGallery() {
       (dateStr ? '<br>' + dateStr : '') + '</div></div>';
   }).join('');
 }
-function openLightbox(id) {
-  const p = photos.find(x => x.id === id);
+function showLightboxAtIndex(idx) {
+  if (!photos.length) return;
+  if (idx < 0) idx = photos.length - 1;
+  if (idx >= photos.length) idx = 0;
+  var p = photos[idx];
   if (!p) return;
-  currentLightboxId = id;
+  currentLightboxId = p.id;
   document.getElementById('lbImage').src = p.url;
-  const dateStr = p.createdAt && p.createdAt.toDate ? p.createdAt.toDate().toLocaleString() : '';
+  var dateStr = p.createdAt && p.createdAt.toDate ? p.createdAt.toDate().toLocaleString() : '';
   document.getElementById('lbCaption').innerHTML =
     '<strong>' + escapeHtml(p.caption || '(no caption)') + '</strong><br>' +
     escapeHtml(p.event || '') + ' · ' + escapeHtml(p.uploadedBy || '') +
     (dateStr ? '<br>Submitted: ' + dateStr : '');
-  const canDelete = currentProfile && (currentProfile.role === 'admin' || p.uploadedByUid === (auth.currentUser && auth.currentUser.uid));
+  var counter = document.getElementById('lbCounter');
+  if (counter) counter.textContent = (idx + 1) + ' of ' + photos.length;
+  var canDelete = currentProfile && (currentProfile.role === 'admin' || p.uploadedByUid === (auth.currentUser && auth.currentUser.uid));
   document.getElementById('lbDeleteBtn').style.display = canDelete ? 'block' : 'none';
   document.getElementById('lightbox').classList.add('open');
+}
+function openLightbox(id) {
+  var idx = photos.findIndex(function (x) { return x.id === id; });
+  if (idx < 0) return;
+  showLightboxAtIndex(idx);
+}
+function lightboxPrev() {
+  var idx = photos.findIndex(function (x) { return x.id === currentLightboxId; });
+  showLightboxAtIndex(idx < 0 ? 0 : idx - 1);
+}
+function lightboxNext() {
+  var idx = photos.findIndex(function (x) { return x.id === currentLightboxId; });
+  showLightboxAtIndex(idx < 0 ? 0 : idx + 1);
 }
 function closeLightbox() {
   document.getElementById('lightbox').classList.remove('open');
