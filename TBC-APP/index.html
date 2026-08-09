@@ -155,7 +155,7 @@
         <a href="give.html">Give on Tithe.ly</a>
         <a href="sermons.html">Sermons & Live Streams</a>
         <a href="soul-winning.html" id="drawer-soulwinning">Soul Winning</a>
-        <a href="upload-photos.html" id="drawer-upload">Upload Photos</a>
+        <a href="upload-photos.html?tab=gallery" id="drawer-upload">Church Photos</a>
         <a href="profile.html" id="drawer-profile">Profile</a>
         <a href="admin.html" id="drawer-admin" style="display:none;">Admin</a>
         <a href="#" id="drawer-logout" onclick="signOutUser().then(() => window.location.reload())">Logout</a>
@@ -211,9 +211,9 @@
                 <span class="tile-icon" aria-hidden="true">🗺️</span>
                 <span class="tile-label">Soul Winning</span>
             </button>
-            <button type="button" class="home-tile" id="btn-upload" onclick="goToProtected('upload-photos.html')">
+            <button type="button" class="home-tile" id="btn-upload" onclick="goToProtected('upload-photos.html?tab=gallery')">
                 <span class="tile-icon" aria-hidden="true">📷</span>
-                <span class="tile-label">Photos</span>
+                <span class="tile-label">Church Photos</span>
             </button>
 
             <button type="button" class="home-tile" id="btn-profile" onclick="goToProtected('profile.html')" style="display:none">
@@ -308,7 +308,6 @@
                         .limit(12)
                         .get();
                 } catch (qErr) {
-                    // Fallback if composite index is missing
                     snap = await db.collection('events')
                         .where('ministry', '==', 'Whole Church')
                         .get();
