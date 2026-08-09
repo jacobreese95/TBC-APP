@@ -54,6 +54,15 @@ input.form-input,textarea.form-input,select.form-input{width:100%;padding:12px;m
   color:#aaa;
   border:1px solid #eee;
 }
+.day-cell.today{
+  border:2px solid #4cb8b9;
+  background:#e8f7f7;
+  box-shadow:0 0 0 1px rgba(76,184,185,.25);
+}
+.day-cell.today .day-number{
+  color:#1a8a8b;
+  font-weight:800;
+}
 .day-number{
   font-size:.75rem;
   font-weight:700;
@@ -82,7 +91,7 @@ input.form-input,textarea.form-input,select.form-input{width:100%;padding:12px;m
   white-space:nowrap;
 }
 .event .ev-song{
-  display:none; /* keep cell height uniform — full details in day modal */
+  display:none;
 }
 .event-more{
   font-size:.55rem;
