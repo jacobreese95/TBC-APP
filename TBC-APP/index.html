@@ -1,1 +1,117 @@
-FILE_TOO_LARGE_USE_RUN
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TBC Church App</title>
+<script src="theme.js"></script>
+<link rel="stylesheet" href="style.css">
+<style>
+.home-title{text-align:center;margin:4px 16px 18px;font-size:1.35rem;font-weight:700;color:var(--text);letter-spacing:.01em}
+.home-title span{color:var(--teal)}
+.home-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:4px 4px 28px;max-width:420px;margin:0 auto}
+.home-tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:108px;padding:16px 8px 14px;margin:0;width:100%;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease;font-family:inherit}
+.home-tile:hover{transform:translateY(-2px);box-shadow:var(--shadow-hover);border-color:rgba(76,184,185,.45);filter:none}
+.home-tile:active{transform:scale(.97)}
+.home-tile .tile-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.55rem;background:linear-gradient(135deg,rgba(76,184,185,.18) 0%,rgba(123,175,221,.22) 100%);color:var(--teal);line-height:1}
+.home-tile .tile-label{font-size:.78rem;font-weight:700;text-align:center;line-height:1.25;color:var(--text);letter-spacing:.01em}
+.home-tile.events-tile{grid-column:1/-1;min-height:96px;flex-direction:row;justify-content:flex-start;gap:14px;padding:14px 16px;text-align:left}
+.home-tile.events-tile .tile-icon{flex-shrink:0}
+.events-tile-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+.events-tile-kicker{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--teal,#4cb8b9)}
+.events-tile-title{font-size:.95rem;font-weight:700;color:var(--text);line-height:1.3;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:opacity .35s ease}
+.events-tile-title.fade{opacity:0}
+.events-tile-date{font-size:.8rem;color:var(--muted,#7a8fac);font-weight:600}
+.home-tile.photos-tile{grid-column:1/-1;position:relative;min-height:168px;height:168px;padding:0;overflow:hidden;align-items:stretch;justify-content:flex-end;background:#2a3a44;border:none}
+.photos-tile-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:opacity .45s ease;opacity:1}
+.photos-tile-img.fade{opacity:0}
+.photos-tile-overlay{position:relative;z-index:1;width:100%;padding:14px 16px;background:linear-gradient(transparent,rgba(0,0,0,.72));display:flex;flex-direction:column;gap:2px;align-items:flex-start;text-align:left;box-sizing:border-box}
+.photos-tile-kicker{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#9fe3e4}
+.photos-tile-caption{font-size:.95rem;font-weight:700;color:#fff;line-height:1.3;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.photos-tile-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#fff;background:linear-gradient(135deg,#4cb8b9 0%,#7bafdd 100%);z-index:0}
+.photos-tile-empty .tile-icon{background:rgba(255,255,255,.2);color:#fff}
+#bottomAuth{max-width:420px;margin-left:auto;margin-right:auto;padding-bottom:36px}
+@media (max-width:360px){.home-grid{gap:8px}.home-tile{min-height:96px;padding:12px 6px 10px}.home-tile .tile-label{font-size:.72rem}.home-tile.photos-tile{min-height:148px;height:148px}}
+</style>
+</head>
+<body>
+<button class="hamburger" onclick="toggleMenu()" aria-label="Open menu"><span></span><span></span><span></span></button>
+<div class="nav-overlay" id="navOverlay" onclick="toggleMenu()"></div>
+<div class="nav-drawer" id="navDrawer">
+<a href="about.html">About Us</a>
+<a href="calendar.html" id="drawer-calendar">Calendar</a>
+<a href="directory.html" id="drawer-directory">Church Directory</a>
+<a href="chat.html" id="drawer-chats">Ministry Chats</a>
+<a href="bible/index.html">Bible</a>
+<a href="give.html">Give on Tithe.ly</a>
+<a href="sermons.html">Sermons & Live Streams</a>
+<a href="soul-winning.html" id="drawer-soulwinning">Soul Winning</a>
+<a href="upload-photos.html?tab=gallery" id="drawer-upload">Church Photos</a>
+<a href="profile.html" id="drawer-profile">Profile</a>
+<a href="admin.html" id="drawer-admin" style="display:none;">Admin</a>
+<a href="#" id="drawer-logout" onclick="signOutUser().then(() => window.location.reload())">Logout</a>
+</div>
+<div class="home-logo-wrap"><img src="tbclogo.jpeg" alt="Temple Baptist Church Logo"></div>
+<h1 class="home-title">Temple <span>Baptist</span> Church</h1>
+<div class="container">
+<div class="home-grid" id="homeGrid">
+<button type="button" class="home-tile events-tile" id="btn-upcoming-events" onclick="goToProtected('calendar.html')" title="View calendar">
+<span class="tile-icon" aria-hidden="true">🗓️</span>
+<span class="events-tile-body">
+<span class="events-tile-kicker">Coming up</span>
+<span class="events-tile-title" id="upcomingEventTitle">Loading events…</span>
+<span class="events-tile-date" id="upcomingEventDate"></span>
+</span>
+</button>
+<button type="button" class="home-tile photos-tile" id="btn-upload" onclick="goToProtected('upload-photos.html?tab=gallery')" title="Church Photos" style="display:none">
+<img class="photos-tile-img" id="homePhotoImg" alt="" style="display:none">
+<div class="photos-tile-empty" id="homePhotoEmpty">
+<span class="tile-icon" aria-hidden="true">📷</span>
+<span style="font-weight:700;font-size:0.9rem">Church Photos</span>
+<span style="font-size:0.75rem;opacity:0.9">Tap to view &amp; upload</span>
+</div>
+<div class="photos-tile-overlay" id="homePhotoOverlay" style="display:none">
+<span class="photos-tile-kicker">Church Photos</span>
+<span class="photos-tile-caption" id="homePhotoCaption"></span>
+</div>
+</button>
+<button type="button" class="home-tile" onclick="window.location.href='bible/index.html'"><span class="tile-icon" aria-hidden="true">📖</span><span class="tile-label">Bible</span></button>
+<button type="button" class="home-tile" id="btn-calendar" onclick="goToProtected('calendar.html')"><span class="tile-icon" aria-hidden="true">📅</span><span class="tile-label">Calendar</span></button>
+<button type="button" class="home-tile" id="btn-chats" onclick="goToProtected('chat.html')"><span class="tile-icon" aria-hidden="true">💬</span><span class="tile-label">Chats</span></button>
+<button type="button" class="home-tile" id="btn-directory" onclick="goToProtected('directory.html')"><span class="tile-icon" aria-hidden="true">👥</span><span class="tile-label">Directory</span></button>
+<button type="button" class="home-tile" onclick="window.location.href='sermons.html'"><span class="tile-icon" aria-hidden="true">🎬</span><span class="tile-label">Sermons</span></button>
+<button type="button" class="home-tile" onclick="window.location.href='give.html'"><span class="tile-icon" aria-hidden="true">💝</span><span class="tile-label">Give</span></button>
+<button type="button" class="home-tile" onclick="window.location.href='about.html'"><span class="tile-icon" aria-hidden="true">⛪</span><span class="tile-label">About</span></button>
+<button type="button" class="home-tile" id="btn-soulwinning" onclick="goToProtected('soul-winning.html')"><span class="tile-icon" aria-hidden="true">🗺️</span><span class="tile-label">Soul Winning</span></button>
+<button type="button" class="home-tile" id="btn-profile" onclick="goToProtected('profile.html')" style="display:none"><span class="tile-icon" aria-hidden="true">👤</span><span class="tile-label">Profile</span></button>
+<button type="button" class="home-tile" id="btn-admin" onclick="goToProtected('admin.html')" style="display:none"><span class="tile-icon" aria-hidden="true">⚙️</span><span class="tile-label">Admin</span></button>
+</div>
+</div>
+<div id="bottomAuth" class="container" style="margin-top:8px;display:none">
+<button class="menu-btn login-btn" onclick="window.location.href='login.html'">Login</button>
+<button class="menu-btn" style="background:linear-gradient(135deg,#7a8fac 0%,#404040 100%);margin-top:12px" onclick="window.location.href='signup.html'">Create an Account</button>
+</div>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="auth.js"></script>
+<script src="home-layout.js"></script>
+<script>
+function toggleMenu(){document.getElementById('navDrawer').classList.toggle('open');document.getElementById('navOverlay').classList.toggle('open')}
+async function goToProtected(page){const profile=await requireApprovedUser();if(profile)window.location.href=page}
+var upcomingEvents=[],upcomingIndex=0,upcomingTimer=null;
+var homePhotos=[],homePhotoIndex=0,homePhotoTimer=null;
+function formatEventDate(dateStr){if(!dateStr)return '';var parts=String(dateStr).split('-');if(parts.length<3)return dateStr;var d=new Date(parseInt(parts[0],10),parseInt(parts[1],10)-1,parseInt(parts[2],10));if(isNaN(d.getTime()))return dateStr;return d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})}
+function showUpcomingSlide(){var titleEl=document.getElementById('upcomingEventTitle');var dateEl=document.getElementById('upcomingEventDate');if(!titleEl||!dateEl)return;if(!upcomingEvents.length){titleEl.textContent='No upcoming Whole Church events';dateEl.textContent='Tap for calendar';return}var ev=upcomingEvents[upcomingIndex%upcomingEvents.length];titleEl.classList.add('fade');setTimeout(function(){titleEl.textContent=ev.title||'Event';dateEl.textContent=formatEventDate(ev.date);titleEl.classList.remove('fade')},200)}
+function startUpcomingCycle(){if(upcomingTimer)clearInterval(upcomingTimer);showUpcomingSlide();if(upcomingEvents.length<2)return;upcomingTimer=setInterval(function(){upcomingIndex=(upcomingIndex+1)%upcomingEvents.length;showUpcomingSlide()},4000)}
+async function loadUpcomingWholeChurchEvents(){var titleEl=document.getElementById('upcomingEventTitle');var dateEl=document.getElementById('upcomingEventDate');try{var today=new Date();var todayStr=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');var snap;try{snap=await db.collection('events').where('ministry','==','Whole Church').where('date','>=',todayStr).orderBy('date','asc').limit(12).get()}catch(qErr){snap=await db.collection('events').where('ministry','==','Whole Church').get()}upcomingEvents=[];snap.forEach(function(doc){var d=doc.data()||{};if(!d.date||d.date<todayStr)return;upcomingEvents.push({id:doc.id,title:d.title||d.groupName||'Church event',date:d.date})});upcomingEvents.sort(function(a,b){return String(a.date).localeCompare(String(b.date))});upcomingEvents=upcomingEvents.slice(0,12);upcomingIndex=0;startUpcomingCycle()}catch(e){console.warn('upcoming events',e);if(titleEl)titleEl.textContent='Upcoming events';if(dateEl)dateEl.textContent='Open calendar to view'}}
+function showHomePhotoSlide(){var img=document.getElementById('homePhotoImg');var empty=document.getElementById('homePhotoEmpty');var overlay=document.getElementById('homePhotoOverlay');var caption=document.getElementById('homePhotoCaption');if(!img)return;if(!homePhotos.length){img.style.display='none';if(empty)empty.style.display='flex';if(overlay)overlay.style.display='none';return}if(empty)empty.style.display='none';if(overlay)overlay.style.display='flex';img.style.display='block';var p=homePhotos[homePhotoIndex%homePhotos.length];img.classList.add('fade');setTimeout(function(){img.src=p.url;if(caption){var line=p.caption||p.event||'Church photo';caption.textContent=line}img.classList.remove('fade')},220)}
+function startHomePhotoCycle(){if(homePhotoTimer)clearInterval(homePhotoTimer);showHomePhotoSlide();if(homePhotos.length<2)return;homePhotoTimer=setInterval(function(){homePhotoIndex=(homePhotoIndex+1)%homePhotos.length;showHomePhotoSlide()},4500)}
+async function loadHomePhotos(){try{var snap=await db.collection('photos').orderBy('createdAt','desc').limit(20).get();homePhotos=[];snap.forEach(function(doc){var d=doc.data()||{};if(!d.url)return;homePhotos.push({id:doc.id,url:d.url,caption:d.caption||'',event:d.event||''})});homePhotoIndex=0;startHomePhotoCycle()}catch(e){console.warn('home photos',e);homePhotos=[];showHomePhotoSlide()}}
+auth.onAuthStateChanged(async function(user){const bottom=document.getElementById('bottomAuth');const drawerProfile=document.getElementById('drawer-profile');const drawerLogout=document.getElementById('drawer-logout');const drawerCalendar=document.getElementById('drawer-calendar');const drawerDirectory=document.getElementById('drawer-directory');const drawerChats=document.getElementById('drawer-chats');const drawerSoul=document.getElementById('drawer-soulwinning');const drawerUpload=document.getElementById('drawer-upload');const drawerAdmin=document.getElementById('drawer-admin');const btnCalendar=document.getElementById('btn-calendar');const btnDirectory=document.getElementById('btn-directory');const btnChats=document.getElementById('btn-chats');const btnSoul=document.getElementById('btn-soulwinning');const btnUpload=document.getElementById('btn-upload');const btnProfile=document.getElementById('btn-profile');const btnAdmin=document.getElementById('btn-admin');
+if(!user){bottom.style.display='block';drawerProfile.style.display='none';drawerLogout.style.display='none';drawerCalendar.style.display='none';drawerDirectory.style.display='none';drawerChats.style.display='none';drawerSoul.style.display='none';drawerUpload.style.display='none';drawerAdmin.style.display='none';btnCalendar.style.display='none';btnDirectory.style.display='none';btnChats.style.display='none';btnSoul.style.display='none';btnUpload.style.display='none';if(btnProfile)btnProfile.style.display='none';if(btnAdmin)btnAdmin.style.display='none';if(homePhotoTimer){clearInterval(homePhotoTimer);homePhotoTimer=null}var t=document.getElementById('upcomingEventTitle');var d=document.getElementById('upcomingEventDate');if(t)t.textContent='Log in to see events';if(d)d.textContent='Whole Church calendar';return}
+bottom.style.display='none';drawerProfile.style.display='block';drawerLogout.style.display='block';drawerCalendar.style.display='block';drawerDirectory.style.display='block';drawerChats.style.display='block';drawerSoul.style.display='block';drawerUpload.style.display='block';btnCalendar.style.display='flex';btnDirectory.style.display='flex';btnChats.style.display='flex';btnSoul.style.display='flex';btnUpload.style.display='flex';if(btnProfile)btnProfile.style.display='flex';
+try{const profile=await ensureUserProfile(user);if(profile&&profile.theme&&typeof setAppTheme==='function')setAppTheme(profile.theme);if(profile&&profile.role==='admin'){drawerAdmin.style.display='block';if(btnAdmin)btnAdmin.style.display='flex'}else{drawerAdmin.style.display='none';if(btnAdmin)btnAdmin.style.display='none'}if(profile&&!profile.approved){drawerProfile.style.display='none';drawerDirectory.style.display='none';btnDirectory.style.display='none';if(btnProfile)btnProfile.style.display='none';btnUpload.style.display='none'}if(profile&&profile.approved){loadUpcomingWholeChurchEvents();loadHomePhotos()}else{var t2=document.getElementById('upcomingEventTitle');var d2=document.getElementById('upcomingEventDate');if(t2)t2.textContent='Approval pending';if(d2)d2.textContent='Events unlock after approval'}}catch(e){}});
+</script>
+</body>
+</html>
