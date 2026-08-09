@@ -29,6 +29,9 @@
         .badge.not-interested { background: #7a8fac; }
         .badge.open { background: #4cb8b9; }
         .badge.completed { background: #27ae60; }
+        .badge.pending { background: #e67e22; }
+        .badge.accepted, .badge.available { background: #27ae60; }
+        .badge.declined, .badge.unavailable { background: #c0392b; }
         .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #404040; color: #fff; padding: 12px 20px; border-radius: 24px; font-weight: 600; z-index: 3000; display: none; box-shadow: 0 4px 16px rgba(0,0,0,0.25); max-width: 90%; text-align: center; }
         .btn-row { display: flex; gap: 8px; margin-top: 8px; }
         .btn-row button { flex: 1; margin: 0; }
@@ -50,6 +53,12 @@
         .filter-row { display: flex; gap: 8px; margin: 0 0 10px; }
         .filter-row button { flex: 1; margin: 0; padding: 10px; border-radius: 12px; border: 2px solid #4cb8b9; background: #fff; color: #4cb8b9; font-weight: 700; cursor: pointer; }
         .filter-row button.active { background: #4cb8b9; color: #fff; }
+        .req-card { border: 1px solid #ddd; border-radius: 12px; padding: 12px; margin: 10px 0; background: #fff; }
+        .req-actions { display: flex; gap: 8px; margin-top: 8px; }
+        .btn-available { flex: 1; background: #27ae60 !important; color: #fff !important; border: none; padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer; box-shadow: none !important; }
+        .btn-unavailable { flex: 1; background: #c0392b !important; color: #fff !important; border: none; padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer; box-shadow: none !important; }
+        #my-assignments-section { margin: 0 0 16px; }
+        #my-assignments-section h3 { margin: 0 0 8px; color: #404040; font-size: 1.05rem; }
     </style>
 </head>
 <body>
@@ -60,6 +69,12 @@
 
     <div class="container">
         <button class="back-btn" onclick="window.location.href='index.html'">← Back to Home</button>
+
+        <div id="my-assignments-section" style="display:none">
+            <h3>Your area assignments</h3>
+            <p class="map-hint">Accept an area to confirm you will cover it, or decline if you cannot.</p>
+            <div id="my-assignments-list"></div>
+        </div>
 
         <div class="tabs">
             <button class="tab-btn active" data-tab="add" onclick="switchTab('add')">Add Lead</button>
@@ -141,7 +156,7 @@
     <div id="territoryModal">
         <div class="modal-card">
             <h3 style="margin-top:0;color:#404040;">Assign area</h3>
-            <p style="font-size:0.85rem;color:#7a8fac;margin:0 0 8px;">Name this block and assign one or more people. They will get an alert and see the area on their map.</p>
+            <p style="font-size:0.85rem;color:#7a8fac;margin:0 0 8px;">Name this block and assign one or more people. They will get an alert and can Accept or Decline the area (same as calendar schedule requests).</p>
             <label for="terrName">Area name *</label>
             <input type="text" id="terrName" placeholder="e.g. North of 21st – Block 3">
             <label for="terrPersonSearch">Assign people *</label>
