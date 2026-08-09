@@ -54,7 +54,7 @@
     var s = document.createElement('style');
     s.id = 'home-layout-styles';
     s.textContent = [
-      '.layout-toolbar{max-width:420px;margin:0 auto 10px;padding:0 4px;display:none;gap:8px;align-items:center;flex-wrap:wrap}',
+      '.layout-toolbar{max-width:420px;margin:16px auto 28px;padding:0 4px;display:none;gap:8px;align-items:center;flex-wrap:wrap}',
       '.layout-toolbar.visible{display:flex}',
       '.layout-toolbar button{flex:1;min-width:120px;margin:0;padding:10px 12px;border-radius:12px;border:2px solid #4cb8b9;background:#fff;color:#4cb8b9;font-weight:700;cursor:pointer;font-size:.85rem}',
       '.layout-toolbar button.primary{background:linear-gradient(135deg,#4cb8b9 0%,#7bafdd 100%);color:#fff;border:none}',
@@ -68,24 +68,37 @@
   }
 
   function ensureToolbar() {
-    if ($('layoutToolbar')) return;
-    var bar = document.createElement('div');
-    bar.id = 'layoutToolbar';
-    bar.className = 'layout-toolbar';
-    bar.innerHTML =
-      '<p class="layout-hint" id="layoutHint">Use \u2191 \u2193 on each button to rearrange. Order is saved for everyone.</p>' +
-      '<button type="button" id="btnLayoutEdit">Rearrange buttons</button>' +
-      '<button type="button" class="primary" id="btnLayoutSave" style="display:none">Save order</button>' +
-      '<button type="button" id="btnLayoutCancel" style="display:none">Cancel</button>';
-    var title = document.querySelector('.home-title');
-    if (title && title.parentNode) title.parentNode.insertBefore(bar, title.nextSibling);
-    else if ($('homeGrid') && $('homeGrid').parentElement) {
-      var wrap = $('homeGrid').parentElement;
-      wrap.parentNode.insertBefore(bar, wrap);
+    var bar = $('layoutToolbar');
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.id = 'layoutToolbar';
+      bar.className = 'layout-toolbar';
+      bar.innerHTML =
+        '<p class="layout-hint" id="layoutHint">Use \u2191 \u2193 on each button to rearrange. Order is saved for everyone.</p>' +
+        '<button type="button" id="btnLayoutEdit">Rearrange buttons</button>' +
+        '<button type="button" class="primary" id="btnLayoutSave" style="display:none">Save order</button>' +
+        '<button type="button" id="btnLayoutCancel" style="display:none">Cancel</button>';
     }
-    $('btnLayoutEdit').onclick = toggleLayoutEdit;
-    $('btnLayoutSave').onclick = saveHomeLayout;
-    $('btnLayoutCancel').onclick = cancelLayoutEdit;
+
+    // Always place at bottom of the page (after the menu grid, before or after login area)
+    var bottomAuth = $('bottomAuth');
+    var grid = $('homeGrid');
+    var gridWrap = grid && grid.parentElement;
+
+    if (bottomAuth && bottomAuth.parentNode) {
+      // Insert just before bottomAuth so it sits under the buttons
+      bottomAuth.parentNode.insertBefore(bar, bottomAuth);
+    } else if (gridWrap && gridWrap.parentNode) {
+      // After the container that holds the home grid
+      if (gridWrap.nextSibling) gridWrap.parentNode.insertBefore(bar, gridWrap.nextSibling);
+      else gridWrap.parentNode.appendChild(bar);
+    } else if (document.body) {
+      document.body.appendChild(bar);
+    }
+
+    if ($('btnLayoutEdit')) $('btnLayoutEdit').onclick = toggleLayoutEdit;
+    if ($('btnLayoutSave')) $('btnLayoutSave').onclick = saveHomeLayout;
+    if ($('btnLayoutCancel')) $('btnLayoutCancel').onclick = cancelLayoutEdit;
   }
 
   function getTileElements() {
