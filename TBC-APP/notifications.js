@@ -219,13 +219,12 @@
         .get();
       swSnap.forEach(function (doc) {
         var d = doc.data() || {};
-        var id = 'sw-' + doc.id;
-        if (isSeen(id)) return;
+        var id = 'sw-pend-' + doc.id;
         items.push({
           id: id,
-          type: 'soul_winning',
+          type: 'soul_winning_pending',
           title: 'Soul winning area assigned',
-          body: (d.territoryName || 'An area') + (d.notes ? ' — ' + d.notes : ''),
+          body: (d.territoryName || 'An area') + (d.notes ? ' — ' + d.notes : '') + ' — Accept or decline in Soul Winning',
           when: d.createdAt || null,
           link: getPrefix() + 'soul-winning.html',
           rawId: doc.id
@@ -233,6 +232,33 @@
       });
     } catch (e) {
       console.warn('notif soul winning', e);
+    }
+
+    if (isLeader) {
+      try {
+        var swResp = await fdb.collection('soulWinningAssignments')
+          .where('createdByUid', '==', uid)
+          .get();
+        swResp.forEach(function (doc) {
+          var d = doc.data() || {};
+          if (d.status !== 'accepted' && d.status !== 'declined') return;
+          var id = 'sw-resp-' + doc.id + '-' + d.status;
+          if (isSeen(id)) return;
+          var yes = d.status === 'accepted';
+          items.push({
+            id: id,
+            type: 'soul_winning_response',
+            title: yes ? 'Accepted soul winning area' : 'Declined soul winning area',
+            body: (d.assignedToName || 'Someone') + (yes ? ' accepted ' : ' declined ') +
+              (d.territoryName || 'an area'),
+            when: d.respondedAt || d.createdAt,
+            link: getPrefix() + 'soul-winning.html',
+            rawId: doc.id
+          });
+        });
+      } catch (e) {
+        console.warn('notif sw responses', e);
+      }
     }
 
     for (var i = 0; i < rooms.length; i++) {
@@ -284,7 +310,7 @@
       return;
     }
     list.innerHTML = lastItems.map(function (n) {
-      var icon = n.type === 'prayer' ? '🙏' : (n.type === 'soul_winning' ? '🗺️' : (n.type === 'schedule_response' ? (n.title.indexOf('Accepted') === 0 ? '✅' : '❌') : '📅'));
+      var icon = n.type === 'prayer' ? '🙏' : ((n.type === 'soul_winning' || n.type === 'soul_winning_pending') ? '🗺️' : ((n.type === 'schedule_response' || n.type === 'soul_winning_response') ? (n.title.indexOf('Accepted') !== -1 ? '✅' : '❌') : '📅'));
       return (
         '<a class="notif-item" href="' + escapeHtml(n.link) + '" data-id="' + escapeHtml(n.id) + '">' +
         '<span class="notif-item-icon">' + icon + '</span>' +
@@ -306,7 +332,7 @@
 
   function markAllRead() {
     lastItems.forEach(function (n) {
-      if (n.type !== 'schedule_pending') markSeen(n.id);
+      if (n.type !== 'schedule_pending' && n.type !== 'soul_winning_pending') markSeen(n.id);
     });
     refreshNotifications(true);
   }
