@@ -113,10 +113,13 @@ grid.innerHTML='';
 const firstDay=new Date(year,month,1).getDay();
 const daysInMonth=new Date(year,month+1,0).getDate();
 const prevDays=new Date(year,month,0).getDate();
+const now=new Date();
+const isCurrentMonth=now.getFullYear()===year&&now.getMonth()===month;
+const todayDay=now.getDate();
 for(let i=0;i<firstDay;i++){const cell=document.createElement('div');cell.className='day-cell other-month';cell.innerHTML='<div class="day-number">'+(prevDays-firstDay+1+i)+'</div>';grid.appendChild(cell)}
 for(let day=1;day<=daysInMonth;day++){
 const cell=document.createElement('div');
-cell.className='day-cell';
+cell.className='day-cell'+(isCurrentMonth&&day===todayDay?' today':'');
 const dateStr=year+'-'+String(month+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');
 cell.innerHTML='<div class="day-number">'+day+'</div>';
 const dayEvents=allEvents.filter(ev=>ev.date===dateStr&&selectedFilters.has(ev.ministry));
