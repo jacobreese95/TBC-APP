@@ -6,6 +6,11 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
+    // Health check — confirms this worker.js is the active entrypoint
+    if (url.pathname === '/api/health') {
+      return json({ ok: true, worker: 'tbc-app', hasAssets: !!env.ASSETS }, 200);
+    }
+
     if (url.pathname.startsWith('/api/youtube/')) {
       return proxyYouTube(url, env);
     }
@@ -55,7 +60,7 @@ async function proxyWebster1828(url) {
         found: !!extracted.text,
         title: extracted.title || word,
         text: extracted.text || '',
-        source: 'Webster\'s 1828'
+        source: "Webster's 1828"
       },
       200,
       'public, max-age=86400'
@@ -74,7 +79,6 @@ function extractWebsterDefinition(html, word) {
     ? headMatch[1].replace(/<[^>]+>/g, '').trim()
     : word;
 
-  // Primary: block after dictionaryhead inside col-md-6
   let chunk = '';
   const afterHead = html.split(/<h3 class="dictionaryhead">[\s\S]*?<\/h3>\s*<hr\s*\/?>/i)[1];
   if (afterHead) {
@@ -105,7 +109,6 @@ function extractWebsterDefinition(html, word) {
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 
-  // Keep sheet readable
   if (text.length > 2500) {
     text = text.slice(0, 2500).replace(/\s+\S*$/, '') + '…';
   }
