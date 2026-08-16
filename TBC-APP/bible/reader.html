@@ -1,1 +1,119 @@
-PLACEHOLDER_WILL_FAIL
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Bible Reader - TBC</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .reader-toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+    .reader-toolbar select { flex: 1; min-width: 120px; height: 44px; padding: 8px 10px; border: 2px solid var(--border); border-radius: 12px; background: var(--input-bg); color: var(--text); font-size: 0.95rem; }
+    .nav-row { display: flex; gap: 8px; margin: 12px 0 18px; }
+    .nav-row button { flex: 1; margin: 0; height: 44px; font-size: 0.95rem; }
+    .nav-row button:disabled { opacity: 0.45; cursor: default; }
+    .verse-list { margin: 0; padding: 0; list-style: none; }
+    .verse-item { display: flex; flex-wrap: wrap; gap: 10px; padding: 10px 8px; border-radius: 10px; cursor: pointer; -webkit-tap-highlight-color: transparent; scroll-margin-top: 80px; }
+    .verse-item:hover, .verse-item:active { background: rgba(76, 184, 185, 0.12); }
+    .verse-item.has-note { background: rgba(136, 69, 165, 0.08); }
+    .verse-item.highlight { background: rgba(176, 220, 119, 0.25); outline: 2px solid var(--lime, #b0dc77); }
+    .verse-item.expanded { background: rgba(76, 184, 185, 0.1); outline: 1px solid rgba(76, 184, 185, 0.35); cursor: default; }
+    .verse-num { flex-shrink: 0; min-width: 28px; font-weight: 700; color: var(--teal); font-size: 0.9rem; padding-top: 2px; }
+    .verse-text { flex: 1; line-height: 1.55; font-size: 1.05rem; color: var(--text); min-width: 0; }
+    .verse-note-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--purple, #8845a5); margin-top: 8px; flex-shrink: 0; }
+    .verse-body { flex: 1; min-width: 0; width: calc(100% - 40px); }
+    .strongs-panel { display: none; width: 100%; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border, #ddd); }
+    .verse-item.expanded .strongs-panel { display: block; }
+    .verse-item.expanded .verse-plain { display: none; }
+    .strongs-words { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: flex-end; line-height: 1.2; }
+    .sw { display: inline-flex; flex-direction: column; align-items: center; text-align: center; max-width: 7.5rem; cursor: pointer; padding: 4px 2px; border-radius: 8px; }
+    .sw:active, .sw:hover { background: rgba(76, 184, 185, 0.15); }
+    .sw-word { font-size: 0.98rem; color: var(--text); font-weight: 600; }
+    .sw-num { font-size: 0.68rem; color: var(--teal, #4cb8b9); font-weight: 700; margin-top: 2px; letter-spacing: 0.02em; }
+    .sw-num.empty { color: var(--muted); font-weight: 500; }
+    .strongs-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .strongs-actions button { flex: 1; margin: 0; height: 42px; font-size: 0.9rem; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; }
+    .btn-note { background: linear-gradient(135deg, #8845a5 0%, #4cb8b9 100%); color: #fff; }
+    .btn-collapse { background: var(--input-bg); color: var(--text); border: 2px solid var(--border) !important; }
+    .strongs-loading { font-size: 0.85rem; color: var(--muted); padding: 6px 0; }
+    .status-msg { text-align: center; color: var(--muted); padding: 28px 12px; }
+    .status-msg.error { color: #c62828; }
+    .note-sheet-bg, .lex-sheet-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 4000; }
+    .note-sheet-bg.open, .lex-sheet-bg.open { display: block; }
+    .note-sheet, .lex-sheet { display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 4001; background: var(--surface, #fff); border-radius: 18px 18px 0 0; padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); max-height: 75vh; overflow-y: auto; box-shadow: 0 -8px 30px rgba(0,0,0,0.18); }
+    .note-sheet.open, .lex-sheet.open { display: block; }
+    .note-sheet h3, .lex-sheet h3 { margin: 0 0 8px; color: var(--text); }
+    .note-sheet .sheet-verse { font-size: 0.9rem; color: var(--muted); font-style: italic; margin: 0 0 12px; line-height: 1.4; }
+    .note-sheet textarea { width: 100%; min-height: 110px; padding: 12px; border: 2px solid var(--border); border-radius: 12px; background: var(--input-bg); color: var(--text); font-size: 1rem; font-family: inherit; resize: vertical; box-sizing: border-box; }
+    .note-sheet .sheet-actions, .lex-sheet .sheet-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .note-sheet .sheet-actions button, .lex-sheet .sheet-actions button { flex: 1; margin: 0; height: 46px; }
+    .btn-secondary { background: var(--input-bg) !important; color: var(--text) !important; border: 2px solid var(--border) !important; box-shadow: none !important; }
+    .chapter-title { text-align: center; font-size: 1.15rem; font-weight: 700; margin: 4px 0 12px; color: var(--text); }
+    .hint { text-align: center; font-size: 0.8rem; color: var(--muted); margin: 0 0 10px; }
+    .lex-lemma { font-size: 1.25rem; font-weight: 700; color: var(--teal); margin: 0 0 4px; }
+    .lex-meta { font-size: 0.85rem; color: var(--muted); margin: 0 0 10px; }
+    .lex-body { font-size: 1rem; line-height: 1.5; color: var(--text); }
+    .lex-body p { margin: 0 0 8px; }
+    .lex-webster { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border, #ddd); }
+    .lex-webster h4 { margin: 0 0 6px; font-size: 0.95rem; color: var(--teal, #4cb8b9); font-weight: 800; }
+    .lex-webster .lex-w-word { font-size: 0.85rem; color: var(--muted); margin: 0 0 8px; }
+    .lex-webster .lex-w-body { font-size: 0.95rem; line-height: 1.5; color: var(--text); white-space: pre-wrap; }
+    .lex-webster .lex-w-body.muted { color: var(--muted); font-style: italic; white-space: normal; }
+  </style>
+</head>
+<body>
+  <a id="home-logo-btn" class="home-logo-btn" href="../index.html" title="Home" aria-label="Go to home">
+    <img src="../tbclogo.jpeg" alt="TBC Home">
+  </a>
+  <button class="hamburger" onclick="toggleMenu()" aria-label="Open menu"><span></span><span></span><span></span></button>
+  <div class="nav-overlay" id="navOverlay" onclick="toggleMenu()"></div>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="../index.html">Home</a>
+    <a href="index.html">Bible</a>
+    <a href="my-notes.html">My Notes</a>
+    <a href="../calendar.html">Calendar</a>
+    <a href="../sermons.html">Sermons</a>
+  </div>
+  <header><h1 id="pageTitle">King James Bible</h1></header>
+  <div class="container">
+    <button class="back-btn" type="button" id="backBtn">← Books</button>
+    <div class="reader-toolbar">
+      <select id="bookSelect" aria-label="Book"></select>
+      <select id="chapterSelect" aria-label="Chapter"></select>
+    </div>
+    <div class="nav-row">
+      <button type="button" id="prevBtn">← Prev</button>
+      <button type="button" id="nextBtn">Next →</button>
+    </div>
+    <p class="chapter-title" id="chapterTitle">Loading…</p>
+    <p class="hint">Tap a verse for Strong’s · use Note on the expanded verse for personal notes</p>
+    <div id="content"><p class="status-msg">Loading chapter…</p></div>
+  </div>
+
+  <div class="note-sheet-bg" id="noteBg"></div>
+  <div class="note-sheet" id="noteSheet" role="dialog" aria-modal="true">
+    <h3 id="noteRef">Verse</h3>
+    <p class="sheet-verse" id="noteVerseText"></p>
+    <textarea id="noteText" placeholder="Write your personal note for this verse…"></textarea>
+    <div class="sheet-actions">
+      <button type="button" class="btn-secondary" id="noteCancel">Close</button>
+      <button type="button" id="noteSave">Save note</button>
+    </div>
+  </div>
+
+  <div class="lex-sheet-bg" id="lexBg"></div>
+  <div class="lex-sheet" id="lexSheet" role="dialog" aria-modal="true">
+    <h3 id="lexTitle">Strong’s</h3>
+    <p class="lex-lemma" id="lexLemma"></p>
+    <p class="lex-meta" id="lexMeta"></p>
+    <div class="lex-body" id="lexBody"></div>
+    <div class="lex-webster" id="lexWebster"></div>
+    <div class="sheet-actions">
+      <button type="button" class="btn-secondary" id="lexClose">Close</button>
+    </div>
+  </div>
+
+  <script src="data/books.js"></script>
+  <script src="bible-chrome.js"></script>
+  <script src="reader-app.js"></script>
+</body>
+</html>
