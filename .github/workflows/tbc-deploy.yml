@@ -1,34 +1,11 @@
-name: Deploy to Cloudflare Workers
+name: Deploy to Cloudflare Workers (disabled duplicate)
 
+# Disabled — use deploy.yml only to avoid race conditions
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
-  deploy:
+  skip:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-
-      - name: Deploy to Cloudflare Workers
-        working-directory: TBC-APP
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        run: |
-          set -e
-          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
-            echo "ERROR: CLOUDFLARE_API_TOKEN is missing."
-            exit 1
-          fi
-
-          # Never upload node_modules as website assets
-          rm -rf node_modules
-
-          echo "Deploying app files only..."
-          npx --yes wrangler@3.114.17 deploy --config wrangler.jsonc
+      - run: echo "This duplicate workflow is disabled. Use deploy.yml."

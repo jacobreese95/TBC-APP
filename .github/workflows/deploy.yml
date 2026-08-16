@@ -23,9 +23,12 @@ jobs:
         run: |
           set -e
           if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
-            echo "ERROR: CLOUDFLARE_API_TOKEN secret is empty or not set in GitHub Actions secrets."
+            echo "ERROR: CLOUDFLARE_API_TOKEN is missing."
             exit 1
           fi
-          echo "Token secret is present. Installing deps and deploying..."
-          npm install
-          npx wrangler deploy --config wrangler.jsonc
+
+          # Do not upload node_modules as website assets
+          rm -rf node_modules
+
+          echo "Deploying with current Wrangler..."
+          npx --yes wrangler@4 deploy --config wrangler.jsonc
