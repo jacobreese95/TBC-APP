@@ -1,8 +1,10 @@
 {
   "name": "tbc-app",
+  "main": "worker.js",
   "compatibility_date": "2024-11-01",
   "assets": {
-    "directory": "./"
+    "directory": "./",
+    "binding": "ASSETS"
   },
   "workers_dev": true
 }
