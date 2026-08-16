@@ -155,6 +155,15 @@ function normalizeWebsterWord(w) {
     .replace(/'s$/i, '')
     .trim();
 }
+function splitEnglishWords(phrase) {
+  // Split a Strong's English phrase into individual words for Webster lookup.
+  // Strong's may map one Greek/Hebrew number to several English words;
+  // Webster should define every English word separately.
+  return String(phrase || '')
+    .split(/[\s\/\-—,;:]+/)
+    .map(function (part) { return normalizeWebsterWord(part); })
+    .filter(function (w) { return w && w.length > 0; });
+}
 function loadWebsterDictionary() {
   if (websterDictCache) return Promise.resolve(websterDictCache);
   if (websterDictLoading) return websterDictLoading;
@@ -181,6 +190,7 @@ function lookupWebster(englishWord) {
   if (!key || !websterDictCache) return null;
   var upper = key.toUpperCase();
   if (websterDictCache[upper]) return { word: upper, text: websterDictCache[upper] };
+  // light stemming for common English endings
   if (upper.endsWith('S') && websterDictCache[upper.slice(0, -1)]) {
     return { word: upper.slice(0, -1), text: websterDictCache[upper.slice(0, -1)] };
   }
@@ -193,43 +203,64 @@ function lookupWebster(englishWord) {
   if (upper.endsWith('ING') && websterDictCache[upper.slice(0, -3)]) {
     return { word: upper.slice(0, -3), text: websterDictCache[upper.slice(0, -3)] };
   }
+  if (upper.endsWith('LY') && websterDictCache[upper.slice(0, -2)]) {
+    return { word: upper.slice(0, -2), text: websterDictCache[upper.slice(0, -2)] };
+  }
   return null;
 }
 function loadWebster1828(englishWord) {
   var box = document.getElementById('lexWebster');
   if (!box) return;
-  var key = normalizeWebsterWord(englishWord);
-  if (!key) {
+  var words = splitEnglishWords(englishWord);
+  if (!words.length) {
     box.innerHTML = '';
     return;
   }
+  var label = words.length === 1 ? words[0] : words.join(', ');
   box.innerHTML =
     '<h4>Webster’s Dictionary</h4>' +
-    '<p class="lex-w-word">Looking up “' + escapeHtml(key) + '”…</p>' +
+    '<p class="lex-w-word">Looking up “' + escapeHtml(label) + '”…</p>' +
     '<div class="lex-w-body muted">Loading…</div>';
   loadWebsterDictionary()
     .then(function () {
-      var found = lookupWebster(key);
-      if (!found || !found.text) {
-        box.innerHTML =
-          '<h4>Webster’s Dictionary</h4>' +
-          '<p class="lex-w-word">' + escapeHtml(key) + '</p>' +
-          '<div class="lex-w-body muted">No entry found for this English word.</div>';
-        return;
-      }
-      var text = String(found.text || '');
-      if (text.length > 2500) {
-        text = text.slice(0, 2500).replace(/\s+\S*$/, '') + '…';
-      }
+      var parts = [];
+      var seen = {};
+      words.forEach(function (w) {
+        var found = lookupWebster(w);
+        if (found && found.text) {
+          var dictKey = found.word;
+          if (seen[dictKey]) return;
+          seen[dictKey] = true;
+          var text = String(found.text || '');
+          if (text.length > 1800) {
+            text = text.slice(0, 1800).replace(/\s+\S*$/, '') + '…';
+          }
+          parts.push(
+            '<div class="lex-w-entry" style="margin-bottom:12px;">' +
+              '<p class="lex-w-word" style="font-weight:700;color:var(--text);margin:0 0 4px;">' +
+                escapeHtml(found.word) +
+                (found.word.toLowerCase() !== w.toLowerCase() ? ' <span style="font-weight:400;color:var(--muted);">(from “' + escapeHtml(w) + '”)</span>' : '') +
+              '</p>' +
+              '<div class="lex-w-body">' + escapeHtml(text) + '</div>' +
+            '</div>'
+          );
+        } else {
+          parts.push(
+            '<div class="lex-w-entry" style="margin-bottom:10px;">' +
+              '<p class="lex-w-word" style="font-weight:700;color:var(--text);margin:0 0 4px;">' + escapeHtml(w.toUpperCase()) + '</p>' +
+              '<div class="lex-w-body muted">No entry found for this English word.</div>' +
+            '</div>'
+          );
+        }
+      });
       box.innerHTML =
         '<h4>Webster’s Dictionary</h4>' +
-        '<p class="lex-w-word">' + escapeHtml(found.word) + '</p>' +
-        '<div class="lex-w-body">' + escapeHtml(text) + '</div>';
+        (parts.length ? parts.join('') : '<div class="lex-w-body muted">No English words to define.</div>');
     })
     .catch(function (err) {
       box.innerHTML =
         '<h4>Webster’s Dictionary</h4>' +
-        '<p class="lex-w-word">' + escapeHtml(key) + '</p>' +
+        '<p class="lex-w-word">' + escapeHtml(label) + '</p>' +
         '<div class="lex-w-body muted">' +
         escapeHtml((err && err.message) || 'Could not load Webster dictionary.') +
         '</div>';
