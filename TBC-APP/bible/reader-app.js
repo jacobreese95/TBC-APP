@@ -11,6 +11,8 @@ var activeRef = null;
 var activeVerseId = null;
 var expandedVerseNum = null;
 var dictLoaded = { greek: false, hebrew: false, loading: null };
+var websterDictCache = null;
+var websterDictLoading = null;
 
 function qs(name) {
   return new URLSearchParams(window.location.search).get(name);
@@ -153,6 +155,46 @@ function normalizeWebsterWord(w) {
     .replace(/'s$/i, '')
     .trim();
 }
+function loadWebsterDictionary() {
+  if (websterDictCache) return Promise.resolve(websterDictCache);
+  if (websterDictLoading) return websterDictLoading;
+  websterDictLoading = fetch(
+    'https://cdn.jsdelivr.net/gh/adambom/dictionary@master/dictionary.json'
+  )
+    .then(function (r) {
+      if (!r.ok) throw new Error('Could not load Webster dictionary');
+      return r.json();
+    })
+    .then(function (data) {
+      websterDictCache = data || {};
+      websterDictLoading = null;
+      return websterDictCache;
+    })
+    .catch(function (err) {
+      websterDictLoading = null;
+      throw err;
+    });
+  return websterDictLoading;
+}
+function lookupWebster(englishWord) {
+  var key = normalizeWebsterWord(englishWord);
+  if (!key || !websterDictCache) return null;
+  var upper = key.toUpperCase();
+  if (websterDictCache[upper]) return { word: upper, text: websterDictCache[upper] };
+  if (upper.endsWith('S') && websterDictCache[upper.slice(0, -1)]) {
+    return { word: upper.slice(0, -1), text: websterDictCache[upper.slice(0, -1)] };
+  }
+  if (upper.endsWith('ES') && websterDictCache[upper.slice(0, -2)]) {
+    return { word: upper.slice(0, -2), text: websterDictCache[upper.slice(0, -2)] };
+  }
+  if (upper.endsWith('ED') && websterDictCache[upper.slice(0, -2)]) {
+    return { word: upper.slice(0, -2), text: websterDictCache[upper.slice(0, -2)] };
+  }
+  if (upper.endsWith('ING') && websterDictCache[upper.slice(0, -3)]) {
+    return { word: upper.slice(0, -3), text: websterDictCache[upper.slice(0, -3)] };
+  }
+  return null;
+}
 function loadWebster1828(englishWord) {
   var box = document.getElementById('lexWebster');
   if (!box) return;
@@ -162,51 +204,35 @@ function loadWebster1828(englishWord) {
     return;
   }
   box.innerHTML =
-    '<h4>Webster’s 1828</h4>' +
+    '<h4>Webster’s Dictionary</h4>' +
     '<p class="lex-w-word">Looking up “' + escapeHtml(key) + '”…</p>' +
     '<div class="lex-w-body muted">Loading…</div>';
-  var apiUrl = 'https://webster1828.com/api/words/search?q=' + encodeURIComponent(key) + '&limit=5';
-  var proxied = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(apiUrl);
-  fetch(proxied)
-    .then(function (r) {
-      if (!r.ok) throw new Error('lookup failed');
-      return r.json();
-    })
-    .then(function (data) {
-      var results = (data && data.results) || [];
-      var best = null;
-      var keyLower = key.toLowerCase();
-      for (var i = 0; i < results.length; i++) {
-        var w = String(results[i].word || '').toLowerCase();
-        if (w === keyLower) { best = results[i]; break; }
-      }
-      if (!best && results.length) best = results[0];
-      if (!best || !best.variants || !best.variants.length) {
+  loadWebsterDictionary()
+    .then(function () {
+      var found = lookupWebster(key);
+      if (!found || !found.text) {
         box.innerHTML =
-          '<h4>Webster’s 1828</h4>' +
+          '<h4>Webster’s Dictionary</h4>' +
           '<p class="lex-w-word">' + escapeHtml(key) + '</p>' +
-          '<div class="lex-w-body muted">No 1828 entry found for this English word.</div>';
+          '<div class="lex-w-body muted">No entry found for this English word.</div>';
         return;
       }
-      var parts = [];
-      best.variants.forEach(function (v) {
-        var line = '';
-        if (v.part_of_speech) line += '(' + v.part_of_speech + ') ';
-        line += (v.definition || '').trim();
-        if (line) parts.push(line);
-      });
-      var text = parts.join('\n\n');
-      if (text.length > 2500) text = text.slice(0, 2500).replace(/\s+\S*$/, '') + '…';
+      var text = String(found.text || '');
+      if (text.length > 2500) {
+        text = text.slice(0, 2500).replace(/\s+\S*$/, '') + '…';
+      }
       box.innerHTML =
-        '<h4>Webster’s 1828</h4>' +
-        '<p class="lex-w-word">' + escapeHtml(best.word || key) + '</p>' +
+        '<h4>Webster’s Dictionary</h4>' +
+        '<p class="lex-w-word">' + escapeHtml(found.word) + '</p>' +
         '<div class="lex-w-body">' + escapeHtml(text) + '</div>';
     })
-    .catch(function () {
+    .catch(function (err) {
       box.innerHTML =
-        '<h4>Webster’s 1828</h4>' +
+        '<h4>Webster’s Dictionary</h4>' +
         '<p class="lex-w-word">' + escapeHtml(key) + '</p>' +
-        '<div class="lex-w-body muted">Could not load Webster’s 1828 for this word.</div>';
+        '<div class="lex-w-body muted">' +
+        escapeHtml((err && err.message) || 'Could not load Webster dictionary.') +
+        '</div>';
     });
 }
 function openLexicon(rawNum, book, englishWord) {
