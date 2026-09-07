@@ -9,6 +9,7 @@
     .reader-toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
     .reader-toolbar select { flex: 1; min-width: 120px; height: 44px; padding: 8px 10px; border: 2px solid var(--border); border-radius: 12px; background: var(--input-bg); color: var(--text); font-size: 0.95rem; }
     .nav-row { display: flex; gap: 8px; margin: 12px 0 18px; }
+    .nav-row.nav-row-bottom { margin: 18px 0 8px; }
     .nav-row button { flex: 1; margin: 0; height: 44px; font-size: 0.95rem; }
     .nav-row button:disabled { opacity: 0.45; cursor: default; }
     .verse-list { margin: 0; padding: 0; list-style: none; }
@@ -87,6 +88,10 @@
     <p class="chapter-title" id="chapterTitle">Loading…</p>
     <p class="hint">Tap a verse for Strong’s · use Note on the expanded verse for personal notes</p>
     <div id="content"><p class="status-msg">Loading chapter…</p></div>
+    <div class="nav-row nav-row-bottom">
+      <button type="button" id="prevBtnBottom">← Prev</button>
+      <button type="button" id="nextBtnBottom">Next →</button>
+    </div>
   </div>
 
   <div class="note-sheet-bg" id="noteBg"></div>
@@ -114,6 +119,6 @@
 
   <script src="data/books.js"></script>
   <script src="bible-chrome.js"></script>
-  <script src="reader-app.js?v=4"></script>
+  <script src="reader-app.js?v=5"></script>
 </body>
 </html>
