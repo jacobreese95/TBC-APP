@@ -156,9 +156,6 @@ function normalizeWebsterWord(w) {
     .trim();
 }
 function splitEnglishWords(phrase) {
-  // Split a Strong's English phrase into individual words for Webster lookup.
-  // Strong's may map one Greek/Hebrew number to several English words;
-  // Webster should define every English word separately.
   return String(phrase || '')
     .split(/[\s\/\-—,;:]+/)
     .map(function (part) { return normalizeWebsterWord(part); })
@@ -190,7 +187,6 @@ function lookupWebster(englishWord) {
   if (!key || !websterDictCache) return null;
   var upper = key.toUpperCase();
   if (websterDictCache[upper]) return { word: upper, text: websterDictCache[upper] };
-  // light stemming for common English endings
   if (upper.endsWith('S') && websterDictCache[upper.slice(0, -1)]) {
     return { word: upper.slice(0, -1), text: websterDictCache[upper.slice(0, -1)] };
   }
@@ -464,8 +460,14 @@ async function showChapter(book, chapter, highlightVerse) {
   document.getElementById('pageTitle').textContent = book.name;
   document.getElementById('chapterTitle').textContent = book.name + ' ' + chapter;
   document.getElementById('content').innerHTML = '<p class="status-msg">Loading…</p>';
-  document.getElementById('prevBtn').disabled = (chapter <= 1);
-  document.getElementById('nextBtn').disabled = (chapter >= book.chapters);
+  var disablePrev = (chapter <= 1);
+  var disableNext = (chapter >= book.chapters);
+  document.getElementById('prevBtn').disabled = disablePrev;
+  document.getElementById('nextBtn').disabled = disableNext;
+  var prevBottom = document.getElementById('prevBtnBottom');
+  var nextBottom = document.getElementById('nextBtnBottom');
+  if (prevBottom) prevBottom.disabled = disablePrev;
+  if (nextBottom) nextBottom.disabled = disableNext;
   document.getElementById('backBtn').textContent = book.testament === 'OT' ? '← Old Testament' : '← New Testament';
   document.getElementById('backBtn').onclick = function () {
     window.location.href = book.testament === 'OT' ? 'old-testament/index.html' : 'new-testament/index.html';
@@ -538,6 +540,10 @@ function init() {
   });
   document.getElementById('prevBtn').addEventListener('click', function () { goRelative(-1); });
   document.getElementById('nextBtn').addEventListener('click', function () { goRelative(1); });
+  var prevBottom = document.getElementById('prevBtnBottom');
+  var nextBottom = document.getElementById('nextBtnBottom');
+  if (prevBottom) prevBottom.addEventListener('click', function () { goRelative(-1); });
+  if (nextBottom) nextBottom.addEventListener('click', function () { goRelative(1); });
   document.getElementById('noteCancel').addEventListener('click', closeNote);
   document.getElementById('noteBg').addEventListener('click', closeNote);
   document.getElementById('noteSave').addEventListener('click', saveNote);
