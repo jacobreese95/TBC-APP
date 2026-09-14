@@ -31,6 +31,11 @@
 .photos-tile-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#fff;background:linear-gradient(135deg,#4cb8b9 0%,#7bafdd 100%);z-index:0}
 .photos-tile-empty .tile-icon{background:rgba(255,255,255,.2);color:#fff}
 #bottomAuth{max-width:420px;margin-left:auto;margin-right:auto;padding-bottom:36px}
+.home-welcome{max-width:420px;margin:0 auto 14px;padding:0 16px}
+.home-welcome-frame{display:none;position:relative;border-radius:16px;overflow:hidden;background:#1c2a32;aspect-ratio:16/9;box-shadow:var(--shadow)}
+.home-welcome-frame.show{display:block}
+.home-welcome-frame video{width:100%;height:100%;object-fit:cover;display:block}
+.home-welcome-unmute{position:absolute;right:10px;bottom:10px;z-index:2;border:0;border-radius:999px;padding:8px 12px;font-weight:700;font-size:.78rem;background:rgba(0,0,0,.55);color:#fff}
 @media (max-width:360px){.home-grid{gap:8px}.home-tile{min-height:96px;padding:12px 6px 10px}.home-tile .tile-label{font-size:.72rem}.home-tile.photos-tile{min-height:148px;height:148px}}
 </style>
 </head>
@@ -53,10 +58,18 @@
 </div>
 <div class="home-logo-wrap"><img src="tbclogo.jpeg" alt="Temple Baptist Church Logo"></div>
 <h1 class="home-title">Temple <span>Baptist</span> Church</h1>
+<div class="home-welcome">
+  <div class="home-welcome-frame" id="homeWelcomeFrame">
+    <video id="homeWelcomeVideo" playsinline muted loop poster="tbclogo.jpeg">
+      <source src="welcome.mp4" type="video/mp4">
+    </video>
+    <button type="button" class="home-welcome-unmute" id="homeWelcomeUnmute">Tap for sound</button>
+  </div>
+</div>
 <div class="container">
 <div class="home-grid" id="homeGrid">
 <button type="button" class="home-tile events-tile" id="btn-upcoming-events" onclick="goToProtected('calendar.html')" title="View calendar">
-<span class="tile-icon" aria-hidden="true">🗓️</span>
+<span class="tile-icon" aria-hidden="true">📅</span>
 <span class="events-tile-body">
 <span class="events-tile-kicker">Coming up</span>
 <span class="events-tile-title" id="upcomingEventTitle">Loading events…</span>
@@ -68,7 +81,7 @@
 <div class="photos-tile-empty" id="homePhotoEmpty">
 <span class="tile-icon" aria-hidden="true">📷</span>
 <span style="font-weight:700;font-size:0.9rem">Church Photos</span>
-<span style="font-size:0.75rem;opacity:0.9">Tap to view &amp; upload</span>
+<span style="font-size:0.75rem;opacity:0.9">Tap to view & upload</span>
 </div>
 <div class="photos-tile-overlay" id="homePhotoOverlay" style="display:none">
 <span class="photos-tile-kicker">Church Photos</span>
@@ -96,6 +109,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="auth.js"></script>
 <script src="home-layout.js"></script>
+<script src="welcome-home.js"></script>
 <script>
 function toggleMenu(){document.getElementById('navDrawer').classList.toggle('open');document.getElementById('navOverlay').classList.toggle('open')}
 async function goToProtected(page){const profile=await requireApprovedUser();if(profile)window.location.href=page}
