@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tbc-app-v3';
+const CACHE_NAME = 'tbc-app-v4';
 const ASSETS = [
   '/',
   '/index.html',
@@ -11,6 +11,12 @@ const ASSETS = [
   '/app-icon.png',
   '/app-icon-519.png',
   '/manifest.json'
+];
+
+const SKIP_CACHE = [
+  '/login.html',
+  '/signup.html',
+  '/auth.js'
 ];
 
 self.addEventListener('install', (event) => {
@@ -33,42 +39,32 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
+
+  // Never intercept Firebase or Google auth requests
+  if (url.hostname.includes('firebase') ||
+      url.hostname.includes('googleapis') ||
+      url.hostname.includes('gstatic') ||
+      url.hostname.includes('identitytoolkit') ||
+      url.hostname.includes('securetoken')) {
+    return;
+  }
+
+  // Skip caching auth pages
+  if (SKIP_CACHE.some((p) => url.pathname === p || url.pathname.endsWith(p))) {
+    return;
+  }
+
   if (url.origin !== location.origin) return;
 
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      const network = fetch(event.request)
-        .then((response) => {
-          if (response && response.status === 200 && response.type === 'basic') {
-            const copy = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
-          }
-          return response;
-        })
-        .catch(() => cached);
-      return cached || network;
-    })
-  );
-});
-
-self.addEventListener('sync', (event) => {
-  if (event.tag === 'tbc-sync') {
-    event.waitUntil(Promise.resolve());
-  }
-});
-
-self.addEventListener('periodicsync', (event) => {
-  if (event.tag === 'tbc-periodic') {
-    event.waitUntil(Promise.resolve());
-  }
-});
-
-self.addEventListener('push', (event) => {
-  const data = event.data ? event.data.json() : { title: 'TBC', body: 'New update' };
-  event.waitUntil(
-    self.registration.showNotification(data.title || 'Temple Baptist Church', {
-      body: data.body || '',
-      icon: '/app-icon.png'
-    })
+    fetch(event.request)
+      .then((response) => {
+        if (response && response.status === 200 && response.type === 'basic') {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+        }
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
