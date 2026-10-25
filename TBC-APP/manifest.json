@@ -60,5 +60,28 @@
   ],
   "prefer_related_applications": false,
   "related_applications": [],
-  "display_override": ["standalone", "minimal-ui"]
+  "display_override": ["standalone", "minimal-ui"],
+  "file_handlers": [],
+  "launch_handler": {
+    "client_mode": "auto"
+  },
+  "protocol_handlers": [],
+  "share_target": {
+    "action": "/share.html",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "iarc_rating_id": "",
+  "widgets": [],
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "note_taking": {
+    "new_note_url": "/bible/my-notes.html"
+  },
+  "scope_extensions": []
 }
