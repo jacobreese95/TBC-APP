@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TBC Church App</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#7a8fac">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="TBC">
+<link rel="apple-touch-icon" href="tbclogo.jpeg">
 <script src="theme.js"></script>
 <link rel="stylesheet" href="style.css">
 <style>
@@ -111,6 +117,13 @@
 <script src="home-layout.js"></script>
 <script src="welcome-home.js"></script>
 <script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('/sw.js').catch(function (err) {
+      console.warn('Service worker registration failed', err);
+    });
+  });
+}
 function toggleMenu(){document.getElementById('navDrawer').classList.toggle('open');document.getElementById('navOverlay').classList.toggle('open')}
 async function goToProtected(page){const profile=await requireApprovedUser();if(profile)window.location.href=page}
 var upcomingEvents=[],upcomingIndex=0,upcomingTimer=null;
