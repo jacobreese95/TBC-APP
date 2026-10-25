@@ -21,12 +21,6 @@
     },
     {
       "src": "app-icon-519.png",
-      "sizes": "519x519",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "app-icon-519.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
@@ -35,9 +29,9 @@
   "screenshots": [
     {
       "src": "tbclogo.jpeg",
-      "sizes": "1080x1920",
+      "sizes": "1920x1080",
       "type": "image/jpeg",
-      "form_factor": "narrow",
+      "form_factor": "wide",
       "label": "Home screen"
     }
   ],
@@ -47,21 +41,21 @@
       "short_name": "Bible",
       "description": "Open the Bible reader",
       "url": "/bible/index.html",
-      "icons": [{ "src": "app-icon.png", "sizes": "96x96" }]
+      "icons": [{ "src": "app-icon.png", "sizes": "192x192" }]
     },
     {
       "name": "Calendar",
       "short_name": "Calendar",
       "description": "View church events",
       "url": "/calendar.html",
-      "icons": [{ "src": "app-icon.png", "sizes": "96x96" }]
+      "icons": [{ "src": "app-icon.png", "sizes": "192x192" }]
     },
     {
       "name": "Sermons",
       "short_name": "Sermons",
       "description": "Watch sermons and live streams",
       "url": "/sermons.html",
-      "icons": [{ "src": "app-icon.png", "sizes": "96x96" }]
+      "icons": [{ "src": "app-icon.png", "sizes": "192x192" }]
     }
   ],
   "prefer_related_applications": false,
