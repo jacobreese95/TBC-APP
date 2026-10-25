@@ -1,25 +1,64 @@
 {
+  "id": "/",
   "name": "Temple Baptist Church",
   "short_name": "TBC",
-  "description": "The official app for Temple Baptist Church in Wichita, Kansas. Stay connected with calendar, sermons, Bible, directory, and more.",
+  "description": "The official app for Temple Baptist Church in Wichita, Kansas. Stay connected with calendar, sermons, Bible, directory, chats, and more.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#404040",
   "theme_color": "#7a8fac",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["lifestyle", "religion", "education"],
   "icons": [
     {
       "src": "tbclogo.jpeg",
       "sizes": "192x192",
       "type": "image/jpeg",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
       "src": "tbclogo.jpeg",
       "sizes": "512x512",
       "type": "image/jpeg",
-      "purpose": "any"
+      "purpose": "any maskable"
     }
-  ]
+  ],
+  "screenshots": [
+    {
+      "src": "tbclogo.jpeg",
+      "sizes": "1080x1920",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Home screen"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Bible",
+      "short_name": "Bible",
+      "description": "Open the Bible reader",
+      "url": "/bible/index.html",
+      "icons": [{ "src": "tbclogo.jpeg", "sizes": "96x96" }]
+    },
+    {
+      "name": "Calendar",
+      "short_name": "Calendar",
+      "description": "View church events",
+      "url": "/calendar.html",
+      "icons": [{ "src": "tbclogo.jpeg", "sizes": "96x96" }]
+    },
+    {
+      "name": "Sermons",
+      "short_name": "Sermons",
+      "description": "Watch sermons and live streams",
+      "url": "/sermons.html",
+      "icons": [{ "src": "tbclogo.jpeg", "sizes": "96x96" }]
+    }
+  ],
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "display_override": ["standalone", "minimal-ui"]
 }
