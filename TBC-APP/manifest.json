@@ -33,6 +33,13 @@
       "type": "image/jpeg",
       "form_factor": "wide",
       "label": "Home screen"
+    },
+    {
+      "src": "app-icon-519.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "App icon"
     }
   ],
   "shortcuts": [
@@ -60,7 +67,7 @@
   ],
   "prefer_related_applications": false,
   "related_applications": [],
-  "display_override": ["standalone", "minimal-ui"],
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "file_handlers": [],
   "launch_handler": {
     "client_mode": "auto"
@@ -69,6 +76,7 @@
   "share_target": {
     "action": "/share.html",
     "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
     "params": {
       "title": "title",
       "text": "text",
