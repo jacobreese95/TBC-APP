@@ -20,7 +20,13 @@
       "purpose": "any maskable"
     },
     {
-      "src": "app-icon.png",
+      "src": "app-icon-519.png",
+      "sizes": "519x519",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "app-icon-519.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
