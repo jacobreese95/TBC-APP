@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tbc-app-v2';
+const CACHE_NAME = 'tbc-app-v3';
 const ASSETS = [
   '/',
   '/index.html',
@@ -37,7 +37,7 @@ self.addEventListener('fetch', (event) => {
 
   event.respondWith(
     caches.match(event.request).then((cached) => {
-      const fetched = fetch(event.request)
+      const network = fetch(event.request)
         .then((response) => {
           if (response && response.status === 200 && response.type === 'basic') {
             const copy = response.clone();
@@ -46,7 +46,29 @@ self.addEventListener('fetch', (event) => {
           return response;
         })
         .catch(() => cached);
-      return cached || fetched;
+      return cached || network;
+    })
+  );
+});
+
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'tbc-sync') {
+    event.waitUntil(Promise.resolve());
+  }
+});
+
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'tbc-periodic') {
+    event.waitUntil(Promise.resolve());
+  }
+});
+
+self.addEventListener('push', (event) => {
+  const data = event.data ? event.data.json() : { title: 'TBC', body: 'New update' };
+  event.waitUntil(
+    self.registration.showNotification(data.title || 'Temple Baptist Church', {
+      body: data.body || '',
+      icon: '/app-icon.png'
     })
   );
 });
