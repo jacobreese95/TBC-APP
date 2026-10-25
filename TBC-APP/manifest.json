@@ -1,0 +1,25 @@
+{
+  "name": "Temple Baptist Church",
+  "short_name": "TBC",
+  "description": "The official app for Temple Baptist Church in Wichita, Kansas. Stay connected with calendar, sermons, Bible, directory, and more.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#404040",
+  "theme_color": "#7a8fac",
+  "icons": [
+    {
+      "src": "tbclogo.jpeg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "tbclogo.jpeg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ]
+}
